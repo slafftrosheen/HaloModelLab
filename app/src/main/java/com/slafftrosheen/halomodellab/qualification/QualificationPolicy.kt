@@ -87,6 +87,7 @@ object QualificationEvaluator {
         currentScopeDigestSha256: String?,
         currentPolicy: QualificationPolicy,
         observations: List<QualificationObservation>,
+        scopeIdentityVerifiedForQualification: Boolean = false,
         unsupportedConfiguration: Boolean = false,
     ): QualificationDecision {
         if (unsupportedConfiguration) return decision(
@@ -95,6 +96,10 @@ object QualificationEvaluator {
         )
         if (currentScopeDigestSha256 == null || !SHA256.matches(currentScopeDigestSha256)) return decision(
             QualificationStatus.INCONCLUSIVE, null, currentPolicy, emptyList(), listOf("SCOPE_IDENTITY_UNKNOWN"), false,
+        )
+        if (!scopeIdentityVerifiedForQualification) return decision(
+            QualificationStatus.INCONCLUSIVE, currentScopeDigestSha256, currentPolicy, emptyList(),
+            listOf("SCOPE_IDENTITY_INELIGIBLE"), false,
         )
 
         val sameScope = observations.filter { it.scopeDigestSha256 == currentScopeDigestSha256 }
@@ -118,6 +123,16 @@ object QualificationEvaluator {
         if (!completedChecks.containsAll(currentPolicy.requiredCheckIds)) return decision(
             QualificationStatus.PARTIAL, currentScopeDigestSha256, currentPolicy,
             eligible.map { it.attemptId }, listOf("REQUIRED_CHECKS_INCOMPLETE"), false,
+        )
+
+        val conflictingChecks = currentPolicy.requiredCheckIds.filter { checkId ->
+            eligible.any { it.checkId == checkId && it.assertion == CheckAssertion.PASS } &&
+                eligible.any { it.checkId == checkId && it.assertion == CheckAssertion.FAIL }
+        }
+        if (conflictingChecks.isNotEmpty()) return decision(
+            QualificationStatus.INCONCLUSIVE, currentScopeDigestSha256, currentPolicy,
+            eligible.filter { it.checkId in conflictingChecks }.map { it.attemptId },
+            listOf("CONFLICTING_ASSERTIONS"), false,
         )
 
         val structuralGroup = eligible.asSequence().filter {

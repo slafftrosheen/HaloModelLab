@@ -15,7 +15,7 @@ class QualificationPolicyTest {
         val decision = QualificationEvaluator.evaluate(SCOPE, POLICY, listOf(observation(
             attemptId = "attempt-1", worker = "worker-1", assertion = CheckAssertion.FAIL,
             domain = FailureDomain.MODEL,
-        )))
+        )), scopeIdentityVerifiedForQualification = true)
 
         assertEquals(QualificationStatus.INCONCLUSIVE, decision.status)
         assertFalse(decision.mayHideExactScope)
@@ -30,6 +30,7 @@ class QualificationPolicyTest {
                 observation("attempt-1", "worker-1", CheckAssertion.FAIL, FailureDomain.MODEL),
                 observation("attempt-2", "worker-2", CheckAssertion.FAIL, FailureDomain.MODEL),
             ),
+            scopeIdentityVerifiedForQualification = true,
         )
 
         assertEquals(QualificationStatus.REJECTED_FOR_PROFILE, decision.status)
@@ -43,7 +44,7 @@ class QualificationPolicyTest {
             .copy(origin = EvidenceOrigin.SYNTHETIC)
         assertEquals(
             QualificationStatus.INCONCLUSIVE,
-            QualificationEvaluator.evaluate(SCOPE, POLICY, listOf(synthetic)).status,
+            QualificationEvaluator.evaluate(SCOPE, POLICY, listOf(synthetic), scopeIdentityVerifiedForQualification = true).status,
         )
         val unknownScope = QualificationEvaluator.evaluate(null, POLICY, listOf(synthetic))
         assertEquals(QualificationStatus.INCONCLUSIVE, unknownScope.status)
@@ -54,9 +55,9 @@ class QualificationPolicyTest {
     fun scopeOrPolicyChangeMarksOldEvidenceStale() {
         val old = observation("attempt-1", "worker-1", CheckAssertion.PASS, FailureDomain.UNKNOWN)
             .copy(scopeDigestSha256 = OTHER_SCOPE)
-        assertEquals(QualificationStatus.STALE, QualificationEvaluator.evaluate(SCOPE, POLICY, listOf(old)).status)
+        assertEquals(QualificationStatus.STALE, QualificationEvaluator.evaluate(SCOPE, POLICY, listOf(old), scopeIdentityVerifiedForQualification = true).status)
         val otherPolicy = POLICY.copy(policyDigestSha256 = OTHER_POLICY)
-        assertEquals(QualificationStatus.STALE, QualificationEvaluator.evaluate(SCOPE, otherPolicy, listOf(old.copy(scopeDigestSha256 = SCOPE))).status)
+        assertEquals(QualificationStatus.STALE, QualificationEvaluator.evaluate(SCOPE, otherPolicy, listOf(old.copy(scopeDigestSha256 = SCOPE)), scopeIdentityVerifiedForQualification = true).status)
     }
 
     @Test
@@ -65,11 +66,31 @@ class QualificationPolicyTest {
         val one = observation("attempt-1", "worker-1", CheckAssertion.PASS, FailureDomain.UNKNOWN)
             .copy(metricName = "latency", metricUnit = "ms", metricValue = 150.0, metricTrusted = true)
         val two = one.copy(attemptId = "attempt-2", workerInstanceId = "worker-2")
-        assertFalse(QualificationEvaluator.evaluate(SCOPE, policy, listOf(one, two)).mayHideExactScope)
+        assertFalse(QualificationEvaluator.evaluate(SCOPE, policy, listOf(one, two), scopeIdentityVerifiedForQualification = true).mayHideExactScope)
         val three = one.copy(attemptId = "attempt-3", workerInstanceId = "worker-3")
         assertEquals(
             QualificationStatus.REJECTED_FOR_PROFILE,
-            QualificationEvaluator.evaluate(SCOPE, policy, listOf(one, two, three)).status,
+            QualificationEvaluator.evaluate(SCOPE, policy, listOf(one, two, three), scopeIdentityVerifiedForQualification = true).status,
+        )
+    }
+
+    @Test
+    fun conflictingValidPassAndFailureIsInconclusive() {
+        val pass = observation("attempt-1", "worker-1", CheckAssertion.PASS, FailureDomain.UNKNOWN)
+        val fail = observation("attempt-2", "worker-2", CheckAssertion.FAIL, FailureDomain.MODEL)
+        val decision = QualificationEvaluator.evaluate(
+            SCOPE, POLICY, listOf(pass, fail), scopeIdentityVerifiedForQualification = true,
+        )
+        assertEquals(QualificationStatus.INCONCLUSIVE, decision.status)
+        assertFalse(decision.mayHideExactScope)
+    }
+
+    @Test
+    fun unknownEffectiveIdentityCannotQualifyEvenWithAWellFormedHash() {
+        val pass = observation("attempt-1", "worker-1", CheckAssertion.PASS, FailureDomain.UNKNOWN)
+        assertEquals(
+            QualificationStatus.INCONCLUSIVE,
+            QualificationEvaluator.evaluate(SCOPE, POLICY, listOf(pass)).status,
         )
     }
 
