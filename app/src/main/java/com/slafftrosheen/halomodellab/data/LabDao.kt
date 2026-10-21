@@ -61,6 +61,15 @@ abstract class LabDao {
     @Query("SELECT * FROM model_snapshots WHERE sessionId = :sessionId ORDER BY providerId, modelId, generationId")
     abstract suspend fun modelSnapshotsForSession(sessionId: String): List<ModelSnapshotEntity>
 
+    @Query("SELECT * FROM configuration_snapshots WHERE sessionId = :sessionId ORDER BY queueItemId")
+    abstract suspend fun configurationSnapshotsForSession(sessionId: String): List<ConfigurationSnapshotEntity>
+
+    @Query("SELECT * FROM output_artifacts WHERE sessionId = :sessionId ORDER BY id LIMIT :limit")
+    abstract suspend fun outputArtifactsForSession(sessionId: String, limit: Int): List<OutputArtifactEntity>
+
+    @Query("SELECT * FROM qualifications WHERE sessionId = :sessionId ORDER BY scopeDigestSha256, policyDigestSha256 LIMIT :limit")
+    abstract suspend fun qualificationsForSession(sessionId: String, limit: Int): List<QualificationEntity>
+
     @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND remoteSequence = :sequence")
     abstract suspend fun remoteEvent(serverEpoch: String, remoteRunId: String, sequence: Long): RemoteEventEntity?
 
@@ -69,6 +78,9 @@ abstract class LabDao {
 
     @Query("SELECT COUNT(*) FROM remote_events WHERE sessionId = :sessionId")
     abstract suspend fun remoteEventCount(sessionId: String): Int
+
+    @Query("SELECT * FROM remote_events WHERE sessionId = :sessionId ORDER BY serverEpoch, remoteRunId, remoteSequence LIMIT :limit")
+    abstract suspend fun remoteEventsForSession(sessionId: String, limit: Int): List<RemoteEventEntity>
 
     @Query("UPDATE remote_bindings SET serverEpoch = :serverEpoch, remoteRunId = :remoteRunId, currentServerInstanceId = :serverInstanceId WHERE sessionId = :sessionId AND (serverEpoch IS NULL OR serverEpoch = :serverEpoch) AND (remoteRunId IS NULL OR remoteRunId = :remoteRunId)")
     abstract suspend fun bindRemoteRun(
@@ -156,6 +168,9 @@ abstract class LabDao {
 
     @Query("SELECT * FROM attempts WHERE id = :attemptId")
     abstract suspend fun attemptById(attemptId: String): AttemptEntity?
+
+    @Query("SELECT EXISTS(SELECT 1 FROM attempts a INNER JOIN queue_items q ON q.id = a.queueItemId WHERE q.sessionId = :sessionId AND a.id = :attemptId)")
+    abstract suspend fun attemptExistsForSession(sessionId: String, attemptId: String): Boolean
 
     @Query(
         "SELECT a.* FROM attempts a INNER JOIN queue_items q ON q.id = a.queueItemId " +

@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 sealed interface RemoteRunBindingResult {
     data object Bound : RemoteRunBindingResult
     data object SessionBindingMissing : RemoteRunBindingResult
+    data object SessionOriginMismatch : RemoteRunBindingResult
     data object ConflictingRunIdentity : RemoteRunBindingResult
 }
 
@@ -43,6 +44,13 @@ class RemoteEventImporter(
         serverInstanceId: String,
     ): RemoteRunBindingResult = withContext(ioDispatcher) {
         database.withTransaction {
+            val session = database.labDao().sessionById(sessionId)
+                ?: return@withTransaction RemoteRunBindingResult.SessionBindingMissing
+            if (session.origin != com.slafftrosheen.halomodellab.domain.EvidenceOrigin.DEVICE_MEASUREMENT.name ||
+                session.engineId != REAL_BRIDGE_ENGINE_ID
+            ) {
+                return@withTransaction RemoteRunBindingResult.SessionOriginMismatch
+            }
             val binding = database.labDao().remoteBinding(sessionId)
                 ?: return@withTransaction RemoteRunBindingResult.SessionBindingMissing
             if ((binding.serverEpoch != null && binding.serverEpoch != serverEpoch) ||
@@ -77,6 +85,13 @@ class RemoteEventImporter(
                 val dao = database.labDao()
                 val binding = dao.remoteBinding(sessionId)
                     ?: abort(RemoteEventPageResult.Rejected("REMOTE_BINDING_MISSING"))
+                val session = dao.sessionById(sessionId)
+                    ?: abort(RemoteEventPageResult.Rejected("REMOTE_BINDING_MISSING"))
+                if (session.origin != com.slafftrosheen.halomodellab.domain.EvidenceOrigin.DEVICE_MEASUREMENT.name ||
+                    session.engineId != REAL_BRIDGE_ENGINE_ID
+                ) {
+                    abort(RemoteEventPageResult.Rejected("SESSION_ORIGIN_MISMATCH"))
+                }
                 val serverEpoch = binding.serverEpoch
                     ?: abort(RemoteEventPageResult.Rejected("REMOTE_RUN_NOT_ACCEPTED"))
                 val remoteRunId = binding.remoteRunId
@@ -96,6 +111,10 @@ class RemoteEventImporter(
                     }
 
                     val sequence = event.key.sequence
+                    val attemptId = event.payload.attemptId
+                    if (attemptId != null && !dao.attemptExistsForSession(sessionId, attemptId)) {
+                        abort(RemoteEventPageResult.Rejected("EVENT_ATTEMPT_UNKNOWN"))
+                    }
                     val saved = dao.remoteEvent(serverEpoch, remoteRunId, sequence)
                     if (sequence <= cursor) {
                         if (saved == null) abort(RemoteEventPageResult.Rejected("EVENT_HISTORY_MISSING"))
@@ -162,6 +181,10 @@ class RemoteEventImporter(
     private fun abort(result: RemoteEventPageResult): Nothing = throw ImportAbort(result)
 
     private class ImportAbort(val result: RemoteEventPageResult) : RuntimeException()
+
+    private companion object {
+        const val REAL_BRIDGE_ENGINE_ID = "halo-lab-bridge-v1"
+    }
 
     private fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256")
         .digest(bytes)

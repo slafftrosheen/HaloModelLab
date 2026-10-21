@@ -7,13 +7,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.slafftrosheen.halomodellab.bridge.BridgeEventKind
 import com.slafftrosheen.halomodellab.bridge.BridgeEventPayload
 import com.slafftrosheen.halomodellab.bridge.BridgeRemoteEvent
+import com.slafftrosheen.halomodellab.domain.ConfigurationValue
 import com.slafftrosheen.halomodellab.domain.ComputeBackend
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.ModelRole
 import com.slafftrosheen.halomodellab.domain.PlannedItem
-import com.slafftrosheen.halomodellab.domain.ResultValidity
+import com.slafftrosheen.halomodellab.domain.RealBackend
+import com.slafftrosheen.halomodellab.domain.RealCasePlan
+import com.slafftrosheen.halomodellab.domain.RealRunPlan
+import com.slafftrosheen.halomodellab.domain.StageBudgets
 import com.slafftrosheen.halomodellab.domain.SessionPlan
-import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.domain.TestStage
 import com.slafftrosheen.halomodellab.runner.LabClock
 import java.security.MessageDigest
@@ -29,6 +32,7 @@ import org.junit.runner.RunWith
 class RemoteEventImporterTest {
     private lateinit var database: LabDatabase
     private lateinit var sessionId: String
+    private lateinit var attemptId: String
     private lateinit var importer: RemoteEventImporter
 
     @Before
@@ -39,18 +43,10 @@ class RemoteEventImporterTest {
                 .allowMainThreadQueries()
                 .build()
             val repository = RoomSessionRepository(database, FakeClock(), "owner-1")
-            sessionId = (repository.createSession(plan()) as CreateSessionResult.Created).sessionId
-            database.labDao().insertRemoteBinding(
-                RemoteBindingEntity(
-                    sessionId = sessionId,
-                    clientRequestId = "request-1",
-                    requestHashSha256 = HASH,
-                    serverEpoch = null,
-                    remoteRunId = null,
-                    currentServerInstanceId = null,
-                    highestImportedSequence = 0L,
-                ),
-            )
+            sessionId = (repository.createRealSession(plan()) as CreateSessionResult.Created).sessionId
+            assertTrue(repository.claimSession(sessionId, "owner-1"))
+            val ready = repository.beginAttempt(sessionId, "owner-1") as BeginAttempt.Ready
+            attemptId = ready.request.attemptId
             importer = RemoteEventImporter(database)
             assertTrue(importer.bindAcceptedRun(sessionId, "epoch-1", "remote-run-1", "server-1") is RemoteRunBindingResult.Bound)
         }
@@ -73,7 +69,7 @@ class RemoteEventImporterTest {
         assertEquals(1, database.labDao().remoteEventCount(sessionId))
         assertEquals(1L, database.labDao().remoteBinding(sessionId)?.highestImportedSequence)
         assertEquals(
-            "00000000-0000-0000-0000-000000000051",
+            attemptId,
             database.labDao().remoteEventsAfter(sessionId, "epoch-1", "remote-run-1", 0L, 1)
                 .single().attemptId,
         )
@@ -111,6 +107,24 @@ class RemoteEventImporterTest {
         assertEquals(0L, database.labDao().remoteBinding(sessionId)?.highestImportedSequence)
     }
 
+    @Test
+    fun syntheticSessionCannotAcceptRemoteDeviceRunBinding() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val syntheticDatabase = Room.inMemoryDatabaseBuilder(context, LabDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        try {
+            val repository = RoomSessionRepository(syntheticDatabase, FakeClock(), "owner-synthetic")
+            val syntheticId = (repository.createSession(syntheticPlan()) as CreateSessionResult.Created).sessionId
+            val result = RemoteEventImporter(syntheticDatabase).bindAcceptedRun(
+                syntheticId, "epoch-1", "remote-run-1", "server-1",
+            )
+            assertEquals(RemoteRunBindingResult.SessionOriginMismatch, result)
+        } finally {
+            syntheticDatabase.close()
+        }
+    }
+
     private fun event(sequence: Long, code: String): BridgeRemoteEvent {
         val typedPayload = payload(code)
         val bytes = typedPayload.canonicalJson().toByteArray(Charsets.UTF_8)
@@ -125,7 +139,7 @@ class RemoteEventImporterTest {
 
     private fun payload(code: String) = BridgeEventPayload(
         kind = BridgeEventKind.ATTEMPT_STAGE,
-        attemptId = "00000000-0000-0000-0000-000000000051",
+        attemptId = attemptId,
         stage = TestStage.LOAD,
         eventCode = code,
         outcome = null,
@@ -140,7 +154,39 @@ class RemoteEventImporterTest {
         unavailableReason = null,
     )
 
-    private fun plan() = SessionPlan(
+    private fun plan() = RealRunPlan(
+        sessionId = "00000000-0000-0000-0000-000000000081",
+        profileId = "text-smoke-v1",
+        suiteId = "text-smoke",
+        suiteVersion = "1",
+        fixtureManifestSha256 = null,
+        qualificationPolicySha256 = HASH,
+        stageBudgets = StageBudgets(),
+        sessionBudgetMs = 600_000L,
+        requireCharging = true,
+        capabilitySnapshot = null,
+        cases = listOf(
+            RealCasePlan(
+                queueItemId = "00000000-0000-0000-0000-000000000082",
+                providerId = "local-provider",
+                modelId = "model-1",
+                artifactGenerationId = "generation-1",
+                artifactManifest = null,
+                artifactUnavailableReason = "BRIDGE_NOT_CONNECTED",
+                role = ModelRole.CHAT,
+                requestedBackend = RealBackend.AUTO,
+                requestedConfiguration = listOf(ConfigurationValue("contextTokens", "1024")),
+                suiteId = "text-smoke",
+                suiteVersion = "1",
+                caseId = "smoke-1",
+                fixtureManifestSha256 = null,
+                repetitionIndex = 0,
+                maximumOutputTokens = 64,
+            ),
+        ),
+    )
+
+    private fun syntheticPlan() = SessionPlan(
         profileId = "DEMO_INFRASTRUCTURE_V1",
         origin = EvidenceOrigin.SYNTHETIC,
         engineId = "demo-engine-v1",
