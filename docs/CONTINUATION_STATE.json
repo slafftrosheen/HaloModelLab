@@ -6,7 +6,7 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "currentCommit": "cbe39d7",
+    "currentCommit": "a81302f",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": false,
     "pushAuthorized": false
@@ -23,8 +23,8 @@
   },
   "batches": {
     "C0": "SOURCE_AUDIT_WRITTEN; source repairs not required by static findings; regression source added; commit cbe39d7",
-    "C1": "NOT_STARTED",
-    "C2": "NOT_STARTED",
+    "C1": "SOURCE_IMPLEMENTED; migration schema v2 ungenerated; validation/migration tests NOT_RUN; pending HML-C1 commit",
+    "C2": "NOT_STARTED; Halo server/authentication/canonical protocol blocked by missing write authorization",
     "C3": "NOT_STARTED",
     "C4": "BLOCKED_HALO_WRITE_ACCESS",
     "C5": "NOT_STARTED",
@@ -43,6 +43,10 @@
   },
   "protocol": {
     "clientVersion": 1,
+    "clientMinorVersion": 0,
+    "roleMappingVersion": 1,
+    "labClientDraftPath": "protocol/lab-client-contract-v1.json",
+    "labClientDraftSha256": "87ac533e2b1d6999f795b5927408c552bdd200cffcefbaafeb3c04a1a51b9453",
     "canonicalHaloProtocolVersion": null,
     "compatibleCommitPair": null,
     "protocolHash": null,
@@ -60,5 +64,5 @@
     "baselineHashMatch": "PASS",
     "gitDiffCheck": "PASS"
   },
-  "next": "Proceed with unblocked Lab-side C1 contracts and migration/test sources. Stop before any Halo mutation or claim of real inference."
+  "next": "Commit C1 contracts/schema sources, then continue with Lab-side C2/C3 client contracts. Stop before any Halo mutation or claim of real inference."
 }

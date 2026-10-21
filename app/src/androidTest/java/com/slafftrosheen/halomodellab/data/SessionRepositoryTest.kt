@@ -15,6 +15,10 @@ import com.slafftrosheen.halomodellab.domain.ModelRole
 import com.slafftrosheen.halomodellab.domain.PlannedItem
 import com.slafftrosheen.halomodellab.domain.QueueItemState
 import com.slafftrosheen.halomodellab.domain.ResultValidity
+import com.slafftrosheen.halomodellab.domain.RealBackend
+import com.slafftrosheen.halomodellab.domain.RealCasePlan
+import com.slafftrosheen.halomodellab.domain.RealRunPlan
+import com.slafftrosheen.halomodellab.domain.StageBudgets
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.slafftrosheen.halomodellab.domain.SessionPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
@@ -76,6 +80,22 @@ class SessionRepositoryTest {
         assertTrue(second is CreateSessionResult.Blocked)
         assertEquals(first.sessionId, (second as CreateSessionResult.Blocked).existingSessionId)
         assertEquals(1, database.labDao().observeSummaryRows().first().size)
+    }
+
+    @Test
+    fun realPlanIsPersistedWithDeviceOriginAndUnavailableArtifactReason() = runTest {
+        val plan = realPlan()
+        val created = repository.createRealSession(plan) as CreateSessionResult.Created
+
+        val detail = detail(created.sessionId)
+        val snapshot = database.labDao().realPlanSnapshot(created.sessionId)
+        val model = database.labDao().modelSnapshotsForSession(created.sessionId).single()
+
+        assertEquals(EvidenceOrigin.DEVICE_MEASUREMENT, detail.summary.origin)
+        assertEquals(plan.canonicalJson(), detail.planJson)
+        assertEquals(plan.digestSha256(), snapshot?.planDigestSha256)
+        assertEquals("BRIDGE_NOT_CONNECTED", model.availabilityCode)
+        assertNull(model.manifestSha256)
     }
 
     @Test
@@ -290,6 +310,38 @@ class SessionRepositoryTest {
                 repeatIndex = index,
             )
         },
+    )
+
+    private fun realPlan(): RealRunPlan = RealRunPlan(
+        sessionId = "00000000-0000-0000-0000-000000000031",
+        profileId = "text-smoke-v1",
+        suiteId = "text-smoke",
+        suiteVersion = "1",
+        fixtureManifestSha256 = null,
+        qualificationPolicySha256 = "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        stageBudgets = StageBudgets(),
+        sessionBudgetMs = 600_000L,
+        requireCharging = true,
+        capabilitySnapshot = null,
+        cases = listOf(
+            RealCasePlan(
+                queueItemId = "00000000-0000-0000-0000-000000000032",
+                providerId = "local-provider",
+                modelId = "model-1",
+                artifactGenerationId = "generation-1",
+                artifactManifest = null,
+                artifactUnavailableReason = "BRIDGE_NOT_CONNECTED",
+                role = ModelRole.CHAT,
+                requestedBackend = RealBackend.AUTO,
+                requestedConfiguration = emptyList(),
+                suiteId = "text-smoke",
+                suiteVersion = "1",
+                caseId = "fixed-smoke-1",
+                fixtureManifestSha256 = null,
+                repetitionIndex = 0,
+                maximumOutputTokens = 64,
+            ),
+        ),
     )
 
     private fun passed(): AttemptResult = AttemptResult(

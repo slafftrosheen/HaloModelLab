@@ -79,6 +79,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.room.runtime)
+    androidTestImplementation(libs.androidx.room.testing)
     // SessionRepositoryTest drives suspend repository calls through runTest.
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }

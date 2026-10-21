@@ -5,6 +5,7 @@ import com.slafftrosheen.halomodellab.domain.DeadlineReason
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.slafftrosheen.halomodellab.domain.SessionPlan
+import com.slafftrosheen.halomodellab.domain.RealRunPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.domain.SessionSummary
 import com.slafftrosheen.halomodellab.domain.TestStage
@@ -73,6 +74,10 @@ interface SessionRepository {
     )
 
     suspend fun createSession(plan: SessionPlan): CreateSessionResult
+
+    /** Stores a frozen real-device plan without claiming that a bridge or artifact is available. */
+    suspend fun createRealSession(plan: RealRunPlan): CreateSessionResult =
+        throw UnsupportedOperationException("Real plan persistence is not supported by this repository")
 
     /** Claims the session slot and moves the session to RUNNING. Idempotent for the owner. */
     suspend fun claimSession(sessionId: String, ownerInstanceId: String): Boolean

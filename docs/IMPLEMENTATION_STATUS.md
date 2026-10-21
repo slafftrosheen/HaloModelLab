@@ -5,13 +5,15 @@
 ## Продолжение v1 — 2026-10-22
 
 - **C0: аудит исходников завершён; текущая проверка только статическая.** Основа L0–L4 присутствует в исходниках, но её runtime/verification состояние не переутверждается. См. `docs/TAKEOVER_AUDIT.md`.
+- **C1: Lab-side real-plan contracts and durable schema source implemented.** Added distinct plan/export/policy/protocol versions, canonical artifact and plan identity, exact role mapping, bounded budgets/configuration, strict unknown-value parsing, and draft profile identities. Added Room v1→v2 migration and plan/model/configuration/remote-event/output/qualification/acquisition tables; real plans are persisted with `DEVICE_MEASUREMENT` origin and explicit unavailable-artifact reasons. The generated schema v2 is intentionally pending V0.
+- **C1 protocol remains a draft.** `protocol/lab-client-contract-v1.json` is Lab-owned client metadata only. It is not a Halo canonical protocol and has no compatibility hash/commit pair. No Halo writes or live bridge behavior are claimed.
 - Lab находится на `main`, базовый commit `9b09e78`; takeover начат с чистого дерева. Локальные commit разрешены, remote не настроен и не создавался, push не разрешён.
 - Handoff разрешён как `HaloModelLab_CODEX_COMPLETE.md` в workspace; отдельные `docs/hml-codex` и attached continuation folder не обнаружены. `HaloModelLab_Agent_Pack/SPEC.md` сохранён неизменённым в `baseline/STARTER_SPEC.md`.
 - Halo checkout прочитан только для интеграционной карты: HEAD `2d7b650faa3ade3c00f504f13bf9f91495d6b73d`, worktree уже был dirty. Editable Halo target не предоставлен: реальная bridge/worker/lease интеграция остановлена на `BLOCKED_HALO_WRITE_ACCESS`.
 - Версия клиента пока `1`; canonical Halo protocol version, compatible commit pair, and protocol hash остаются `null` до согласованного canonical source на стороне Halo.
 - Добавлен source regression для параллельного создания сессий. Existing source tests already cover repeated Start at repository boundary, terminal result immutability, process recovery, storage failure, origin mismatch, and four demo scenarios. Activity recreation and in-progress ZIP cancellation remain source gaps assigned to later batches.
 - Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN**. Historical results from 2026-10-21 below are not current verification for this continuation.
-- Next: C1 Lab-side versioned real-run contracts and migration/test sources; no Gradle, test, emulator, ADB, install, or phone benchmark commands.
+- Next: proceed with unblocked Lab-side C2 protocol/client contracts and C3 catalogue/admission descriptors; stop before Halo-side bridge or runtime mutation. No Gradle, test, emulator, ADB, install, or phone benchmark commands.
 
 ## Итог
 

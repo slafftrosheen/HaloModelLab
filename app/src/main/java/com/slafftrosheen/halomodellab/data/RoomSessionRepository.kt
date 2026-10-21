@@ -14,6 +14,8 @@ import com.slafftrosheen.halomodellab.domain.FailureDomain
 import com.slafftrosheen.halomodellab.domain.FailureInfo
 import com.slafftrosheen.halomodellab.domain.ModelRole
 import com.slafftrosheen.halomodellab.domain.QueueItemState
+import com.slafftrosheen.halomodellab.domain.RealBackend
+import com.slafftrosheen.halomodellab.domain.RealRunPlan
 import com.slafftrosheen.halomodellab.domain.QueueItemView
 import com.slafftrosheen.halomodellab.domain.ResultValidity
 import com.slafftrosheen.halomodellab.domain.SessionCommand
@@ -211,6 +213,131 @@ class RoomSessionRepository(
                 CreateSessionResult.Created(sessionId)
             }
         }
+
+    override suspend fun createRealSession(plan: RealRunPlan): CreateSessionResult =
+        withContext(ioDispatcher) {
+            database.withTransaction {
+                dao.insertRunnerSlotIfMissing(RunnerSlotEntity.empty())
+                val existing = dao.findOpenSession(SessionStates.OPEN_NAMES)
+                if (existing != null) {
+                    return@withTransaction CreateSessionResult.Blocked(
+                        existingSessionId = existing.id,
+                        existingState = SessionState.valueOf(existing.state),
+                    )
+                }
+                check(dao.sessionById(plan.sessionId) == null) { "DUPLICATE_SESSION_ID" }
+
+                val planJson = plan.canonicalJson()
+                val session = SessionEntity(
+                    id = plan.sessionId,
+                    state = SessionState.DRAFT.name,
+                    planJson = planJson,
+                    origin = EvidenceOrigin.DEVICE_MEASUREMENT.name,
+                    profileId = plan.profileId,
+                    engineId = REAL_BRIDGE_ENGINE_ID,
+                    caseTimeoutMs = plan.stageBudgets.maximumAttemptMs,
+                    budgetMs = plan.sessionBudgetMs,
+                    repeatCount = (plan.cases.maxOfOrNull { it.repetitionIndex } ?: 0) + 1,
+                    requireCharging = plan.requireCharging,
+                    createdAtWallTimeMs = clock.wallTimeMs(),
+                    startedWallTimeMs = null,
+                    finishedWallTimeMs = null,
+                    persistedActiveMs = 0L,
+                    activeStartedElapsedMs = null,
+                    lastSeq = 0L,
+                    failureCode = null,
+                    failureDomain = null,
+                    failureDetail = null,
+                    ownerInstanceId = null,
+                )
+                val queueItems = plan.cases.mapIndexed { ordinal, case ->
+                    QueueItemEntity(
+                        id = case.queueItemId,
+                        sessionId = plan.sessionId,
+                        ordinal = ordinal,
+                        subjectId = "${case.providerId}/${case.modelId}/${case.artifactGenerationId}",
+                        scenarioId = case.caseId,
+                        role = case.role.name,
+                        requestedBackend = case.requestedBackend.toQueueProjection().name,
+                        state = QueueItemState.PENDING.name,
+                        repeatIndex = case.repetitionIndex,
+                    )
+                }
+
+                dao.insertSession(session)
+                dao.insertQueueItems(queueItems)
+                dao.insertRealPlanSnapshot(
+                    RealPlanSnapshotEntity(
+                        sessionId = plan.sessionId,
+                        planSchemaVersion = plan.planSchemaVersion,
+                        exportSchemaVersion = plan.exportSchemaVersion,
+                        suiteVersion = plan.suiteVersion,
+                        fixtureManifestSha256 = plan.fixtureManifestSha256,
+                        qualificationPolicyVersion = plan.qualificationPolicyVersion,
+                        qualificationPolicySha256 = plan.qualificationPolicySha256,
+                        protocolMajor = plan.protocolMajor,
+                        protocolMinor = plan.protocolMinor,
+                        planDigestSha256 = plan.digestSha256(),
+                        capabilitySnapshotSha256 = plan.capabilitySnapshot?.snapshotSha256,
+                        capabilitySnapshotJson = plan.capabilitySnapshot?.canonicalJson(),
+                    ),
+                )
+                val uniqueModels = plan.cases.distinctBy {
+                    Triple(it.providerId, it.modelId, it.artifactGenerationId)
+                }
+                dao.insertModelSnapshots(uniqueModels.map { case ->
+                    ModelSnapshotEntity(
+                        id = UUID.randomUUID().toString(),
+                        sessionId = plan.sessionId,
+                        providerId = case.providerId,
+                        modelId = case.modelId,
+                        generationId = case.artifactGenerationId,
+                        manifestSha256 = case.artifactManifest?.canonicalSha256(),
+                        manifestJson = case.artifactManifest?.canonicalJson(),
+                        availabilityCode = case.artifactManifest?.let { "MANIFEST_DECLARED_UNVERIFIED" }
+                            ?: case.artifactUnavailableReason.orEmpty(),
+                    )
+                })
+                dao.insertConfigurationSnapshots(plan.cases.map { case ->
+                    ConfigurationSnapshotEntity(
+                        id = UUID.randomUUID().toString(),
+                        sessionId = plan.sessionId,
+                        queueItemId = case.queueItemId,
+                        requestedBackend = case.requestedBackend.name,
+                        requestedConfigurationJson = case.requestedConfigurationJson(),
+                        effectiveBackend = null,
+                        executionScopeJson = null,
+                        scopeDigestSha256 = null,
+                    )
+                })
+                dao.insertRemoteBinding(
+                    RemoteBindingEntity(
+                        sessionId = plan.sessionId,
+                        clientRequestId = UUID.randomUUID().toString(),
+                        requestHashSha256 = plan.digestSha256(),
+                        serverEpoch = null,
+                        remoteRunId = null,
+                        currentServerInstanceId = null,
+                        highestImportedSequence = 0L,
+                    ),
+                )
+                appendEvent(
+                    sessionId = plan.sessionId,
+                    attemptId = null,
+                    stage = null,
+                    code = "REAL_PLAN_CREATED",
+                    ownerInstanceId = processInstanceId,
+                )
+                CreateSessionResult.Created(plan.sessionId)
+            }
+        }
+
+    private fun RealBackend.toQueueProjection(): ComputeBackend = when (this) {
+        RealBackend.CPU -> ComputeBackend.CPU
+        RealBackend.GPU -> ComputeBackend.GPU
+        RealBackend.NPU -> ComputeBackend.NPU
+        RealBackend.AUTO, RealBackend.UNSPECIFIED -> ComputeBackend.UNSPECIFIED
+    }
 
     override suspend fun claimSession(sessionId: String, ownerInstanceId: String): Boolean =
         withContext(ioDispatcher) {
@@ -1034,5 +1161,6 @@ class RoomSessionRepository(
 
     private companion object {
         const val MAX_FAILURE_DETAIL_CHARS = 4_096
+        const val REAL_BRIDGE_ENGINE_ID = "halo-lab-bridge-v1"
     }
 }

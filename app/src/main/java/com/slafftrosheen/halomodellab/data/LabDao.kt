@@ -31,6 +31,48 @@ abstract class LabDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insertRunnerSlotIfMissing(slot: RunnerSlotEntity)
 
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertRealPlanSnapshot(snapshot: RealPlanSnapshotEntity)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertModelSnapshots(snapshots: List<ModelSnapshotEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertConfigurationSnapshots(snapshots: List<ConfigurationSnapshotEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertRemoteBinding(binding: RemoteBindingEntity)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertRemoteEvent(event: RemoteEventEntity)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertOutputArtifact(artifact: OutputArtifactEntity)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract suspend fun insertQualification(qualification: QualificationEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun upsertAcquisitionProjection(projection: AcquisitionProjectionEntity)
+
+    @Query("SELECT * FROM real_plan_snapshots WHERE sessionId = :sessionId")
+    abstract suspend fun realPlanSnapshot(sessionId: String): RealPlanSnapshotEntity?
+
+    @Query("SELECT * FROM model_snapshots WHERE sessionId = :sessionId ORDER BY providerId, modelId, generationId")
+    abstract suspend fun modelSnapshotsForSession(sessionId: String): List<ModelSnapshotEntity>
+
+    @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND remoteSequence = :sequence")
+    abstract suspend fun remoteEvent(serverEpoch: String, remoteRunId: String, sequence: Long): RemoteEventEntity?
+
+    @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND sessionId = :sessionId AND remoteSequence > :afterSequence ORDER BY remoteSequence LIMIT :limit")
+    abstract suspend fun remoteEventsAfter(
+        sessionId: String,
+        serverEpoch: String,
+        remoteRunId: String,
+        afterSequence: Long,
+        limit: Int,
+    ): List<RemoteEventEntity>
+
     @Query("SELECT * FROM sessions WHERE id = :sessionId")
     abstract suspend fun sessionById(sessionId: String): SessionEntity?
 

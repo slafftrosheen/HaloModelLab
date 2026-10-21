@@ -7,6 +7,7 @@ Halo checkout inspected: `C:\Users\slavd\HaloEco\Halo-main`, HEAD `2d7b650faa3ad
 | Existing symbol | Current source location | Integration responsibility | Boundary to preserve |
 |---|---|---|---|
 | `LocalModelCatalogRepository` | `app/src/main/java/com/halo/app/ai/LocalModelCatalogRepository.kt` | Projection over `AiModelCatalogRepository` and `LiteRtModelManager` | LiteRT listing does not imply speech, embedding, STT, or VAD coverage. |
+| `AiModelRole` | `sdk/provider-sdk/src/main/java/com/halo/sdk/provider/AiRoles.kt` | Existing generic Halo roles are `CHAT`, `FAST`, `REASONING`, `AGENTIC`, and `VISION` | Lab mapping version 1 maps `THINK→REASONING` and `ACTION→AGENTIC`; STT/TTS/EMBEDDING are unsupported by this generic enum. |
 | `LiteRtModelManager` | `providers/litert/src/main/java/com/halo/providers/litert/models/LiteRtModelManager.kt` | Existing LiteRT inventory, verification, and acquisition owner | Halo remains the sole owner of bytes; Lab must not copy/cache weights. |
 | `LocalRoleEvidenceController` | `app/src/main/java/com/halo/app/ai/LocalRoleEvidenceController.kt` | Existing scoped role evidence and explicit recommendation application | A lab finding must not silently reassign a production role. |
 | `SupertonicPackStore` and `SupertonicSpeechProvider` | `app/src/main/java/com/halo/app/audio/SupertonicPackStore.kt`; `SupertonicSpeechProvider.kt` | Existing speech pack owner and synthesis provider | Expose inventory/leases through owners; do not move packs or make a parallel TTS runtime. |
@@ -15,6 +16,8 @@ Halo checkout inspected: `C:\Users\slavd\HaloEco\Halo-main`, HEAD `2d7b650faa3ad
 | Halo manifest and `app/build.gradle.kts` | `app/src/main/AndroidManifest.xml`; `app/build.gradle.kts` | Actual package, variant, permissions, components, dependencies | The manifest package/application ID must be reread from the authorised working tree before bridge work. |
 
 These are names and locations observed in the current dirty checkout, not proof that a bridge, shared admission gate, model lease, supervisor, or worker exists. No compatibility claim is made from the reference snapshot alone. No Halo signing certificate digest or trust policy was obtained or stored.
+
+The Lab's `protocol/lab-client-contract-v1.json` repeats only the client role/backend names and bounds needed to keep persisted plans readable. It is explicitly `CLIENT_DRAFT_ONLY`; C2 must freeze the canonical wire schema with an authorised Halo source before claiming protocol compatibility.
 
 ## Blocked boundary
 

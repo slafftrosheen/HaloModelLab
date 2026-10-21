@@ -1,8 +1,7 @@
 # Room schema export
 
-Room schema version 1 is exported here on the first successful build
-(`room.schemaLocation` points to this directory). The JSON files must be committed together
-with any future migration so schema changes stay reviewable.
-
-No generated schema exists yet: HML-L0/L1 have not been built, and this repository must not
-claim a verified database schema before a real build produces one.
+Schema version 1 is the inherited, generated schema and remains the migration source of
+truth. C1 adds an explicit 1→2 migration and versioned evidence entities. Schema version 2
+has intentionally not been generated or hand-authored because builds are prohibited during
+this continuation. Generate and review the version 2 schema only during an authorised V0
+verification step, then commit it alongside any migration correction.

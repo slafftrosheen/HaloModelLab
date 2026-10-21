@@ -1,0 +1,36 @@
+{
+  "status": "CLIENT_DRAFT_ONLY",
+  "protocolMajor": 1,
+  "protocolMinor": 0,
+  "canonicalOwner": "Halo",
+  "roleMappingVersion": 1,
+  "labRoles": {
+    "CHAT": "CHAT",
+    "FAST": "FAST",
+    "THINK": "REASONING",
+    "ACTION": "AGENTIC",
+    "VISION": "VISION",
+    "STT": null,
+    "TTS": null,
+    "EMBEDDING": null
+  },
+  "backends": ["AUTO", "CPU", "GPU", "NPU", "UNSPECIFIED"],
+  "identity": {
+    "remoteEventKey": ["serverEpoch", "remoteRunId", "sequence"],
+    "artifactManifestHash": "sha256-canonical-json-v1",
+    "executionScopeHash": "sha256-canonical-json-v1"
+  },
+  "limits": {
+    "stageBudgetMs": {"minimum": 1000, "maximum": 1800000},
+    "sessionBudgetMs": {"minimum": 60000, "maximum": 86400000},
+    "artifactParts": 256,
+    "casesPerSession": 500,
+    "configurationItemsPerCase": 64,
+    "configurationValueCharacters": 512
+  },
+  "notes": [
+    "Lab-local draft; not frozen or compatible with a Halo server implementation.",
+    "Speech and embedding capabilities require typed capability-specific contracts.",
+    "Unknown values are unsupported and have no default mapping."
+  ]
+}

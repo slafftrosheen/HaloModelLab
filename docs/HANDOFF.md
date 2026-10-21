@@ -6,6 +6,8 @@ This file is the historical v0 handoff. The active v1 continuation is resolved f
 
 The Lab checkout is on `main` with no remote configured. The separate Halo checkout was inspected read-only and was already dirty; this continuation does not have authority to edit it. The bridge, leases, worker, and native supervisor remain `BLOCKED_HALO_WRITE_ACCESS`. See `docs/CONTINUATION_STATE.json` for the resumable batch and commit state.
 
+C1 now defines and persists real-plan snapshots and the additive Room migration source. The migration's generated v2 schema and every C1 test remain `NOT_RUN`; the Lab client protocol file is a draft with no Halo compatibility claim.
+
 Состояние: HML-L0…HML-L4 + C0 завершены. Приложение **собрано** (`assembleDebug`),
 unit-тесты **проходят** (55/55), instrumentation-исходники **компилируются**;
 на устройстве **не проверялось**. Настоящего inference, моста Halo, весов и runtime
