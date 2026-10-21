@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the private exports directory is exposed, read-only, by the FileProvider. -->
+<paths>
+    <cache-path
+        name="exports"
+        path="exports/" />
+</paths>

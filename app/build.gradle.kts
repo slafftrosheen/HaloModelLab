@@ -12,8 +12,8 @@ android {
         applicationId = "com.slafftrosheen.halomodellab"
         minSdk = 26
         targetSdk = 37
-        versionCode = 3
-        versionName = "0.1.0-l2"
+        versionCode = 4
+        versionName = "0.1.0-l3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // Typed export DTOs only. No network, analytics or runtime dependency comes with it.
+    implementation(libs.moshi)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

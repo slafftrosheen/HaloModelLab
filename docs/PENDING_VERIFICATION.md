@@ -1,4 +1,4 @@
-# Pending verification — HML-L0…L2
+# Pending verification — HML-L0…L3
 
 Ни одна сборка, тест или проверка на устройстве не выполнялась.
 Ниже перечислено, что осталось непроверенным, чем это подтверждать и какие действия
@@ -62,10 +62,31 @@
 15. **Boundary.** В v0 UI, Room, service и fake engine — один процесс. Это не защита от
     native-падения будущего inference; отдельный процесс и supervisor — этап Codex.
 
+## Экспорт (HML-L3) — требует подтверждения
+
+16. **Архив.** `ReportExporterTest` проверяет обязательные entry, порядок событий,
+    checksums, CSV-экранирование, safe entry names, лимит telemetry, отказ для RUNNING —
+    но тест не компилировался и не запускался. Запуск: `./gradlew :app:testDebugUnitTest`.
+    Отдельно проверить вручную: ZIP открывается на компьютере, `sha256sum -c checksums.sha256`,
+    `failures/` содержит по файлу на attemptId, `report.md` ≤ 8192 байт.
+17. **Moshi без reflection.** DTO сериализуются явно через `JsonWriter`, поэтому
+    `kotlin-reflect` и `moshi-kotlin` не нужны. Риск: `JsonWriter.setIndent/String?
+    value` API не проверялся компилятором; при первой сборке это первая точка отказа.
+18. **FileProvider.** Authority `${applicationId}.exports`, `cache-path exports/`,
+    `exported=false`, временный read grant. Не проверялось: выдача URI, отсутствие доступа
+    к другим файлам, работа share-sheet и `ACTION_CREATE_DOCUMENT` на API 26/33/34.
+19. **Частичная запись.** Копирование во внешний provider не атомарно; при обрыве
+    показывается ошибка, но частичный файл у провайдера может остаться. Это документированное
+    ограничение, а не гарантия.
+20. **Лимит 32 MiB.** Проверка срабатывает только при суммарном размере payload свыше
+    лимита; вывод `EXPORT_TOO_LARGE` тестом не покрыт (для него нужен очень большой фикстур).
+21. **Экспорт при паузе.** `PAUSED` разрешён, `RUNNING/PAUSING/STOPPING` — нет. Снимок
+    читается `sessionDetail` (короткая транзакция), живая WAL-база не копируется.
+
 ## Не входит в текущий scope
 
-16. ZIP-экспорт, FileProvider, share/save — HML-L3.
-17. Настоящий inference, мост Halo, веса, IPC — следующий этап Codex.
+22. Настоящий inference, мост Halo, веса, IPC — следующий этап Codex.
+23. Удаление истории и сравнение baseline — не реализованы.
 
 ## Что нельзя делать при проверке
 
@@ -74,3 +95,6 @@
 - Не включать destructive migration «чтобы собралось».
 - Не выдавать успешный `assembleDebug` за подтверждение реального inference.
 - Не подменять отсутствующий thermal/battery-датчик нулём или «всё хорошо».
+- Не помечать SYNTHETIC-архив как DEVICE_MEASUREMENT и не добавлять фиктивные model hash.
+- Не расширять FileProvider до `root-path` или всего `filesDir`.
+- Не утверждать, что ZIP проверен, пока он не открыт и checksums не сверены.

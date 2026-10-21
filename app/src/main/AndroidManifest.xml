@@ -27,6 +27,20 @@
             </intent-filter>
         </activity>
 
+        <!--
+          Exposes only cache/exports read-only, on demand, to an app the user picks in the
+          share sheet or the system file picker. No storage permission is requested.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.exports"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/export_paths" />
+        </provider>
+
         <service
             android:name=".runner.BenchForegroundService"
             android:exported="false"

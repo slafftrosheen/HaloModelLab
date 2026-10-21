@@ -1,13 +1,14 @@
 # Implementation status — Halo Model Lab
 
-Последнее обновление: 21 октября 2026. Пакеты: **HML-L0 … HML-L2**.
+Последнее обновление: 21 октября 2026. Пакеты: **HML-L0 … HML-L3**.
 
 ## Итог
 
 Реализованы: приложение, четыре экрана, domain-контракт, demo-каталог, неизменяемые планы,
 Room-хранилище, очередь, попытки, события, recovery, история с деталями, автономный
 demo-исполнитель в foreground service, пауза/остановка, проверки зарядки/нагрева/места,
-bounded wake lock, уведомление с Stop и телеметрия контроллера.
+bounded wake lock, уведомление с Stop, телеметрия контроллера, настоящий ZIP-экспорт
+с checksums, диагностический отчёт и безопасный share/save через FileProvider.
 
 Приложение **не собрано**, **не протестировано** и **не проверено на устройстве**.
 
@@ -29,7 +30,8 @@ Device tests: NOT_RUN
 | Coordinator: pause/stop/budget/условия | есть | `SessionCoordinatorTest` | NOT_RUN | NOT_RUN | NOT_RUN |
 | Foreground service и уведомление | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
 | История и детали | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| ZIP-экспорт | отсутствует (L3) | — | NOT_RUN | NOT_RUN | NOT_RUN |
+| ZIP-экспорт и отчёт | есть | `ReportFormatterTest`, `ReportExporterTest` | NOT_RUN | NOT_RUN | NOT_RUN |
+| Share/save через FileProvider | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
 
 ## Что связано в исходниках
 
@@ -53,30 +55,45 @@ Device tests: NOT_RUN
    отсутствующее значение — null с причиной.
 9. Уведомление содержит открытие приложения и Stop; прогресс и ETA не выдумываются.
 10. История и детали читают Room; фильтры all/completed/interrupted/synthetic.
+11. Кнопка «Экспортировать ZIP» в деталях сессии → `SessionDetailsViewModel.export()` →
+    `ReportExporter.export(sessionId)`: проверка `RUNNING/PAUSING/STOPPING`, короткая
+    read-транзакция `sessionDetail`, сборка DTO, `report.md` ≤ 8 KiB, checksums,
+    запись `cache/exports/<name>.zip.part`, закрытие и переименование в `.zip`.
+12. Готовый архив показывается только после успешного переименования. «Поделиться» отдаёт
+    `content://…exports/…zip` через неэкспортируемый FileProvider с временным read grant;
+    «Сохранить» использует `ACTION_CREATE_DOCUMENT`, отмена picker ничего не пишет,
+    ошибка копирования показывается как failure, а не как успех.
+13. Детали показывают ошибку экспорта с кодом (`SESSION_NOT_QUIESCENT`, `SESSION_MISSING`,
+    `EXPORT_TOO_LARGE`, `EXPORT_FAILED`) и не называют архив готовым заранее.
 
 ## Что недоступно по замыслу
 
 - Настоящие модели, каталог Halo, мост, веса, inference, backend CPU/GPU.
-- ZIP-экспорт и share/save — HML-L3; удаление истории не реализовано.
+- Удаление истории и сравнение с baseline.
 - Hard timeout для native/JNI, отдельный процесс и supervisor — этап Codex.
 - Ручное подтверждение запуска при `MODERATE` нагреве: v0 консервативно блокирует.
 - Уведомление не обновляет прогресс в реальном времени: только состояние выполнения.
+- Атомарная запись во внешний provider не гарантируется; частичный файл возможен.
 
 ## Фактически выполненные статические проверки
 
-1. `python`-разбор 4 XML-файлов — без ошибок (включая manifest с сервисом).
+1. Python-разбор 5 XML-файлов — без ошибок (manifest с сервисом и FileProvider,
+   `export_paths.xml`).
 2. Сверка `R.string.*`: все ключи определены; неиспользуемых нет.
-3. Все Kotlin-пакеты совпадают с каталогами; TODO/FIXME/NotImplementedError отсутствуют.
-4. Поиск запрещённого: нет `INTERNET`, сетевых SDK, Analytics, Firebase,
-   OpenAI/OpenRouter, `includeBuild`, ссылок на Halo source tree.
-5. POM/Maven metadata: AGP 9.4.0 → Kotlin 2.2.10; Compose plugin 2.2.10; Room 2.8.5;
-   KSP 2.3.6; core-ktx 1.18.0; androidx.test-артефакты существуют.
+3. Все Kotlin-пакеты совпадают с каталогами; TODO/FIXME/NotImplementedError отсутствуют
+   (поиск по границам слов; вхождения `toDocument` — часть имени метода, не TODO).
+4. Поиск запрещённого: нет `uses-permission android.permission.INTERNET`, сетевых SDK,
+   Analytics, Firebase, OpenAI/OpenRouter, `includeBuild`, ссылок на Halo source tree.
+5. Баланс скобок/кавычек в Kotlin-файлах: единственное «расхождение» — char-литералы
+   `'{'`/`'('` в `SessionPlan.kt`, то есть ложное срабатывание эвристики.
 6. `git diff --check` — без пробельных ошибок.
-7. Source review: транзакции репозитория, recovery, coordinator, service, условия,
-   уведомления, ViewModel/Compose.
+7. Source review: DTO mapping без потери origin/validity/reasonCode, сериализация через
+   `JsonWriter` без reflection, лимиты секций, `.part` cleanup, FileProvider paths,
+   ViewModel/Compose-состояния экспорта.
 
 Сборка, unit-тесты, instrumentation, эмулятор, ADB и проверки на телефоне не запускались.
+`ReportFormatterTest` и `ReportExporterTest` добавлены как исходники и помечены NOT_RUN.
 
 ## Следующий разрешённый пакет
 
-HML-L3 — экспорт настоящего ZIP, безопасный share и диагностический отчёт.
+HML-L4 — сквозной обзор, документация и ручная приёмка (без запуска без разрешения).

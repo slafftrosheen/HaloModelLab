@@ -350,6 +350,7 @@ class FakeSessionRepository : SessionRepository {
         unavailableReason: String?,
     ) {
         telemetry += TelemetryView(
+            attemptId = attemptId,
             name = name,
             value = value,
             unit = unit,

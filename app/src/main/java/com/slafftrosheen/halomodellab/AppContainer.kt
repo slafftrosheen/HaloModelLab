@@ -6,6 +6,7 @@ import com.slafftrosheen.halomodellab.data.LabDatabase
 import com.slafftrosheen.halomodellab.data.RecoveryReport
 import com.slafftrosheen.halomodellab.data.RoomSessionRepository
 import com.slafftrosheen.halomodellab.data.SessionRepository
+import com.slafftrosheen.halomodellab.export.ReportExporter
 import com.slafftrosheen.halomodellab.runner.LabClock
 import com.slafftrosheen.halomodellab.runner.SystemLabClock
 import java.util.UUID
@@ -47,6 +48,15 @@ class AppContainer(context: Context) {
         database = database,
         clock = clock,
         processInstanceId = processInstanceId,
+    )
+
+    /** Writes only to private cache; sharing happens through the FileProvider afterwards. */
+    val reportExporter: ReportExporter = ReportExporter(
+        repository = sessionRepository,
+        exportRoot = java.io.File(context.cacheDir, "exports"),
+        clock = clock,
+        packageName = context.packageName,
+        appVersion = BuildConfig.VERSION_NAME,
     )
 
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)

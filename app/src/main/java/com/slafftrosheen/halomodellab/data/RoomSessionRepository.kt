@@ -85,15 +85,21 @@ class RoomSessionRepository(
             }
             .flowOn(ioDispatcher)
 
+    /**
+     * Export snapshot: one short read transaction so the plan, queue, attempts, events and
+     * telemetry come from the same database state. The ZIP is built after it commits.
+     */
     override suspend fun sessionDetail(sessionId: String): SessionDetail? = withContext(ioDispatcher) {
-        val session = dao.sessionById(sessionId) ?: return@withContext null
-        buildDetail(
-            session = session,
-            items = dao.queueItems(sessionId),
-            attempts = dao.attemptsForSession(sessionId),
-            events = dao.events(sessionId),
-            telemetry = dao.telemetry(sessionId),
-        )
+        database.withTransaction {
+            val session = dao.sessionById(sessionId) ?: return@withTransaction null
+            buildDetail(
+                session = session,
+                items = dao.queueItems(sessionId),
+                attempts = dao.attemptsForSession(sessionId),
+                events = dao.events(sessionId),
+                telemetry = dao.telemetry(sessionId),
+            )
+        }
     }
 
     override suspend fun recordSessionEvent(sessionId: String, code: String) {
@@ -421,6 +427,22 @@ class RoomSessionRepository(
                         stage = null,
                         code = "QUEUE_ITEM_STATE_CONFLICT",
                         ownerInstanceId = attempt.ownerInstanceId,
+                    )
+                }
+
+                result.metrics.forEach { metric ->
+                    dao.insertTelemetry(
+                        TelemetryEntity(
+                            sessionId = sessionId,
+                            attemptId = attemptId,
+                            name = metric.name,
+                            value = metric.value,
+                            unit = metric.unit,
+                            scope = metric.scope,
+                            origin = metric.origin.name,
+                            unavailableReason = metric.unavailableReason,
+                            wallTimeMs = clock.wallTimeMs(),
+                        ),
                     )
                 }
 
@@ -985,6 +1007,7 @@ class RoomSessionRepository(
     )
 
     private fun toTelemetryView(telemetry: TelemetryEntity): TelemetryView = TelemetryView(
+        attemptId = telemetry.attemptId,
         name = telemetry.name,
         value = telemetry.value,
         unit = telemetry.unit,

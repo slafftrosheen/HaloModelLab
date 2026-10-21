@@ -42,6 +42,7 @@ data class EventView(
 )
 
 data class TelemetryView(
+    val attemptId: String?,
     val name: String,
     val value: Double?,
     val unit: String,

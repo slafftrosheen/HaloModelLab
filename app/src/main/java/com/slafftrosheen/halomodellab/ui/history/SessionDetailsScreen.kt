@@ -1,5 +1,8 @@
 package com.slafftrosheen.halomodellab.ui.history
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,22 +10,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,12 +46,16 @@ import com.slafftrosheen.halomodellab.domain.EventView
 import com.slafftrosheen.halomodellab.domain.FailureInfo
 import com.slafftrosheen.halomodellab.domain.QueueItemView
 import com.slafftrosheen.halomodellab.domain.SessionDetail
+import com.slafftrosheen.halomodellab.domain.SessionState
+import com.slafftrosheen.halomodellab.export.ExportShare
 import com.slafftrosheen.halomodellab.ui.attemptOutcomeLabelRes
 import com.slafftrosheen.halomodellab.ui.demoScenarioTitleRes
 import com.slafftrosheen.halomodellab.ui.formatWallTime
 import com.slafftrosheen.halomodellab.ui.originLabelRes
 import com.slafftrosheen.halomodellab.ui.queueItemStateLabelRes
 import com.slafftrosheen.halomodellab.ui.sessionStateLabelRes
+import java.io.File
+import kotlinx.coroutines.launch
 
 @Composable
 fun SessionDetailsRoute(
@@ -50,18 +64,65 @@ fun SessionDetailsRoute(
     onBack: () -> Unit,
 ) {
     val viewModel: SessionDetailsViewModel = viewModel(
-        factory = SessionDetailsViewModel.factory(container.sessionRepository, sessionId),
+        factory = SessionDetailsViewModel.factory(
+            repository = container.sessionRepository,
+            exporter = container.reportExporter,
+            sessionId = sessionId,
+        ),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val exportState by viewModel.exportState.collectAsStateWithLifecycle()
 
-    SessionDetailsScreen(state = state, onBack = onBack)
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val saveLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument(ExportShare.MIME_TYPE),
+    ) { target ->
+        // Cancelling the picker is not an export or test failure: nothing is written.
+        val ready = exportState as? ExportUiState.Ready ?: return@rememberLauncherForActivityResult
+        if (target == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val copied = ExportShare.copyToDocument(context, File(ready.filePath), target)
+            Toast.makeText(
+                context,
+                if (copied) R.string.export_save_done else R.string.export_save_failed,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
+    SessionDetailsScreen(
+        state = state,
+        exportState = exportState,
+        onBack = onBack,
+        onExport = viewModel::export,
+        onShare = {
+            val ready = exportState as? ExportUiState.Ready
+            if (ready != null) {
+                val shared = runCatching {
+                    ExportShare.share(context, File(ready.filePath))
+                }.isSuccess
+                if (!shared) {
+                    Toast.makeText(context, R.string.export_share_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+        onSave = {
+            val ready = exportState as? ExportUiState.Ready
+            if (ready != null) saveLauncher.launch(ready.fileName)
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionDetailsScreen(
     state: SessionDetailsUiState,
+    exportState: ExportUiState,
     onBack: () -> Unit,
+    onExport: () -> Unit,
+    onShare: () -> Unit,
+    onSave: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -91,14 +152,25 @@ fun SessionDetailsScreen(
 
             is SessionDetailsUiState.Loaded -> DetailsContent(
                 detail = state.detail,
+                exportState = exportState,
                 contentPadding = innerPadding,
+                onExport = onExport,
+                onShare = onShare,
+                onSave = onSave,
             )
         }
     }
 }
 
 @Composable
-private fun DetailsContent(detail: SessionDetail, contentPadding: PaddingValues) {
+private fun DetailsContent(
+    detail: SessionDetail,
+    exportState: ExportUiState,
+    contentPadding: PaddingValues,
+    onExport: () -> Unit,
+    onShare: () -> Unit,
+    onSave: () -> Unit,
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -112,6 +184,15 @@ private fun DetailsContent(detail: SessionDetail, contentPadding: PaddingValues)
 
         item { SummaryCard(detail) }
         item { PlanCard(detail) }
+        item {
+            ExportCard(
+                detail = detail,
+                exportState = exportState,
+                onExport = onExport,
+                onShare = onShare,
+                onSave = onSave,
+            )
+        }
 
         item {
             Text(
@@ -275,6 +356,103 @@ private fun PlanCard(detail: SessionDetail) {
         }
     }
 }
+
+@Composable
+private fun ExportCard(
+    detail: SessionDetail,
+    exportState: ExportUiState,
+    onExport: () -> Unit,
+    onShare: () -> Unit,
+    onSave: () -> Unit,
+) {
+    val quiescent = detail.summary.state !in NON_EXPORTABLE_STATES
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.export_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Text(
+                text = stringResource(R.string.export_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (!quiescent) {
+                Text(
+                    text = stringResource(R.string.export_running_blocked),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Button(
+                onClick = onExport,
+                enabled = quiescent && exportState !is ExportUiState.Exporting,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.export_button))
+            }
+            when (exportState) {
+                ExportUiState.Idle -> Unit
+                ExportUiState.Exporting -> Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Text(
+                        text = stringResource(R.string.export_in_progress),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                is ExportUiState.Ready -> {
+                    Text(
+                        text = stringResource(R.string.export_ready, exportState.fileName),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Button(
+                            onClick = onShare,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(R.string.export_share))
+                        }
+                        OutlinedButton(
+                            onClick = onSave,
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(R.string.export_save))
+                        }
+                    }
+                }
+
+                is ExportUiState.Failed -> Text(
+                    text = stringResource(
+                        R.string.export_error,
+                        exportState.code,
+                        exportState.detail,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
+    }
+}
+
+private val NON_EXPORTABLE_STATES = setOf(
+    SessionState.RUNNING,
+    SessionState.PAUSING,
+    SessionState.STOPPING,
+)
 
 @Composable
 private fun QueueItemCard(item: QueueItemView) {

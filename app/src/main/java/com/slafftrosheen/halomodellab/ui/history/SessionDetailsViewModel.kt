@@ -7,10 +7,15 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.slafftrosheen.halomodellab.data.SessionRepository
 import com.slafftrosheen.halomodellab.domain.SessionDetail
+import com.slafftrosheen.halomodellab.export.ExportResult
+import com.slafftrosheen.halomodellab.export.ReportExporter
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 sealed interface SessionDetailsUiState {
     data object Loading : SessionDetailsUiState
@@ -18,9 +23,21 @@ sealed interface SessionDetailsUiState {
     data class Loaded(val detail: SessionDetail) : SessionDetailsUiState
 }
 
+/**
+ * Real export progress, not a fire-and-forget snackbar: Ready appears only after the ZIP
+ * is closed and renamed, and failures keep their code so the UI can explain them.
+ */
+sealed interface ExportUiState {
+    data object Idle : ExportUiState
+    data object Exporting : ExportUiState
+    data class Ready(val filePath: String, val fileName: String) : ExportUiState
+    data class Failed(val code: String, val detail: String) : ExportUiState
+}
+
 class SessionDetailsViewModel(
     repository: SessionRepository,
-    sessionId: String,
+    private val exporter: ReportExporter,
+    private val sessionId: String,
 ) : ViewModel() {
 
     val state: StateFlow<SessionDetailsUiState> = repository.observeSession(sessionId)
@@ -33,10 +50,49 @@ class SessionDetailsViewModel(
             initialValue = SessionDetailsUiState.Loading,
         )
 
+    private val _exportState = MutableStateFlow<ExportUiState>(ExportUiState.Idle)
+    val exportState: StateFlow<ExportUiState> = _exportState.asStateFlow()
+
+    fun export() {
+        if (_exportState.value is ExportUiState.Exporting) return
+        _exportState.value = ExportUiState.Exporting
+        viewModelScope.launch {
+            _exportState.value = when (val result = exporter.export(sessionId)) {
+                is ExportResult.Success -> ExportUiState.Ready(
+                    filePath = result.file.absolutePath,
+                    fileName = result.file.name,
+                )
+
+                is ExportResult.NotExportable -> ExportUiState.Failed(
+                    code = "SESSION_NOT_QUIESCENT",
+                    detail = result.state.name,
+                )
+
+                is ExportResult.MissingSession -> ExportUiState.Failed(
+                    code = "SESSION_MISSING",
+                    detail = result.sessionId,
+                )
+
+                is ExportResult.Failure -> ExportUiState.Failed(
+                    code = result.code,
+                    detail = result.detail,
+                )
+            }
+        }
+    }
+
+    fun resetExport() {
+        _exportState.value = ExportUiState.Idle
+    }
+
     companion object {
-        fun factory(repository: SessionRepository, sessionId: String): ViewModelProvider.Factory =
+        fun factory(
+            repository: SessionRepository,
+            exporter: ReportExporter,
+            sessionId: String,
+        ): ViewModelProvider.Factory =
             viewModelFactory {
-                initializer { SessionDetailsViewModel(repository, sessionId) }
+                initializer { SessionDetailsViewModel(repository, exporter, sessionId) }
             }
     }
 }
