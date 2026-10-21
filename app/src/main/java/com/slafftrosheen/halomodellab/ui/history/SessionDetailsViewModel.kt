@@ -81,10 +81,6 @@ class SessionDetailsViewModel(
         }
     }
 
-    fun resetExport() {
-        _exportState.value = ExportUiState.Idle
-    }
-
     companion object {
         fun factory(
             repository: SessionRepository,

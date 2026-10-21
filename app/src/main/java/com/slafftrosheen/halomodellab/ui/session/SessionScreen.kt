@@ -574,6 +574,7 @@ private fun MessageCard(message: SessionMessage, onDismiss: () -> Unit) {
                     )
 
                     SessionMessage.NoScenarios -> stringResource(R.string.session_message_no_scenarios)
+                    SessionMessage.InvalidPlan -> stringResource(R.string.session_message_invalid_plan)
                     SessionMessage.RetryPlanned -> stringResource(R.string.session_retry_planned)
                     SessionMessage.SkipPlanned -> stringResource(R.string.session_skip_planned)
                     is SessionMessage.StorageFailure -> stringResource(

@@ -32,6 +32,7 @@ sealed interface SessionMessage {
     data object Created : SessionMessage
     data class Blocked(val state: SessionState) : SessionMessage
     data object NoScenarios : SessionMessage
+    data object InvalidPlan : SessionMessage
     data object RetryPlanned : SessionMessage
     data object SkipPlanned : SessionMessage
     data class StorageFailure(val detail: String) : SessionMessage
@@ -170,7 +171,15 @@ class SessionViewModel(
 
         val plan = buildPlan(current)
         if (plan == null) {
-            local.update { it.copy(message = SessionMessage.NoScenarios) }
+            local.update {
+                it.copy(
+                    message = if (current.selectedScenarios.isEmpty()) {
+                        SessionMessage.NoScenarios
+                    } else {
+                        SessionMessage.InvalidPlan
+                    },
+                )
+            }
             return
         }
 
@@ -267,7 +276,7 @@ class SessionViewModel(
                 requireCharging = uiState.requireCharging,
                 items = items,
             )
-        } catch (invalid: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             null
         }
     }

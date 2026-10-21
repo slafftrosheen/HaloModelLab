@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import com.slafftrosheen.halomodellab.R
 import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -39,6 +40,8 @@ object ExportShare {
                     file.inputStream().use { input -> input.copyTo(out) }
                 }
                 true
+            } catch (cancellation: CancellationException) {
+                throw cancellation
             } catch (failure: Exception) {
                 false
             }

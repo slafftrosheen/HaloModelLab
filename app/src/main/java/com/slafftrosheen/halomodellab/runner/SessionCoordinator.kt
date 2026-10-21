@@ -81,11 +81,20 @@ class SessionCoordinator(
         attemptJob?.cancel()
     }
 
-    fun isRunning(): Boolean = running.get()
-
-    /** Service entry point: returns immediately after launching the run. */
-    fun start(scope: CoroutineScope, sessionId: String): Job = scope.launch(dispatcher) {
-        runSession(sessionId)
+    /**
+     * Service entry point: returns immediately after launching the run.
+     *
+     * Control flags are cleared here, synchronously, before the coroutine can start. Clearing
+     * them inside [runSession] would drop a pause requested in the window between start and
+     * the first suspension point.
+     */
+    fun start(scope: CoroutineScope, sessionId: String): Job {
+        pauseRequested = false
+        stopReason = null
+        safetyStop = null
+        return scope.launch(dispatcher) {
+            runSession(sessionId)
+        }
     }
 
     /**
@@ -96,11 +105,18 @@ class SessionCoordinator(
         if (!running.compareAndSet(false, true)) {
             return CoordinatorResult.Rejected("ALREADY_RUNNING")
         }
-        pauseRequested = false
-        stopReason = null
-        safetyStop = null
         return try {
             executeQueue(sessionId)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (failure: Exception) {
+            // Last-resort net: a repository bug must stop the queue with a visible failure,
+            // not kill the service job silently.
+            failInfrastructure(
+                sessionId = sessionId,
+                code = "COORDINATOR_FAILURE",
+                detail = failure.message ?: failure::class.java.simpleName,
+            )
         } finally {
             running.set(false)
             attemptJob = null
@@ -108,8 +124,18 @@ class SessionCoordinator(
     }
 
     private suspend fun executeQueue(sessionId: String): CoordinatorResult {
-        val detail = repository.sessionDetail(sessionId)
-            ?: return CoordinatorResult.Rejected("SESSION_MISSING")
+        val loaded = try {
+            repository.sessionDetail(sessionId)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (failure: Exception) {
+            return failInfrastructure(
+                sessionId = sessionId,
+                code = "STORAGE_FAILURE",
+                detail = failure.message ?: failure::class.java.simpleName,
+            )
+        }
+        val detail = loaded ?: return CoordinatorResult.Rejected("SESSION_MISSING")
 
         if (detail.summary.engineId != engine.engineId) {
             return failInfrastructure(
@@ -119,7 +145,18 @@ class SessionCoordinator(
             )
         }
 
-        if (!repository.claimSession(sessionId, processInstanceId)) {
+        val claimed = try {
+            repository.claimSession(sessionId, processInstanceId)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (failure: Exception) {
+            return failInfrastructure(
+                sessionId = sessionId,
+                code = "STORAGE_FAILURE",
+                detail = failure.message ?: failure::class.java.simpleName,
+            )
+        }
+        if (!claimed) {
             return CoordinatorResult.Rejected("SESSION_NOT_STARTABLE")
         }
 
@@ -147,22 +184,17 @@ class SessionCoordinator(
             }
 
             when (begun) {
-                BeginAttempt.NoWork -> {
-                    val state = completeSessionOrNull(sessionId)
-                    return if (state == SessionState.COMPLETED) {
-                        CoordinatorResult.Completed
-                    } else {
-                        CoordinatorResult.Failed(
-                            code = "COMPLETION_REJECTED",
-                            detail = "The queue is empty but the session did not become COMPLETED.",
-                        )
-                    }
-                }
+                BeginAttempt.NoWork -> return finishQueue(
+                    sessionId = sessionId,
+                    rejectedDetail = "The queue is empty but the session did not become COMPLETED.",
+                )
 
                 is BeginAttempt.Blocked -> return when (begun.reason) {
                     "SESSION_BUDGET_EXHAUSTED" -> {
                         try {
                             repository.skipRemaining(sessionId, "SESSION_BUDGET_EXHAUSTED")
+                        } catch (cancellation: CancellationException) {
+                            throw cancellation
                         } catch (failure: Exception) {
                             return failInfrastructure(
                                 sessionId = sessionId,
@@ -170,15 +202,11 @@ class SessionCoordinator(
                                 detail = failure.message ?: failure::class.java.simpleName,
                             )
                         }
-                        val state = completeSessionOrNull(sessionId)
-                        if (state == SessionState.COMPLETED) {
-                            CoordinatorResult.Completed
-                        } else {
-                            CoordinatorResult.Failed(
-                                code = "COMPLETION_REJECTED",
-                                detail = "Budget was exhausted but the session did not become COMPLETED.",
-                            )
-                        }
+                        finishQueue(
+                            sessionId = sessionId,
+                            rejectedDetail = "Budget was exhausted but the session did not " +
+                                "become COMPLETED.",
+                        )
                     }
 
                     "NEEDS_DECISION" -> pauseSession(
@@ -252,6 +280,8 @@ class SessionCoordinator(
 
         val snapshot = conditions.snapshot()
         recordAttemptTelemetry(sessionId, request, snapshot)
+        // A condition captured by a previous attempt must not be attributed to this one.
+        safetyStop = null
 
         val wakeLock = conditions.acquireAttemptWakeLock(
             request.caseTimeoutMs + WAKE_LOCK_GRACE_MS,
@@ -371,6 +401,10 @@ class SessionCoordinator(
         } catch (timeout: TimeoutCancellationException) {
             EngineExecution.TimedOut
         } catch (cancelled: CancellationException) {
+            // The engine runs in its own scope so requestStop can cancel it from another
+            // thread. If the host job is cancelled instead, cancel the engine explicitly:
+            // otherwise an orphan attempt would keep writing after the service is gone.
+            deferred.cancel()
             if (!currentCoroutineContext().isActive) throw cancelled
             EngineExecution.Cancelled
         } catch (failure: Exception) {
@@ -518,12 +552,34 @@ class SessionCoordinator(
         AttemptRun.StorageFailure(failure)
     }
 
-    private suspend fun completeSessionOrNull(sessionId: String): SessionState? = try {
-        repository.enterCompleted(sessionId, processInstanceId)
+    private sealed interface Completion {
+        data class Applied(val state: SessionState?) : Completion
+        data class StorageFailure(val cause: Exception) : Completion
+    }
+
+    private suspend fun completeSession(sessionId: String): Completion = try {
+        Completion.Applied(repository.enterCompleted(sessionId, processInstanceId))
     } catch (cancellation: CancellationException) {
         throw cancellation
     } catch (failure: Exception) {
-        null
+        Completion.StorageFailure(failure)
+    }
+
+    private suspend fun finishQueue(
+        sessionId: String,
+        rejectedDetail: String,
+    ): CoordinatorResult = when (val completion = completeSession(sessionId)) {
+        is Completion.StorageFailure -> failInfrastructure(
+            sessionId = sessionId,
+            code = "STORAGE_FAILURE",
+            detail = completion.cause.message ?: completion.cause::class.java.simpleName,
+        )
+
+        is Completion.Applied -> if (completion.state == SessionState.COMPLETED) {
+            CoordinatorResult.Completed
+        } else {
+            CoordinatorResult.Failed("COMPLETION_REJECTED", rejectedDetail)
+        }
     }
 
     private sealed interface EngineExecution {

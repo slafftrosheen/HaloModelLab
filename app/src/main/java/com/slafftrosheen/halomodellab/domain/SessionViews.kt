@@ -77,7 +77,4 @@ data class SessionDetail(
     val sessionFailure: FailureInfo?,
     val planJson: String,
     val openAttemptId: String?,
-) {
-    val activeQueueItem: QueueItemView?
-        get() = queue.firstOrNull { it.state == QueueItemState.ACTIVE }
-}
+)

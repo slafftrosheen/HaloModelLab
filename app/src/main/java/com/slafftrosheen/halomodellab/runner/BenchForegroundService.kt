@@ -27,13 +27,17 @@ import kotlinx.coroutines.launch
  */
 class BenchForegroundService : Service() {
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    // Main-confined orchestration: runJob and pendingStart are only touched from
+    // onStartCommand and the join continuation. The coordinator still launches the queue
+    // on its own dispatcher, so queue work never runs on the main thread.
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private lateinit var container: AppContainer
     private lateinit var notifications: BenchNotifications
     private lateinit var coordinator: SessionCoordinator
 
     private var runJob: Job? = null
+    private var pendingStartSessionId: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -56,6 +60,7 @@ class BenchForegroundService : Service() {
                 promoteToForeground()
                 val sessionId = intent.getStringExtra(EXTRA_SESSION_ID)
                 if (sessionId == null) {
+                    pendingStartSessionId = null
                     stopRunner()
                 } else {
                     startRun(sessionId)
@@ -63,11 +68,13 @@ class BenchForegroundService : Service() {
             }
 
             ACTION_PAUSE -> {
+                pendingStartSessionId = null
                 coordinator.requestPause()
                 if (runJob?.isActive != true) stopRunner()
             }
 
             ACTION_STOP -> {
+                pendingStartSessionId = null
                 coordinator.requestStop(REASON_USER_STOP)
                 if (runJob?.isActive != true) stopRunner()
             }
@@ -97,13 +104,29 @@ class BenchForegroundService : Service() {
     }
 
     private fun startRun(sessionId: String) {
-        if (runJob?.isActive == true) return
+        if (runJob?.isActive == true) {
+            // The previous run may be finishing right as the session became PAUSED and the
+            // user pressed Start again. Dropping this intent would leave the session idle,
+            // so remember it and start once the current job has fully released the queue.
+            pendingStartSessionId = sessionId
+            return
+        }
 
         val job = coordinator.start(serviceScope, sessionId)
         runJob = job
         serviceScope.launch {
             job.join()
-            stopRunner()
+            // A newer job may already have replaced this one; only the current job may
+            // clear state or stop the service.
+            if (runJob !== job) return@launch
+            runJob = null
+            val pending = pendingStartSessionId
+            pendingStartSessionId = null
+            if (pending != null) {
+                startRun(pending)
+            } else {
+                stopRunner()
+            }
         }
     }
 

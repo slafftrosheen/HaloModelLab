@@ -46,8 +46,8 @@ import com.slafftrosheen.halomodellab.domain.EventView
 import com.slafftrosheen.halomodellab.domain.FailureInfo
 import com.slafftrosheen.halomodellab.domain.QueueItemView
 import com.slafftrosheen.halomodellab.domain.SessionDetail
-import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.export.ExportShare
+import com.slafftrosheen.halomodellab.export.ReportExporter
 import com.slafftrosheen.halomodellab.ui.attemptOutcomeLabelRes
 import com.slafftrosheen.halomodellab.ui.demoScenarioTitleRes
 import com.slafftrosheen.halomodellab.ui.formatWallTime
@@ -365,7 +365,7 @@ private fun ExportCard(
     onShare: () -> Unit,
     onSave: () -> Unit,
 ) {
-    val quiescent = detail.summary.state !in NON_EXPORTABLE_STATES
+    val quiescent = ReportExporter.isExportable(detail.summary.state)
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -447,12 +447,6 @@ private fun ExportCard(
         }
     }
 }
-
-private val NON_EXPORTABLE_STATES = setOf(
-    SessionState.RUNNING,
-    SessionState.PAUSING,
-    SessionState.STOPPING,
-)
 
 @Composable
 private fun QueueItemCard(item: QueueItemView) {

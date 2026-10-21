@@ -78,6 +78,7 @@ internal object ExportJson {
         writer.name("ownerInstanceId").value(dto.ownerInstanceId)
         writer.endObject()
         writer.close()
+        // Buffer.close() is a no-op in okio; the written bytes stay readable.
         return buffer.readUtf8()
     }
 

@@ -16,6 +16,7 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -60,6 +61,8 @@ class ReportExporter(
 
         try {
             ExportResult.Success(writeArchive(detail))
+        } catch (cancellation: CancellationException) {
+            throw cancellation
         } catch (tooLarge: ArchiveTooLargeException) {
             ExportResult.Failure(
                 code = "EXPORT_TOO_LARGE",
@@ -416,6 +419,9 @@ class ReportExporter(
     private class ArchiveTooLargeException(message: String) : Exception(message)
 
     companion object {
+        /** Single source of truth for the UI button and the exporter guard. */
+        fun isExportable(state: SessionState): Boolean = state !in NON_EXPORTABLE_STATES
+
         const val SCHEMA_VERSION: Int = 1
         const val EXPORT_VERSION: Int = 1
         const val MAX_ARCHIVE_BYTES: Long = 32L * 1024L * 1024L

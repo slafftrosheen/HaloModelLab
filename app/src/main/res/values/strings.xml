@@ -92,9 +92,10 @@
     <string name="session_plan_items">Пунктов очереди: %1$d</string>
     <string name="session_create">Сохранить план сессии</string>
     <string name="session_create_hint">План сохраняется в Room как неизменяемый снимок. Запуск появится в HML-L2.</string>
-    <string name="session_message_created">План сохранён. Сессия в состоянии DRAFT ожидает исполнителя из HML-L2.</string>
+    <string name="session_message_created">План сохранён. Сессия в состоянии DRAFT: запуск выполняет foreground service на устройстве.</string>
     <string name="session_message_blocked">Нельзя создать сессию: уже есть незавершённая (%1$s).</string>
     <string name="session_message_no_scenarios">Сначала выберите хотя бы один сценарий.</string>
+    <string name="session_message_invalid_plan">Параметры плана вне допустимого диапазона. Измените повторы, таймаут или бюджет.</string>
     <string name="session_message_storage">Не удалось сохранить план: %1$s</string>
 
     <!-- История -->
