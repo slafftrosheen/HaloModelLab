@@ -1,15 +1,16 @@
 # Implementation status — Halo Model Lab
 
-Последнее обновление: 21 октября 2026. Пакет: **HML-L0**.
-Базовый commit: отсутствует (репозиторий инициализирован этим пакетом, `main`).
+Последнее обновление: 21 октября 2026. Пакеты: **HML-L0 … HML-L1**.
 
 ## Итог
 
-Исходники самостоятельного Android-приложения, четыре связанных экрана, честные empty
-states, demo-граница с четырьмя фикстурами и полный набор domain-типов.
+Реализованы: самостоятельное Android-приложение, четыре экрана, полный domain-контракт,
+qualification guard, каталог с честной demo-границей, неизменяемые планы сессий, очередь,
+попытки, события, Room-хранилище, восстановление прерванного владельца, история с фильтрами
+и экран деталей.
 
 Приложение **не собрано**, **не протестировано** и **не проверено на устройстве**.
-Настоящего inference, моста Halo, Room, очереди, сервиса и экспорта в этом пакете нет.
+Настоящего inference, моста Halo, очереди исполнения и экспорта пока нет.
 
 ```text
 Build: NOT_RUN
@@ -21,89 +22,63 @@ Device tests: NOT_RUN
 
 | Область | Исходники | Тестовые исходники | Сборка | Тесты | Устройство |
 |---|---|---|---|---|---|
-| Domain-контракт (`BenchContracts.kt`) | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| Qualification guard | есть | `QualificationGuardTest.kt` | NOT_RUN | NOT_RUN | NOT_RUN |
-| Каталог: режимы REAL_UNAVAILABLE / DEMO | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| Demo-сценарии и поиск | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| Навигация и четыре экрана | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| Сессия: выбор в памяти, disabled start | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| История из Room | отсутствует (L1) | — | NOT_RUN | NOT_RUN | NOT_RUN |
+| Domain-контракт, план, состояние | есть | `SessionStateMachineTest`, `QualificationGuardTest` | NOT_RUN | NOT_RUN | NOT_RUN |
+| Room-схема, DAO, репозиторий | есть | `SessionRepositoryTest` (androidTest) | NOT_RUN | NOT_RUN | NOT_RUN |
+| Recovery после потери процесса | есть | `SessionRepositoryTest` | NOT_RUN | NOT_RUN | NOT_RUN |
+| Каталог и demo-сценарии | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
+| План сессии, сохранение черновика | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
+| История и детали | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
 | Очередь, service, coordinator | отсутствует (L2) | — | NOT_RUN | NOT_RUN | NOT_RUN |
 | ZIP-экспорт | отсутствует (L3) | — | NOT_RUN | NOT_RUN | NOT_RUN |
 
-## Чек-лист HML-L0
+## Что связано в исходниках
 
-- [x] Рабочий каталог проверен: собственного git-репозитория у `HaloTestApk` нет
-      (git находил `C:/Users/slavd` с повреждённым HEAD), поэтому создан отдельный
-      репозиторий `HaloModelLab` в `main`. Изменения владельца не затрагивались.
-- [x] Gradle-конфигурация: один модуль `:app`, AGP 9.4.0 без `kotlin-android`,
-      Compose plugin 2.2.10, Compose BOM 2026.09.00, minSdk 26 / compileSdk 37 /
-      targetSdk 37, Java 17. Все версии зафиксированы в `gradle/libs.versions.toml`.
-- [x] `.gitignore` исключает build, IDE и signing-файлы.
-- [x] Настоящий wrapper: `gradle/wrapper/gradle-wrapper.jar`, `gradlew`, `gradlew.bat`
-      из официального тега Gradle `v9.6.0`; SHA-256 в `docs/PROVENANCE.md`.
-- [x] `T/domain/QualificationGuardTest.kt`: synthetic PASSED/FAILED, imported evidence,
-      CANCELLED/INTERRUPTED/SKIPPED, INVALID и UNKNOWN validity отклоняются;
-      валидные device-измерения проходят только guard.
-- [x] Контракт и guard без Android-зависимостей.
-- [x] Четыре экрана и навигация: каталог, новая сессия, история, настройки.
-- [x] Каталог настоящих моделей — честный empty state `BRIDGE_NOT_IMPLEMENTED`.
-- [x] Явный переключатель «Симуляция инфраструктуры» и четыре scenario-карточки
-      (`demo/success`, `demo/load-failure`, `demo/empty-output`, `demo/timeout`)
-      с меткой «СИМУЛЯЦИЯ — не результат проверки AI-модели» на каждой.
-- [x] Кнопка запуска disabled с текстом «Исполнитель очереди ещё не подключён».
-- [x] Границы, зависимости и NOT_RUN зафиксированы в `docs/`.
-- [x] Source review и `git diff --check`; локальный commit в `main`.
-- [x] Остановка после L0: HML-L1 не начат.
-
-## Что реально связано в исходниках
-
-1. `MainActivity` → `LabTheme` → `LabApp` → `NavHost` с маршрутами
-   `catalog`/`session`/`history`/`settings`; нижняя навигация сохраняет состояние вкладок.
-2. `CatalogScreen` → `CatalogViewModel` → `CatalogRepository` (`StateFlow`):
-   переключатель режима, поиск, выбор сценариев, сброс выбора.
-3. Смена режима меняет содержимое: REAL — empty state и недоступная загрузка,
-   DEMO — баннер симуляции, поиск и карточки.
-4. `SessionScreen` → `SessionViewModel` → тот же `CatalogRepository`: показывает
-   выбранные фикстуры в порядке выбора, профиль `DEMO_INFRASTRUCTURE_V1`, очистку выбора.
-5. «Перейти к сессии» / «Открыть каталог» переключают вкладки; кнопка запуска
-   постоянно disabled.
+1. `MainActivity` → `LabApp` → `NavHost`: каталог, сессия, история, настройки и вложенный
+   маршрут `session_details/{sessionId}`.
+2. `AppContainer` создаёт один `LabDatabase` и один `RoomSessionRepository`; recovery
+   запускается один раз на процесс и публикует `StartupState` (Recovering/Ready/Failed).
+3. Каталог → `CatalogRepository` → выбор demo-сценариев → `SessionViewModel`.
+4. `SessionViewModel` валидирует параметры (повторы 1–20, таймаут 1–120 с, бюджет 1–60 мин)
+   и вызывает `createSession(plan)`: одна транзакция пишет `sessions` + `queue_items` +
+   событие `SESSION_CREATED`. Вторая незавершённая сессия блокируется в транзакции.
+5. `SessionRepository` реализует `claimSession`, `beginAttempt` (BEFORE_EXECUTION до запуска),
+   `recordStage`, `finishAttempt` (compare-and-set), pause/stop/complete/fail/cancel,
+   `skipRemaining`, `retryItem`, `skipItem`, `recoverInterruptedOwner`.
+6. `HistoryViewModel` читает проекцию `SessionSummaryRow` из Room и фильтрует
+   все/завершённые/прерванные/synthetic; детали показывают план, пункты, попытки, ошибки,
+   события и телеметрию (пустую до L2).
+7. Каждое изменение состояния и его событие пишутся в одной транзакции; `seq` выдаётся
+   внутри транзакции через `lastSeq + 1`, а не `count() + 1`.
 
 ## Что недоступно по замыслу
 
-- Настоящие модели, каталог Halo, мост, веса, inference, backend CPU/GPU — отсутствуют.
-- Room, план сессии, очередь, попытки, события, recovery — HML-L1.
-- Foreground service, coordinator, fake engine, условия запуска — HML-L2.
-- ZIP-экспорт, FileProvider, отчёт — HML-L3.
-- История и настройки — статические экраны с объяснением, без фиктивных данных.
-- Выбор сценариев живёт только в памяти процесса и теряется при его смерти.
+- Настоящие модели, каталог Halo, мост, веса, inference, backend CPU/GPU.
+- Очередь исполнения, foreground service, условия запуска, уведомления — HML-L2.
+- ZIP-экспорт, FileProvider, share/save — HML-L3.
+- Удаление истории (отдельное подтверждённое действие) не реализовано.
+- Выбор сценариев в каталоге остаётся в памяти; план после сохранения неизменяем.
+- Длительность/ETA не оценивается: судьба бюджета решается только исполнителем.
 
 ## Фактически выполненные статические проверки
 
-Выполнялись только чтение, разбор XML, поиск по исходникам и git-операции.
+Выполнялись чтение, разбор XML, сверка строк, поиск по исходникам и git-операции.
 
-1. `python -c "xml.dom.minidom.parse(...)"` для `AndroidManifest.xml`,
-   `res/values/strings.xml`, `res/values/colors.xml`, `res/values/themes.xml` — 4/4
-   разобраны без ошибок.
-2. Сверка ссылок на строки: 70 использованных `R.string.*` в Kotlin — все определены;
-   `app_name` используется из manifest.
-3. Поиск запрещённых элементов: нет `uses-permission`, `INTERNET`, сетевых SDK,
-   Analytics, Firebase, OpenAI/OpenRouter; нет `includeBuild`, `../Halo`,
-   `com.halo.app`, `aistudio`.
-4. Поиск динамических версий (`+`, SNAPSHOT) в build-файлах — не найдено.
-5. Чтение POM: Compose BOM 2026.09.00 → material3 1.4.0, ui 1.12.1,
-   material-icons-core 1.7.8; material3 1.4.0 не приносит icons транзитивно,
-   поэтому зависимость добавлена явно.
+1. `python`-разбор 4 XML-файлов (`AndroidManifest.xml`, `strings.xml`, `colors.xml`,
+   `themes.xml`) — без ошибок.
+2. Сверка `R.string.*`: все использованные ключи определены, неиспользуемых нет
+   (`app_name` используется из manifest).
+3. Все Kotlin-пакеты совпадают со структурой каталогов; TODO/FIXME/NotImplementedError нет.
+4. Поиск запрещённого: нет `uses-permission`, сетевых SDK, Analytics, Firebase,
+   OpenAI/OpenRouter, `includeBuild`, ссылок на Halo source tree.
+5. Чтение POM/Maven metadata: AGP 9.4.0 зависит от Kotlin 2.2.10 (совпадает с Compose
+   plugin 2.2.10); Room 2.8.5, KSP 2.3.6, lifecycle 2.11.0, activity-compose 1.10.1,
+   navigation-compose 2.10.1, Compose BOM 2026.09.00 и androidx.test-артефакты существуют.
 6. `git diff --check` — без пробельных ошибок (см. отчёт пакета).
-7. Построчный source review всех созданных Kotlin/XML/Gradle-файлов.
-8. `java -version` → 1.8.0_503, `gradle` в PATH отсутствует, `kotlinc` отсутствует:
-   среда не готова к сборке AGP 9 без установки JDK 17+ (см. PENDING_VERIFICATION).
+7. Source review всех изменённых файлов, включая Room-запросы, транзакции и recovery.
 
 Сборка, unit-тесты, instrumentation-тесты, эмулятор, ADB и проверки на телефоне
-не запускались. Логи сборки и тестов отсутствуют, поэтому фразы «собирается»,
-«тесты проходят» и «готово к benchmark» неприменимы.
+не запускались.
 
 ## Следующий разрешённый пакет
 
-HML-L1 — планы сессий, Room, восстановление после потери процесса.
-Начинать только по отдельной инструкции владельца.
+HML-L2 — автономный demo runner, foreground service и условия запуска.

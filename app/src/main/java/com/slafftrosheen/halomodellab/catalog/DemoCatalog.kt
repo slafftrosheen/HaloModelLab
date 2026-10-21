@@ -32,6 +32,9 @@ object DemoCatalog {
     /** The only plan profile v0 offers. Real SMOKE/SOAK profiles belong to a later stage. */
     const val PROFILE_ID: String = "DEMO_INFRASTRUCTURE_V1"
 
+    /** Engine id of the cooperative fake engine; it is not an inference runtime id. */
+    const val DEMO_ENGINE_ID: String = "demo-engine-v1"
+
     const val SUCCESS: String = "demo/success"
     const val LOAD_FAILURE: String = "demo/load-failure"
     const val EMPTY_OUTPUT: String = "demo/empty-output"

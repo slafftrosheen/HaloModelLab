@@ -5,9 +5,8 @@ import android.app.Application
 /**
  * Owns the single AppContainer for the process.
  *
- * Nothing starts here except object construction: no service, no runner, no boot receiver.
- * In HML-L1 this is where the one-time interrupted-owner recovery runs, before any start
- * command is accepted.
+ * Construction also schedules the one-time interrupted-owner recovery on an IO dispatcher.
+ * Nothing else starts here: no service, no runner, no boot receiver.
  */
 class LabApplication : Application() {
     lateinit var container: AppContainer
@@ -15,6 +14,6 @@ class LabApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer()
+        container = AppContainer(this)
     }
 }

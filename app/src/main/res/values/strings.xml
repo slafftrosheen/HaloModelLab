@@ -7,6 +7,11 @@
     <string name="nav_history">История</string>
     <string name="nav_settings">Настройки</string>
 
+    <string name="common_dismiss">Понятно</string>
+    <string name="common_yes">да</string>
+    <string name="common_no">нет</string>
+    <string name="common_unknown_short">неизвестно</string>
+
     <!-- Каталог -->
     <string name="catalog_title">Каталог моделей</string>
     <string name="catalog_mode_simulation">Симуляция инфраструктуры</string>
@@ -44,33 +49,123 @@
     <string name="scenario_unknown_title">Неизвестный сценарий</string>
     <string name="scenario_unknown_body">Сценарий отсутствует в demo-каталоге этой сборки.</string>
 
-    <!-- Сессия -->
+    <!-- Сессия и план -->
     <string name="session_title">Новая сессия</string>
-    <string name="session_empty_title">Сценарии не выбраны</string>
-    <string name="session_empty_body">Выберите один или несколько demo-сценариев в каталоге.</string>
     <string name="session_open_catalog">Открыть каталог</string>
     <string name="session_profile">Профиль плана: %1$s</string>
     <string name="session_item_title">%1$d. %2$s</string>
-    <string name="session_in_memory">Выбор хранится только в памяти и не сохраняется: хранилище сессий появится в HML-L1.</string>
-    <string name="session_plan_unavailable">Параметры плана — повторы, таймаут, бюджет, требование зарядки — ещё не редактируются, снимок плана не создаётся.</string>
     <string name="session_start_disabled">Исполнитель очереди ещё не подключён</string>
     <string name="session_start_note">Очередь, foreground service и demo-исполнитель появятся в HML-L2. Кнопка запуска намеренно неактивна.</string>
     <string name="session_clear_selection">Очистить выбор</string>
+    <string name="session_startup_recovering_title">Проверка хранилища</string>
+    <string name="session_startup_recovering_body">Восстанавливается состояние после предыдущего запуска. Создание сессии начнётся после этой проверки.</string>
+    <string name="session_startup_failed_title">Хранилище недоступно</string>
+    <string name="session_startup_failed_body">Восстановление не удалось: %1$s. Создание новых сессий запрещено, чтобы не заявлять ложное сохранение.</string>
+    <string name="session_open_exists_title">Уже есть незавершённая сессия</string>
+    <string name="session_open_exists_body">Завершите или отмените её, прежде чем создавать новую. Второй незавершённой сессии быть не может.</string>
+    <string name="session_state_label">Состояние: %1$s</string>
+    <string name="session_items_progress">Пункты: %1$d из %2$d</string>
+    <string name="session_origin">Origin: %1$s</string>
+    <string name="session_created_at">Создана: %1$s</string>
+    <string name="session_cancel">Отменить сессию</string>
+    <string name="session_cancel_unavailable">Отмена доступна для черновика, паузы и прерванной сессии.</string>
+    <string name="session_builder_selection_title">Выбранные сценарии</string>
+    <string name="session_builder_selection_empty">Сценарии не выбраны</string>
+    <string name="session_builder_selection_hint">Выберите один или несколько demo-сценариев в каталоге, чтобы составить план.</string>
+    <string name="session_builder_params_title">Параметры плана</string>
+    <string name="session_param_repeats">Повторы</string>
+    <string name="session_param_timeout">Таймаут попытки, с</string>
+    <string name="session_param_budget">Бюджет сессии, мин</string>
+    <string name="session_param_charging">Только на зарядке</string>
+    <string name="session_param_charging_hint">Требование сохраняется в плане. Проверять его будет исполнитель в HML-L2.</string>
+    <string name="session_param_range">Допустимо: %1$d–%2$d</string>
+    <string name="session_plan_items">Пунктов очереди: %1$d</string>
+    <string name="session_create">Сохранить план сессии</string>
+    <string name="session_create_hint">План сохраняется в Room как неизменяемый снимок. Запуск появится в HML-L2.</string>
+    <string name="session_message_created">План сохранён. Сессия в состоянии DRAFT ожидает исполнителя из HML-L2.</string>
+    <string name="session_message_blocked">Нельзя создать сессию: уже есть незавершённая (%1$s).</string>
+    <string name="session_message_no_scenarios">Сначала выберите хотя бы один сценарий.</string>
+    <string name="session_message_storage">Не удалось сохранить план: %1$s</string>
 
     <!-- История -->
     <string name="history_title">История</string>
-    <string name="history_storage_title">Хранилище сессий не подключено</string>
-    <string name="history_storage_body">История не читается из базы: Room и восстановление после потери процесса появятся в HML-L1. Сессии сейчас не создаются и не запускаются.</string>
-    <string name="history_empty_title">Сессий нет</string>
-    <string name="history_empty_body">Здесь появятся сохранённые сессии, попытки и события. Это не результат проверки моделей.</string>
-    <string name="history_filters">Фильтры «все», «завершённые», «прерванные», «synthetic» станут доступны вместе с хранилищем.</string>
+    <string name="history_filter_all">Все</string>
+    <string name="history_filter_completed">Завершённые</string>
+    <string name="history_filter_interrupted">Прерванные</string>
+    <string name="history_filter_synthetic">Synthetic</string>
+    <string name="history_item_progress">%1$d из %2$d пунктов</string>
+    <string name="history_origin_line">Origin: %1$s</string>
+    <string name="history_created_line">Создана: %1$s</string>
+    <string name="history_engine_line">Движок: %1$s</string>
+    <string name="history_empty_all_title">Сессий нет</string>
+    <string name="history_empty_all_body">В базе нет сохранённых сессий. Это не результат проверки моделей.</string>
+    <string name="history_empty_filtered">По выбранному фильтру сессий нет.</string>
+
+    <!-- Детали сессии -->
+    <string name="details_title">Сессия</string>
+    <string name="details_back">Назад</string>
+    <string name="details_loading">Загрузка сессии…</string>
+    <string name="details_not_found">Сессия не найдена</string>
+    <string name="details_plan_title">План</string>
+    <string name="details_repeats">Повторов на сценарий: %1$d</string>
+    <string name="details_timeout">Таймаут попытки: %1$d с</string>
+    <string name="details_budget">Бюджет сессии: %1$d мин</string>
+    <string name="details_charging">Требуется зарядка: %1$s</string>
+    <string name="details_finished_line">Завершена: %1$s</string>
+    <string name="details_active_time">Сохранённое активное время: %1$d мс</string>
+    <string name="details_queue_title">Очередь</string>
+    <string name="details_queue_item">%1$d. %2$s</string>
+    <string name="details_queue_state">Пункт: %1$s</string>
+    <string name="details_repeat_index">Плановый повтор: %1$d</string>
+    <string name="details_attempt_title">Попытка %1$d — %2$s</string>
+    <string name="details_attempt_stage">Стадия: %1$s</string>
+    <string name="details_attempt_validity">Достоверность: %1$s</string>
+    <string name="details_attempt_deadline">Дедлайн: %1$s</string>
+    <string name="details_attempt_elapsed">Длительность: %1$s</string>
+    <string name="details_attempt_failure">Причина попытки</string>
+    <string name="details_session_failure">Ошибка инфраструктуры сессии</string>
+    <string name="details_events_title">События</string>
+    <string name="details_events_empty">Событий нет</string>
+    <string name="details_events_count">Событий сохранено: %1$d</string>
+    <string name="details_events_more">Показаны первые %1$d из %2$d событий.</string>
+    <string name="details_telemetry_title">Телеметрия</string>
+    <string name="details_telemetry_empty">Телеметрия контроллера появится вместе с исполнителем (HML-L2).</string>
+
+    <!-- Состояния и исходы -->
+    <string name="state_draft">Черновик</string>
+    <string name="state_running">Выполняется</string>
+    <string name="state_pausing">Пауза после текущей проверки</string>
+    <string name="state_paused">Пауза</string>
+    <string name="state_stopping">Остановка</string>
+    <string name="state_completed">Завершена</string>
+    <string name="state_cancelled">Отменена</string>
+    <string name="state_interrupted">Прервана</string>
+    <string name="state_failed">Ошибка инфраструктуры</string>
+
+    <string name="queue_pending">Ожидает</string>
+    <string name="queue_active">Активен</string>
+    <string name="queue_done">Выполнен</string>
+    <string name="queue_skipped">Пропущен</string>
+    <string name="queue_needs_decision">Нужно решение</string>
+
+    <string name="outcome_pending">Нет результата</string>
+    <string name="outcome_passed">PASSED</string>
+    <string name="outcome_failed">FAILED</string>
+    <string name="outcome_timed_out">TIMED_OUT</string>
+    <string name="outcome_cancelled">CANCELLED</string>
+    <string name="outcome_interrupted">INTERRUPTED</string>
+    <string name="outcome_skipped">SKIPPED</string>
+
+    <string name="origin_synthetic">SYNTHETIC (симуляция)</string>
+    <string name="origin_device">DEVICE_MEASUREMENT</string>
+    <string name="origin_imported">IMPORTED_UNVERIFIED</string>
 
     <!-- Настройки -->
     <string name="settings_title">Настройки</string>
     <string name="settings_conditions_title">Условия запуска</string>
-    <string name="settings_conditions_body">Зарядка, thermal-статус, бюджет и хранение будут проверяться исполнителем в HML-L2. Действующих переключателей пока нет.</string>
+    <string name="settings_conditions_body">Зарядка, thermal-статус и бюджет будут проверяться исполнителем в HML-L2. Действующих переключателей пока нет.</string>
     <string name="settings_storage_title">Хранение и экспорт</string>
-    <string name="settings_storage_body">Лимиты хранения, ZIP-экспорт и удаление истории появятся вместе с хранилищем и экспортёром. Экспорт недоступен.</string>
+    <string name="settings_storage_body">Сессии сохраняются в Room на устройстве. ZIP-экспорт и удаление истории появятся вместе с экспортёром; удаление сейчас недоступно.</string>
     <string name="settings_delete_history">Удалить историю (недоступно)</string>
     <string name="settings_about_title">О приложении</string>
     <string name="settings_version">Версия приложения: %1$s</string>

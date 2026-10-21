@@ -18,14 +18,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.slafftrosheen.halomodellab.AppContainer
 import com.slafftrosheen.halomodellab.R
 import com.slafftrosheen.halomodellab.ui.catalog.CatalogRoute
-import com.slafftrosheen.halomodellab.ui.history.HistoryScreen
+import com.slafftrosheen.halomodellab.ui.history.HistoryRoute
+import com.slafftrosheen.halomodellab.ui.history.SessionDetailsRoute
 import com.slafftrosheen.halomodellab.ui.session.SessionRoute
 import com.slafftrosheen.halomodellab.ui.settings.SettingsScreen
 
@@ -34,6 +38,11 @@ object LabRoutes {
     const val SESSION: String = "session"
     const val HISTORY: String = "history"
     const val SETTINGS: String = "settings"
+
+    const val SESSION_ID_ARG: String = "sessionId"
+    const val SESSION_DETAILS: String = "session_details/{$SESSION_ID_ARG}"
+
+    fun sessionDetails(sessionId: String): String = "session_details/$sessionId"
 }
 
 private data class LabDestination(
@@ -66,13 +75,7 @@ fun LabApp(container: AppContainer) {
                         selected = currentRoute == destination.route,
                         onClick = {
                             if (currentRoute != destination.route) {
-                                navController.navigate(destination.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                                navController.navigateToTab(destination.route)
                             }
                         },
                         icon = {
@@ -105,7 +108,25 @@ fun LabApp(container: AppContainer) {
                 )
             }
             composable(LabRoutes.HISTORY) {
-                HistoryScreen()
+                HistoryRoute(
+                    container = container,
+                    onOpenSession = { sessionId ->
+                        navController.navigate(LabRoutes.sessionDetails(sessionId))
+                    },
+                )
+            }
+            composable(
+                route = LabRoutes.SESSION_DETAILS,
+                arguments = listOf(navArgument(LabRoutes.SESSION_ID_ARG) { type = NavType.StringType }),
+            ) { entry ->
+                val sessionId = entry.arguments?.getString(LabRoutes.SESSION_ID_ARG)
+                if (sessionId != null) {
+                    SessionDetailsRoute(
+                        container = container,
+                        sessionId = sessionId,
+                        onBack = { navController.popBackStack() },
+                    )
+                }
             }
             composable(LabRoutes.SETTINGS) {
                 SettingsScreen()
@@ -114,7 +135,7 @@ fun LabApp(container: AppContainer) {
     }
 }
 
-private fun androidx.navigation.NavHostController.navigateToTab(route: String) {
+private fun NavHostController.navigateToTab(route: String) {
     navigate(route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
         launchSingleTop = true

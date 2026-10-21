@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 android {
@@ -11,10 +12,10 @@ android {
         applicationId = "com.slafftrosheen.halomodellab"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0-l0"
+        versionCode = 2
+        versionName = "0.1.0-l1"
 
-        // No testInstrumentationRunner yet: HML-L0 ships source-level unit tests only.
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -41,10 +42,13 @@ android {
     }
 }
 
-// With AGP 9 built-in Kotlin, jvmTarget follows android.compileOptions.targetCompatibility;
-// no separate kotlin{} compiler block is needed.
+ksp {
+    // Room schema export. The JSON files appear on the first successful build and must be
+    // committed; see app/schemas/README.md.
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
 
-// HML-L0 intentionally has no network, analytics, inference, storage or export dependencies.
+// HML-L1 has no network, analytics, inference or export dependencies.
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -58,7 +62,17 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.room.runtime)
 }
