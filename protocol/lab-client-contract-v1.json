@@ -15,12 +15,47 @@
     "EMBEDDING": null
   },
   "backends": ["AUTO", "CPU", "GPU", "NPU", "UNSPECIFIED"],
+  "connectionStatuses": [
+    "HALO_NOT_INSTALLED",
+    "BRIDGE_NOT_SUPPORTED",
+    "SIGNATURE_MISMATCH",
+    "CONSENT_REQUIRED",
+    "PROTOCOL_MISMATCH",
+    "BUSY",
+    "RECONNECTING",
+    "READY",
+    "UNKNOWN_CONNECTION_FAILURE"
+  ],
+  "operations": [
+    "handshake",
+    "listModels",
+    "acquireArtifactLease",
+    "renewArtifactLease",
+    "releaseArtifactLease",
+    "submitCase",
+    "queryCase",
+    "cancelCase",
+    "readEvents",
+    "acknowledgeEvents",
+    "openEvidenceArtifact",
+    "acquireModel",
+    "queryAcquisition",
+    "cancelAcquisition"
+  ],
   "identity": {
     "remoteEventKey": ["serverEpoch", "remoteRunId", "sequence"],
     "artifactManifestHash": "sha256-canonical-json-v1",
     "executionScopeHash": "sha256-canonical-json-v1"
   },
   "limits": {
+    "requestBytes": 32768,
+    "replyBytes": 65536,
+    "eventPageBytes": 65536,
+    "eventPayloadBytes": 16384,
+    "eventsPerPage": 64,
+    "modelsPerPage": 50,
+    "outstandingCommandsPerClient": 4,
+    "artifactTransfersPerClient": 2,
     "stageBudgetMs": {"minimum": 1000, "maximum": 1800000},
     "sessionBudgetMs": {"minimum": 60000, "maximum": 86400000},
     "artifactParts": 256,

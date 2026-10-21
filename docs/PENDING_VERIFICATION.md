@@ -4,7 +4,7 @@
 
 No Gradle, build, automated test, emulator, ADB, install, or phone benchmark command was run in this continuation. Allowed source-only checks and their results are recorded in `docs/TAKEOVER_AUDIT.md` and `docs/CONTINUATION_STATE.json`.
 
-C1 adds Room schema version 2 with a source-defined 1→2 migration. The v2 generated schema is intentionally absent until V0; `RealPlanMigrationTest` and the real-plan persistence instrumentation source are written but **NOT_RUN**. `protocol/lab-client-contract-v1.json` remains a Lab-local draft, so canonical protocol hash and compatible Halo commit pair are unknown.
+C1 adds Room schema version 2 with a source-defined 1→2 migration. The v2 generated schema is intentionally absent until V0; `RealPlanMigrationTest` and the real-plan persistence instrumentation source are written but **NOT_RUN**. C2 adds protocol and event-import test sources, also **NOT_RUN**. `protocol/lab-client-contract-v1.json` remains a Lab-local draft, so canonical protocol hash and compatible Halo commit pair are unknown. Binder security, consent enforcement, and server replay durability remain `BLOCKED_HALO_WRITE_ACCESS`.
 
 The prior report must not be used to claim a usable APK, native crash resilience, or real-model success. Device and real-inference acceptance remains open. C1-C10 source verification will remain `NOT_RUN` until a separate V0/V1 authorisation.
 

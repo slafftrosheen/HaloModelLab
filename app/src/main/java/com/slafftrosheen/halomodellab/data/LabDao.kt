@@ -64,6 +64,29 @@ abstract class LabDao {
     @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND remoteSequence = :sequence")
     abstract suspend fun remoteEvent(serverEpoch: String, remoteRunId: String, sequence: Long): RemoteEventEntity?
 
+    @Query("SELECT * FROM remote_bindings WHERE sessionId = :sessionId")
+    abstract suspend fun remoteBinding(sessionId: String): RemoteBindingEntity?
+
+    @Query("SELECT COUNT(*) FROM remote_events WHERE sessionId = :sessionId")
+    abstract suspend fun remoteEventCount(sessionId: String): Int
+
+    @Query("UPDATE remote_bindings SET serverEpoch = :serverEpoch, remoteRunId = :remoteRunId, currentServerInstanceId = :serverInstanceId WHERE sessionId = :sessionId AND (serverEpoch IS NULL OR serverEpoch = :serverEpoch) AND (remoteRunId IS NULL OR remoteRunId = :remoteRunId)")
+    abstract suspend fun bindRemoteRun(
+        sessionId: String,
+        serverEpoch: String,
+        remoteRunId: String,
+        serverInstanceId: String,
+    ): Int
+
+    @Query("UPDATE remote_bindings SET highestImportedSequence = :newSequence WHERE sessionId = :sessionId AND serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND highestImportedSequence = :expectedSequence")
+    abstract suspend fun advanceRemoteEventCursor(
+        sessionId: String,
+        serverEpoch: String,
+        remoteRunId: String,
+        expectedSequence: Long,
+        newSequence: Long,
+    ): Int
+
     @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND sessionId = :sessionId AND remoteSequence > :afterSequence ORDER BY remoteSequence LIMIT :limit")
     abstract suspend fun remoteEventsAfter(
         sessionId: String,
