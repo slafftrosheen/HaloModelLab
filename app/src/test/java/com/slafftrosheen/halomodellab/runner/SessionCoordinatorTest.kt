@@ -273,13 +273,15 @@ class SessionCoordinatorTest {
             budgetMs = 60_000L,
             repeatCount = 1,
             requireCharging = true,
-            items = scenarios.mapIndexed { index, scenario ->
+            items = scenarios.map { scenario ->
                 PlannedItem(
                     subjectId = scenario,
                     scenarioId = scenario,
                     role = ModelRole.CHAT,
                     requestedBackend = ComputeBackend.UNSPECIFIED,
-                    repeatIndex = index,
+                    // One repetition of every scenario: repeatIndex is the repetition number,
+                    // not the queue ordinal.
+                    repeatIndex = 0,
                 )
             },
         )

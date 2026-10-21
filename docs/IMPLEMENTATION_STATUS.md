@@ -1,6 +1,6 @@
 # Implementation status — Halo Model Lab
 
-Последнее обновление: 21 октября 2026. Пакеты: **HML-L0 … HML-L4**.
+Последнее обновление: 21 октября 2026. Пакеты: **HML-L0 … HML-L4** + **C0** (первая сборка).
 
 ## Итог
 
@@ -15,11 +15,13 @@ L4 — только обзор и точечные исправления: ед�
 при завершении очереди, очистка control-flags до запуска, удаление мёртвого кода.
 Новых подсистем не добавлено.
 
-Приложение **не собрано**, **не протестировано** и **не проверено на устройстве**.
+Приложение **собрано** (`assembleDebug`, debug-подпись), unit-тесты **проходят**,
+instrumentation-тесты **компилируются**. На устройстве не проверялось.
 
 ```text
-Build: NOT_RUN
-Automated tests: NOT_RUN
+Build: PASSED (assembleDebug, JDK 21, Gradle 9.6.0, AGP 9.4.0, compileSdk 37)
+Automated tests: PASSED (testDebugUnitTest: 55 tests, 0 failed)
+Instrumentation: sources compile (assembleDebugAndroidTest); execution NOT_RUN
 Device tests: NOT_RUN
 ```
 
@@ -27,17 +29,17 @@ Device tests: NOT_RUN
 
 | Область | Исходники | Тестовые исходники | Сборка | Тесты | Устройство |
 |---|---|---|---|---|---|
-| Domain, план, состояние | есть | `SessionStateMachineTest`, `QualificationGuardTest` | NOT_RUN | NOT_RUN | NOT_RUN |
-| Room-схема, DAO, репозиторий | есть | `SessionRepositoryTest` (androidTest) | NOT_RUN | NOT_RUN | NOT_RUN |
-| Recovery после потери процесса | есть | `SessionRepositoryTest` | NOT_RUN | NOT_RUN | NOT_RUN |
-| Каталог и demo-сценарии | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| Demo engine | есть | `FakeBenchmarkEngineTest` | NOT_RUN | NOT_RUN | NOT_RUN |
-| Coordinator: pause/stop/budget/условия | есть | `SessionCoordinatorTest` | NOT_RUN | NOT_RUN | NOT_RUN |
-| Foreground service и уведомление | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| История и детали | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| ZIP-экспорт и отчёт | есть | `ReportFormatterTest`, `ReportExporterTest` | NOT_RUN | NOT_RUN | NOT_RUN |
-| Share/save через FileProvider | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
-| Ручная приёмка (15 сценариев) | есть | — | NOT_RUN | NOT_RUN | NOT_RUN |
+| Domain, план, состояние | есть | `SessionStateMachineTest`, `QualificationGuardTest` | PASSED | PASSED | NOT_RUN |
+| Room-схема, DAO, репозиторий | есть | `SessionRepositoryTest` (androidTest) | PASSED | NOT_RUN (компилируется) | NOT_RUN |
+| Recovery после потери процесса | есть | `SessionRepositoryTest` | PASSED | NOT_RUN (компилируется) | NOT_RUN |
+| Каталог и demo-сценарии | есть | — | PASSED | — | NOT_RUN |
+| Demo engine | есть | `FakeBenchmarkEngineTest` | PASSED | PASSED | NOT_RUN |
+| Coordinator: pause/stop/budget/условия | есть | `SessionCoordinatorTest` | PASSED | PASSED | NOT_RUN |
+| Foreground service и уведомление | есть | — | PASSED | — | NOT_RUN |
+| История и детали | есть | — | PASSED | — | NOT_RUN |
+| ZIP-экспорт и отчёт | есть | `ReportFormatterTest`, `ReportExporterTest` | PASSED | PASSED | NOT_RUN |
+| Share/save через FileProvider | есть | — | PASSED | — | NOT_RUN |
+| Ручная приёмка (15 сценариев) | есть | — | — | — | NOT_RUN |
 
 ## Что связано в исходниках
 
@@ -90,7 +92,35 @@ Device tests: NOT_RUN
 - Уведомление не обновляет прогресс в реальном времени: только состояние выполнения.
 - Атомарная запись во внешний provider не гарантируется; частичный файл возможен.
 
-## Фактически выполненные статические проверки
+## Пакет C0: первая сборка и её исправления
+
+Сборка выполнена на JDK 21 (Adoptium из `~/.gradle/jdks`), Gradle 9.6.0 wrapper,
+AGP 9.4.0, Kotlin 2.2.10, KSP 2.3.6, compileSdk 37. Найдено и исправлено:
+
+1. `SessionViewModel.cancelOpenSession` — trailing-ламбда передавалась в последний
+   параметр `launchStorageCommand` (там `successMessage`), а не в `block`; вызов переведён
+   на именованные аргументы. Это была ошибка компиляции, не поведения.
+2. `ExportJson`: Moshi `JsonWriter` по умолчанию пропускает null-значения —
+   `"inferenceRuntime": null` молча выпадал из manifest.json, нарушая честность
+   runtime-блока. Включён `serializeNulls` в обоих writer'ах (manifest/DTO и events),
+   теперь null — явное поле схемы.
+3. `SessionCoordinatorTest.plan()` — фикстура выставляла `repeatIndex = index` очереди
+   при `repeatCount = 1`, что нарушает `require(repeatIndex in 0 until repeatCount)` для
+   многосценарных планов. Исправлено на `repeatIndex = 0` для каждого пункта.
+4. `ReportExporterTest.telemetryCsvEscapesAndNeutralizesFormulas` — ожидание
+   `battery_temp,,celsius` не учитывало пустую колонку attemptId у session-level
+   телеметрии; фактический формат `battery_temp,,,celsius` (обе колонки пусты, значение
+   не подменяется нулём). Ожидание уточнено, проверка «пусто, а не 0» сохранена.
+5. `app/build.gradle.kts` — добавлена недостающая `androidTestImplementation`
+   зависимость `kotlinx-coroutines-test`: `SessionRepositoryTest` использует `runTest`.
+6. Сгенерирована и добавлена Room-схема
+   `app/schemas/com.slafftrosheen.halomodellab.data.LabDatabase/1.json` (identityHash
+   `6536b41e873be1f22ba57f4f3e32183c`).
+
+Ошибки исправлены по причине, без подавления: ни одного `@Ignore`, подавления
+lint/type, ослабленного утверждения или destructive migration.
+
+## Фактически выполненные проверки (C0)
 
 1. Python-разбор 5 XML-файлов — без ошибок (manifest с сервисом и FileProvider,
    `export_paths.xml`).
@@ -112,12 +142,18 @@ Device tests: NOT_RUN
    неиспользуемых `implementation`/`testImplementation` зависимостей не найдено.
 10. Эвристика неиспользуемых импортов: срабатывания только на `getValue`/`setValue`,
     которые нужны для `by`-делегатов; реальных лишних импортов нет.
+11. `./gradlew :app:assembleDebug` — BUILD SUCCESSFUL; `app-debug.apk` собран.
+12. `./gradlew :app:testDebugUnitTest` — BUILD SUCCESSFUL; 55 тестов, 0 падений
+    (включая `ReportFormatterTest`, `ReportExporterTest`, `SessionCoordinatorTest`).
+13. `./gradlew :app:assembleDebugAndroidTest` — BUILD SUCCESSFUL; instrumentation-исходники
+    компилируются.
 
-Сборка, unit-тесты, instrumentation, эмулятор, ADB и проверки на телефоне не запускались.
-`ReportFormatterTest` и `ReportExporterTest` добавлены как исходники и помечены NOT_RUN.
+Эмулятор, ADB и проверки на телефоне не запускались; `connectedDebugAndroidTest` и
+15 сценариев ручной приёмки остаются NOT_RUN.
 
 ## Следующий шаг
 
-Пакеты L0…L4 внешнего агента завершены. Дальше — C0 из `docs/HANDOFF.md`:
-сборка и закрытие ошибок компиляции, затем заморозка bridge-контракта. Без отдельного
-разрешения не запускать сборку и не подключать Halo.
+Пакеты L0…L4 и C0 завершены: сборка зелёная, unit-тесты зелёные. Дальше — C1 из
+`docs/HANDOFF.md`: заморозка bridge-контракта (`HaloLabGateway`, `BridgeStatus`, типы
+artifact hash/runtime version/adapter revision). Подключать Halo source tree нельзя.
+Отдельно остаются устройство-проверки: `connectedDebugAndroidTest` и ручная приёмка.

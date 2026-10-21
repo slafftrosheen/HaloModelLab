@@ -1,7 +1,9 @@
 # Handoff to Codex — Halo Model Lab v0
 
-Состояние: HML-L0…HML-L4 завершены на уровне исходников. Приложение **не собрано** и
-**не проверено** на устройстве. Настоящего inference, моста Halo, весов и runtime здесь нет.
+Состояние: HML-L0…HML-L4 + C0 завершены. Приложение **собрано** (`assembleDebug`),
+unit-тесты **проходят** (55/55), instrumentation-исходники **компилируются**;
+на устройстве **не проверялось**. Настоящего inference, моста Halo, весов и runtime
+здесь нет.
 
 ## 1. Что уже работает по исходникам
 
@@ -65,8 +67,10 @@ SessionDetailsScreen ──> SessionDetailsViewModel ──> ReportExporter ─�
 
 ## 4. Предлагаемый следующий шаг (не выполнен)
 
-1. **C0.** Собрать проект, прогнать `testDebugUnitTest`, `assembleDebug`,
-   `connectedDebugAndroidTest`; закрыть ошибки компиляции Room/KSP и Moshi `JsonWriter`.
+1. **C0 — ВЫПОЛНЕН (21.10.2026).** `assembleDebug`, `testDebugUnitTest` (55/55),
+   компиляция `assembleDebugAndroidTest` — зелёные; исправлены ошибки компиляции и
+   три ошибки тестовых фикстур/ожиданий (см. `docs/IMPLEMENTATION_STATUS.md`, раздел C0).
+   `connectedDebugAndroidTest` НЕ запускался — нет устройства/emulator.
 2. **C1.** Заморозить `HaloLabGateway` и `BridgeStatus`; добавить типы для artifact manifest
    hash, runtime version, adapter revision. Не подключать Halo source tree.
 3. **C2.** Один каталог и один downloader; повторный запуск не скачивает модель заново;
@@ -79,5 +83,7 @@ SessionDetailsScreen ──> SessionDetailsViewModel ──> ReportExporter ─�
 
 ## 5. Открытые проверки
 
-Всё перечисленное в `docs/PENDING_VERIFICATION.md` остаётся `NOT_RUN`. Перед изменениями
-схемы прочитать разделы «Room + KSP», «Foreground service», «Экспорт» и «FileProvider».
+Всё устройственное из `docs/PENDING_VERIFICATION.md` остаётся `NOT_RUN`
+(`connectedDebugAndroidTest`, foreground service, уведомления, датчики, share-sheet,
+ручная приёмка). Перед изменениями схемы прочитать разделы «Room + KSP»,
+«Foreground service», «Экспорт» и «FileProvider».

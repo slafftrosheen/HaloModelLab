@@ -170,8 +170,9 @@ class ReportExporterTest {
         // Formula neutralization plus quoting of comma and quote characters.
         assertTrue(csv.contains("\"'=no,sensor \"\"x\"\"\""))
         assertTrue(csv.contains("free_storage"))
-        // A missing measurement stays empty, never zero.
-        assertTrue(csv.contains("battery_temp,,celsius"))
+        // A missing measurement stays empty, never zero. Session-level samples carry no
+        // attemptId, so both the attemptId and the value columns are empty.
+        assertTrue(csv.contains("battery_temp,,,celsius"))
     }
 
     @Test

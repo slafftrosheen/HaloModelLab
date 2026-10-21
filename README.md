@@ -4,9 +4,10 @@
 локальных benchmark-сессий. В этой версии исполняется **только управляемая симуляция**;
 настоящих моделей, весов, моста Halo и inference здесь нет.
 
-> **Статус:** исходники HML-L0…HML-L4 добавлены, но проект **не собирался**,
-> **не тестировался** и **не проверялся на устройстве**.
-> `Build: NOT_RUN`, `Automated tests: NOT_RUN`, `Device tests: NOT_RUN`.
+> **Статус:** исходники HML-L0…HML-L4 собраны и покрыты unit-тестами (C0, 21.10.2026).
+> `Build: PASSED (assembleDebug)`, `Automated tests: PASSED (55/55 testDebugUnitTest)`,
+> `Device tests: NOT_RUN` — instrumentation-тесты компилируются, но на устройстве
+> не запускались.
 
 ## Что можно увидеть после сборки
 
@@ -60,23 +61,23 @@ app/src/main/java/com/slafftrosheen/halomodellab/
   export/     DTO, JsonWriter-сериализация, отчёт, ZIP, share
   runner/     fake engine, координатор, foreground service, условия, уведомления
   ui/         Compose-экраны и ViewModel
-app/src/test/         источник unit-тестов (NOT_RUN)
-app/src/androidTest/  источник Room-тестов (NOT_RUN)
+app/src/test/         unit-тесты (55/55 проходят)
+app/src/androidTest/  Room-тесты (компилируются; запуск только на устройстве)
 docs/                 статус, ожидающие проверки, ручная приёмка, handoff
 ```
 
-## Сборка (когда будет разрешена)
+## Сборка
 
 Нужны JDK 17+, Android SDK platform 37 и Gradle wrapper 9.6.0 из репозитория.
 
 ```bash
-./gradlew :app:testDebugUnitTest
-./gradlew :app:assembleDebug
-./gradlew :app:connectedDebugAndroidTest
+./gradlew :app:assembleDebug            # проходит; APK signing debug-ключом
+./gradlew :app:testDebugUnitTest        # проходит; 55 тестов
+./gradlew :app:connectedDebugAndroidTest # НЕ запускался: нужен устройство/emulator
 ```
 
-Точная исполнимость этих команд не проверялась. Ожидаемые точки отказа и порядок
-диагностики — в [docs/PENDING_VERIFICATION.md](docs/PENDING_VERIFICATION.md).
+Сборка и unit-тесты выполнимы и зелёны; поведение на устройстве не проверялось.
+Оставшиеся непроверенные места — в [docs/PENDING_VERIFICATION.md](docs/PENDING_VERIFICATION.md).
 
 ## Документы
 

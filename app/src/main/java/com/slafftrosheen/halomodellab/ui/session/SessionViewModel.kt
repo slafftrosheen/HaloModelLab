@@ -202,12 +202,14 @@ class SessionViewModel(
     fun cancelOpenSession() {
         val detail = state.value.openSession ?: return
         if (!state.value.canCancel) return
-        launchStorageCommand {
-            sessionRepository.cancelSession(
-                sessionId = detail.summary.sessionId,
-                reasonCode = "USER_DECLINED_CONTINUATION",
-            )
-        }
+        launchStorageCommand(
+            block = {
+                sessionRepository.cancelSession(
+                    sessionId = detail.summary.sessionId,
+                    reasonCode = "USER_DECLINED_CONTINUATION",
+                )
+            },
+        )
     }
 
     fun retryItem(queueItemId: String) {

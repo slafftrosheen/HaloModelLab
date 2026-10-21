@@ -1,0 +1,630 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "6536b41e873be1f22ba57f4f3e32183c",
+    "entities": [
+      {
+        "tableName": "sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `state` TEXT NOT NULL, `planJson` TEXT NOT NULL, `origin` TEXT NOT NULL, `profileId` TEXT NOT NULL, `engineId` TEXT NOT NULL, `caseTimeoutMs` INTEGER NOT NULL, `budgetMs` INTEGER NOT NULL, `repeatCount` INTEGER NOT NULL, `requireCharging` INTEGER NOT NULL, `createdAtWallTimeMs` INTEGER NOT NULL, `startedWallTimeMs` INTEGER, `finishedWallTimeMs` INTEGER, `persistedActiveMs` INTEGER NOT NULL, `activeStartedElapsedMs` INTEGER, `lastSeq` INTEGER NOT NULL, `failureCode` TEXT, `failureDomain` TEXT, `failureDetail` TEXT, `ownerInstanceId` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planJson",
+            "columnName": "planJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "engineId",
+            "columnName": "engineId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "caseTimeoutMs",
+            "columnName": "caseTimeoutMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "budgetMs",
+            "columnName": "budgetMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "repeatCount",
+            "columnName": "repeatCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requireCharging",
+            "columnName": "requireCharging",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtWallTimeMs",
+            "columnName": "createdAtWallTimeMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedWallTimeMs",
+            "columnName": "startedWallTimeMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finishedWallTimeMs",
+            "columnName": "finishedWallTimeMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "persistedActiveMs",
+            "columnName": "persistedActiveMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeStartedElapsedMs",
+            "columnName": "activeStartedElapsedMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastSeq",
+            "columnName": "lastSeq",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "failureCode",
+            "columnName": "failureCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureDomain",
+            "columnName": "failureDomain",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureDetail",
+            "columnName": "failureDetail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ownerInstanceId",
+            "columnName": "ownerInstanceId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sessions_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sessions_state` ON `${TABLE_NAME}` (`state`)"
+          },
+          {
+            "name": "index_sessions_createdAtWallTimeMs",
+            "unique": false,
+            "columnNames": [
+              "createdAtWallTimeMs"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sessions_createdAtWallTimeMs` ON `${TABLE_NAME}` (`createdAtWallTimeMs`)"
+          }
+        ]
+      },
+      {
+        "tableName": "queue_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `sessionId` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `subjectId` TEXT NOT NULL, `scenarioId` TEXT, `role` TEXT NOT NULL, `requestedBackend` TEXT NOT NULL, `state` TEXT NOT NULL, `repeatIndex` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`sessionId`) REFERENCES `sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subjectId",
+            "columnName": "subjectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scenarioId",
+            "columnName": "scenarioId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requestedBackend",
+            "columnName": "requestedBackend",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "repeatIndex",
+            "columnName": "repeatIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_queue_items_sessionId",
+            "unique": false,
+            "columnNames": [
+              "sessionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_queue_items_sessionId` ON `${TABLE_NAME}` (`sessionId`)"
+          },
+          {
+            "name": "index_queue_items_sessionId_ordinal",
+            "unique": true,
+            "columnNames": [
+              "sessionId",
+              "ordinal"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_queue_items_sessionId_ordinal` ON `${TABLE_NAME}` (`sessionId`, `ordinal`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sessions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sessionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "attempts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `queueItemId` TEXT NOT NULL, `number` INTEGER NOT NULL, `ownerInstanceId` TEXT NOT NULL, `stage` TEXT NOT NULL, `outcome` TEXT, `validity` TEXT, `failureCode` TEXT, `failureDomain` TEXT, `failureConfidence` TEXT, `failureDetail` TEXT, `deadlineReason` TEXT, `startedWallTimeMs` INTEGER NOT NULL, `startedElapsedMs` INTEGER, `finishedWallTimeMs` INTEGER, `elapsedMs` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`queueItemId`) REFERENCES `queue_items`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "queueItemId",
+            "columnName": "queueItemId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "number",
+            "columnName": "number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerInstanceId",
+            "columnName": "ownerInstanceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stage",
+            "columnName": "stage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "validity",
+            "columnName": "validity",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureCode",
+            "columnName": "failureCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureDomain",
+            "columnName": "failureDomain",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureConfidence",
+            "columnName": "failureConfidence",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "failureDetail",
+            "columnName": "failureDetail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deadlineReason",
+            "columnName": "deadlineReason",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "startedWallTimeMs",
+            "columnName": "startedWallTimeMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedElapsedMs",
+            "columnName": "startedElapsedMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finishedWallTimeMs",
+            "columnName": "finishedWallTimeMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "elapsedMs",
+            "columnName": "elapsedMs",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_attempts_queueItemId",
+            "unique": false,
+            "columnNames": [
+              "queueItemId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_attempts_queueItemId` ON `${TABLE_NAME}` (`queueItemId`)"
+          },
+          {
+            "name": "index_attempts_queueItemId_number",
+            "unique": true,
+            "columnNames": [
+              "queueItemId",
+              "number"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_attempts_queueItemId_number` ON `${TABLE_NAME}` (`queueItemId`, `number`)"
+          },
+          {
+            "name": "index_attempts_outcome",
+            "unique": false,
+            "columnNames": [
+              "outcome"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_attempts_outcome` ON `${TABLE_NAME}` (`outcome`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "queue_items",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "queueItemId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` TEXT NOT NULL, `seq` INTEGER NOT NULL, `attemptId` TEXT, `stage` TEXT, `code` TEXT NOT NULL, `boundedPayloadJson` TEXT, `wallTimeMs` INTEGER NOT NULL, `elapsedTimeMs` INTEGER, `ownerInstanceId` TEXT NOT NULL, FOREIGN KEY(`sessionId`) REFERENCES `sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seq",
+            "columnName": "seq",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attemptId",
+            "columnName": "attemptId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "stage",
+            "columnName": "stage",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boundedPayloadJson",
+            "columnName": "boundedPayloadJson",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wallTimeMs",
+            "columnName": "wallTimeMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "elapsedTimeMs",
+            "columnName": "elapsedTimeMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "ownerInstanceId",
+            "columnName": "ownerInstanceId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_events_sessionId_seq",
+            "unique": true,
+            "columnNames": [
+              "sessionId",
+              "seq"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_events_sessionId_seq` ON `${TABLE_NAME}` (`sessionId`, `seq`)"
+          },
+          {
+            "name": "index_events_attemptId",
+            "unique": false,
+            "columnNames": [
+              "attemptId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_events_attemptId` ON `${TABLE_NAME}` (`attemptId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sessions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sessionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "telemetry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sessionId` TEXT NOT NULL, `attemptId` TEXT, `name` TEXT NOT NULL, `value` REAL, `unit` TEXT NOT NULL, `scope` TEXT NOT NULL, `origin` TEXT NOT NULL, `unavailableReason` TEXT, `wallTimeMs` INTEGER NOT NULL, FOREIGN KEY(`sessionId`) REFERENCES `sessions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attemptId",
+            "columnName": "attemptId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "unit",
+            "columnName": "unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scope",
+            "columnName": "scope",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unavailableReason",
+            "columnName": "unavailableReason",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "wallTimeMs",
+            "columnName": "wallTimeMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_telemetry_sessionId",
+            "unique": false,
+            "columnNames": [
+              "sessionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_telemetry_sessionId` ON `${TABLE_NAME}` (`sessionId`)"
+          },
+          {
+            "name": "index_telemetry_attemptId",
+            "unique": false,
+            "columnNames": [
+              "attemptId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_telemetry_attemptId` ON `${TABLE_NAME}` (`attemptId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sessions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sessionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "runner_slot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`singletonId` INTEGER NOT NULL, `sessionId` TEXT, `ownerInstanceId` TEXT, PRIMARY KEY(`singletonId`))",
+        "fields": [
+          {
+            "fieldPath": "singletonId",
+            "columnName": "singletonId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ownerInstanceId",
+            "columnName": "ownerInstanceId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "singletonId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6536b41e873be1f22ba57f4f3e32183c')"
+    ]
+  }
+}

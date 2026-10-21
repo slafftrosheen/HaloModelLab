@@ -68,6 +68,8 @@ internal object ExportJson {
     fun event(dto: EventDto): String {
         val buffer = Buffer()
         val writer = JsonWriter.of(buffer)
+        // Nulls are part of the schema: a missing attemptId or stage must stay explicit.
+        writer.serializeNulls = true
         writer.beginObject()
         writer.name("seq").value(dto.seq)
         writer.name("attemptId").value(dto.attemptId)
@@ -85,6 +87,9 @@ internal object ExportJson {
     private inline fun build(block: JsonWriter.() -> Unit): ByteArray {
         val buffer = Buffer()
         val writer = JsonWriter.of(buffer)
+        // The manifest must state "inferenceRuntime": null explicitly; an absent key would
+        // misrepresent an unknown runtime as an omitted field.
+        writer.serializeNulls = true
         writer.setIndent("  ")
         writer.block()
         writer.close()
