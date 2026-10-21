@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Halo Model Lab</string>
+
+    <string name="nav_catalog">Каталог</string>
+    <string name="nav_session">Сессия</string>
+    <string name="nav_history">История</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- Каталог -->
+    <string name="catalog_title">Каталог моделей</string>
+    <string name="catalog_mode_simulation">Симуляция инфраструктуры</string>
+    <string name="catalog_mode_simulation_hint">Сценарии проверяют только очередь, хранение и отчётность Model Lab. Это не проверка AI-моделей.</string>
+    <string name="catalog_real_title">Реальные модели недоступны</string>
+    <string name="catalog_real_body">Подключение к Halo ещё не реализовано. Реальные модели недоступны.</string>
+    <string name="catalog_real_status">Состояние: BRIDGE_NOT_IMPLEMENTED</string>
+    <string name="catalog_real_note">Настоящие Qwen, Gemma, Kokoro и другие модели здесь не перечислены: приложение их не обнаруживало и не проверяло.</string>
+    <string name="catalog_download_title">Загрузка моделей</string>
+    <string name="catalog_download_body">Загрузка недоступна: нет подключения к каталогу и хранилищу Halo. Веса моделей не скачиваются.</string>
+    <string name="catalog_download_button">Загрузить модель (недоступно)</string>
+    <string name="catalog_excluded_title">Исключённые модели</string>
+    <string name="catalog_excluded_body">Появится на следующем этапе. В v0 нет вердиктов, поэтому исключать нечего и скрывать нечего.</string>
+    <string name="catalog_excluded_switch">Показать исключённые</string>
+    <string name="catalog_demo_purpose">Сценарии ниже — управляемые фикстуры. Они не загружают модель и не измеряют её скорость или память.</string>
+    <string name="catalog_search_label">Поиск по сценарию</string>
+    <string name="catalog_search_no_results">Ничего не найдено. Измените запрос.</string>
+    <string name="catalog_selected_count">Выбрано сценариев: %1$d</string>
+    <string name="catalog_clear_selection">Сбросить выбор</string>
+    <string name="catalog_open_session">Перейти к сессии</string>
+    <string name="catalog_card_role">Роль fixture: %1$s</string>
+    <string name="catalog_card_backend">Backend запроса: %1$s</string>
+    <string name="catalog_card_sim_label">СИМУЛЯЦИЯ — не результат проверки AI-модели</string>
+    <string name="catalog_sim_banner">СИМУЛЯЦИЯ — не результат проверки AI-модели</string>
+
+    <!-- Demo-сценарии -->
+    <string name="scenario_success_title">Успешный сценарий</string>
+    <string name="scenario_success_body">Фикстура проходит все стадии и завершается PASSED. Это проверяет инфраструктуру, а не модель.</string>
+    <string name="scenario_load_failure_title">Ошибка загрузки</string>
+    <string name="scenario_load_failure_body">Управляемая ошибка адаптера на стадии LOAD. Настоящий адаптер не участвует.</string>
+    <string name="scenario_empty_output_title">Пустой вывод</string>
+    <string name="scenario_empty_output_body">Фикстура завершается без вывода с причиной UNKNOWN. Это не доказательство неисправности модели.</string>
+    <string name="scenario_timeout_title">Таймаут</string>
+    <string name="scenario_timeout_body">Фикстура ждёт отмены до таймаута попытки. Таймаут не доказывает непригодность модели.</string>
+    <string name="scenario_unknown_title">Неизвестный сценарий</string>
+    <string name="scenario_unknown_body">Сценарий отсутствует в demo-каталоге этой сборки.</string>
+
+    <!-- Сессия -->
+    <string name="session_title">Новая сессия</string>
+    <string name="session_empty_title">Сценарии не выбраны</string>
+    <string name="session_empty_body">Выберите один или несколько demo-сценариев в каталоге.</string>
+    <string name="session_open_catalog">Открыть каталог</string>
+    <string name="session_profile">Профиль плана: %1$s</string>
+    <string name="session_item_title">%1$d. %2$s</string>
+    <string name="session_in_memory">Выбор хранится только в памяти и не сохраняется: хранилище сессий появится в HML-L1.</string>
+    <string name="session_plan_unavailable">Параметры плана — повторы, таймаут, бюджет, требование зарядки — ещё не редактируются, снимок плана не создаётся.</string>
+    <string name="session_start_disabled">Исполнитель очереди ещё не подключён</string>
+    <string name="session_start_note">Очередь, foreground service и demo-исполнитель появятся в HML-L2. Кнопка запуска намеренно неактивна.</string>
+    <string name="session_clear_selection">Очистить выбор</string>
+
+    <!-- История -->
+    <string name="history_title">История</string>
+    <string name="history_storage_title">Хранилище сессий не подключено</string>
+    <string name="history_storage_body">История не читается из базы: Room и восстановление после потери процесса появятся в HML-L1. Сессии сейчас не создаются и не запускаются.</string>
+    <string name="history_empty_title">Сессий нет</string>
+    <string name="history_empty_body">Здесь появятся сохранённые сессии, попытки и события. Это не результат проверки моделей.</string>
+    <string name="history_filters">Фильтры «все», «завершённые», «прерванные», «synthetic» станут доступны вместе с хранилищем.</string>
+
+    <!-- Настройки -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_conditions_title">Условия запуска</string>
+    <string name="settings_conditions_body">Зарядка, thermal-статус, бюджет и хранение будут проверяться исполнителем в HML-L2. Действующих переключателей пока нет.</string>
+    <string name="settings_storage_title">Хранение и экспорт</string>
+    <string name="settings_storage_body">Лимиты хранения, ZIP-экспорт и удаление истории появятся вместе с хранилищем и экспортёром. Экспорт недоступен.</string>
+    <string name="settings_delete_history">Удалить историю (недоступно)</string>
+    <string name="settings_about_title">О приложении</string>
+    <string name="settings_version">Версия приложения: %1$s</string>
+    <string name="settings_protocol">Версия протокола отчётов: %1$d</string>
+    <string name="settings_export_schema">Версия схемы экспорта: %1$d</string>
+    <string name="settings_bridge">Мост Halo: %1$s</string>
+    <string name="settings_inference">Inference: отсутствует, runtime не подключён</string>
+    <string name="settings_network">Сеть: разрешение INTERNET не запрашивается</string>
+    <string name="settings_boundary_title">Ограничения v0</string>
+    <string name="settings_boundary_body">Нет настоящих моделей, весов, IPC и native-вычислений. Demo-сценарии исполняются тем же процессом, что и интерфейс.</string>
+    <string name="settings_boundary_fixture">Результаты симуляции нельзя считать пригодностью Qwen, Gemma, Kokoro или любой другой модели.</string>
+</resources>

@@ -1,0 +1,19 @@
+# Gradle / Android build output
+.gradle/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+*.hprof
+
+# No signing material or secrets may live in this repository.
+*.jks
+*.keystore
+*.p12
+keystore.properties
