@@ -17,7 +17,8 @@ data class TextProbeCase(
     init {
         require(SAFE_ID.matches(caseId))
         require(prompt.isNotBlank() && prompt.length <= MAX_PROMPT_CHARS)
-        require(expectedValue.isNotBlank() && expectedValue.length <= MAX_EXPECTED_CHARS)
+        require((if (assertion == TextAssertionKind.NO_TOOL_CALL) expectedValue.isEmpty() else expectedValue.isNotBlank()) &&
+            expectedValue.length <= MAX_EXPECTED_CHARS)
         require(maximumOutputTokens in 1..MAX_OUTPUT_TOKENS)
         require(LANGUAGE_TAG.matches(languageTag))
     }

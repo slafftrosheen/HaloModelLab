@@ -16,8 +16,8 @@ data class TestProfileDescriptor(
 }
 
 /**
- * Stable suite identities for plans and reports. The real probes and fixture packs are owned
- * by later batches; these entries deliberately remain non-runnable until those sources exist.
+ * Stable suite identities for plans and reports. Contract-only text definitions exist, but
+ * no suite is runnable until the real adapter and fixture execution path is connected.
  */
 object TestProfileRegistry {
     private val profiles = listOf(
