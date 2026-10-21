@@ -2,9 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-      No permissions are declared in HML-L0: no INTERNET, no storage, no notifications yet.
-      HML-L2 adds POST_NOTIFICATIONS together with the foreground service.
+      No INTERNET and no storage permissions. POST_NOTIFICATIONS is requested in the UI for
+      the foreground service; refusing it is not treated as a model or test failure.
     -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".LabApplication"
@@ -22,6 +26,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".runner.BenchForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-started local model test orchestration; synthetic runner in this development build" />
+        </service>
     </application>
 
 </manifest>

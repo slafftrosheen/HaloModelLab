@@ -12,8 +12,8 @@ android {
         applicationId = "com.slafftrosheen.halomodellab"
         minSdk = 26
         targetSdk = 37
-        versionCode = 2
-        versionName = "0.1.0-l1"
+        versionCode = 3
+        versionName = "0.1.0-l2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
 
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

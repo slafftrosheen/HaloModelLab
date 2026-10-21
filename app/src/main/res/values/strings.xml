@@ -54,21 +54,31 @@
     <string name="session_open_catalog">Открыть каталог</string>
     <string name="session_profile">Профиль плана: %1$s</string>
     <string name="session_item_title">%1$d. %2$s</string>
-    <string name="session_start_disabled">Исполнитель очереди ещё не подключён</string>
-    <string name="session_start_note">Очередь, foreground service и demo-исполнитель появятся в HML-L2. Кнопка запуска намеренно неактивна.</string>
+    <string name="session_start">Запустить сессию</string>
+    <string name="session_pause">Пауза после текущей проверки</string>
+    <string name="session_resume">Продолжить</string>
+    <string name="session_stop">Остановить</string>
+    <string name="session_waiting_pause">Пауза после текущей проверки: ожидание завершения попытки.</string>
+    <string name="session_waiting_stop">Остановка: ожидание завершения записи.</string>
+    <string name="session_active_time">Сохранённое активное время: %1$d мс</string>
+    <string name="session_runner_note">Demo-исполнитель работает в foreground service того же процесса. Это симуляция инфраструктуры, а не проверка AI-модели.</string>
+    <string name="session_interrupted_title">Сессия прервана</string>
+    <string name="session_interrupted_body">Потеря процесса оборвала попытку. Причина неизвестна, это не доказательство непригодности модели. Выберите, что делать с прерванным пунктом.</string>
+    <string name="session_needs_decision_item">Пункт %1$d: %2$s</string>
+    <string name="session_retry_item">Повторить пункт</string>
+    <string name="session_skip_item">Пропустить</string>
+    <string name="session_retry_planned">Пункт снова в очереди. Запустите сессию, чтобы создать новую попытку.</string>
+    <string name="session_skip_planned">Пункт пропущен. Его результат не подменяется.</string>
+    <string name="session_resume_blocked">Сначала решите судьбу прерванного пункта.</string>
     <string name="session_clear_selection">Очистить выбор</string>
     <string name="session_startup_recovering_title">Проверка хранилища</string>
     <string name="session_startup_recovering_body">Восстанавливается состояние после предыдущего запуска. Создание сессии начнётся после этой проверки.</string>
     <string name="session_startup_failed_title">Хранилище недоступно</string>
     <string name="session_startup_failed_body">Восстановление не удалось: %1$s. Создание новых сессий запрещено, чтобы не заявлять ложное сохранение.</string>
-    <string name="session_open_exists_title">Уже есть незавершённая сессия</string>
-    <string name="session_open_exists_body">Завершите или отмените её, прежде чем создавать новую. Второй незавершённой сессии быть не может.</string>
-    <string name="session_state_label">Состояние: %1$s</string>
     <string name="session_items_progress">Пункты: %1$d из %2$d</string>
     <string name="session_origin">Origin: %1$s</string>
     <string name="session_created_at">Создана: %1$s</string>
     <string name="session_cancel">Отменить сессию</string>
-    <string name="session_cancel_unavailable">Отмена доступна для черновика, паузы и прерванной сессии.</string>
     <string name="session_builder_selection_title">Выбранные сценарии</string>
     <string name="session_builder_selection_empty">Сценарии не выбраны</string>
     <string name="session_builder_selection_hint">Выберите один или несколько demo-сценариев в каталоге, чтобы составить план.</string>
@@ -86,6 +96,13 @@
     <string name="session_message_blocked">Нельзя создать сессию: уже есть незавершённая (%1$s).</string>
     <string name="session_message_no_scenarios">Сначала выберите хотя бы один сценарий.</string>
     <string name="session_message_storage">Не удалось сохранить план: %1$s</string>
+
+    <!-- История -->
+    <string name="notification_channel_name">Выполнение demo-очереди</string>
+    <string name="notification_channel_description">Уведомление о запущенной пользователем симуляции инфраструктуры.</string>
+    <string name="notification_running">Симуляция выполняется</string>
+    <string name="notification_running_detail">СИМУЛЯЦИЯ — не результат проверки AI-модели. Остановить можно в приложении или из уведомления.</string>
+    <string name="notification_stop">Остановить</string>
 
     <!-- История -->
     <string name="history_title">История</string>
@@ -163,7 +180,7 @@
     <!-- Настройки -->
     <string name="settings_title">Настройки</string>
     <string name="settings_conditions_title">Условия запуска</string>
-    <string name="settings_conditions_body">Зарядка, thermal-статус и бюджет будут проверяться исполнителем в HML-L2. Действующих переключателей пока нет.</string>
+    <string name="settings_conditions_body">Зарядка, thermal-статус, свободное место и бюджет проверяются исполнителем при каждом запуске. Требование зарядки задаётся в плане сессии.</string>
     <string name="settings_storage_title">Хранение и экспорт</string>
     <string name="settings_storage_body">Сессии сохраняются в Room на устройстве. ZIP-экспорт и удаление истории появятся вместе с экспортёром; удаление сейчас недоступно.</string>
     <string name="settings_delete_history">Удалить историю (недоступно)</string>

@@ -2,6 +2,7 @@ package com.slafftrosheen.halomodellab.data
 
 import com.slafftrosheen.halomodellab.domain.BenchmarkRequest
 import com.slafftrosheen.halomodellab.domain.DeadlineReason
+import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.slafftrosheen.halomodellab.domain.SessionPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
@@ -52,6 +53,24 @@ interface SessionRepository {
     fun observeOpenSession(): Flow<SessionDetail?>
     fun observeHistory(): Flow<List<SessionSummary>>
     fun observeSession(sessionId: String): Flow<SessionDetail?>
+
+    /** One consistent snapshot for the runner and, later, the exporter. */
+    suspend fun sessionDetail(sessionId: String): SessionDetail?
+
+    /** Records a diagnostic event that is not tied to an attempt (conditions, recovery). */
+    suspend fun recordSessionEvent(sessionId: String, code: String)
+
+    /** A null measurement must carry a reason; it is never replaced by zero. */
+    suspend fun recordTelemetry(
+        sessionId: String,
+        attemptId: String?,
+        name: String,
+        value: Double?,
+        unit: String,
+        scope: String,
+        origin: EvidenceOrigin,
+        unavailableReason: String?,
+    )
 
     suspend fun createSession(plan: SessionPlan): CreateSessionResult
 

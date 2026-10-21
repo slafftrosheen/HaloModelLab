@@ -85,6 +85,62 @@ class RoomSessionRepository(
             }
             .flowOn(ioDispatcher)
 
+    override suspend fun sessionDetail(sessionId: String): SessionDetail? = withContext(ioDispatcher) {
+        val session = dao.sessionById(sessionId) ?: return@withContext null
+        buildDetail(
+            session = session,
+            items = dao.queueItems(sessionId),
+            attempts = dao.attemptsForSession(sessionId),
+            events = dao.events(sessionId),
+            telemetry = dao.telemetry(sessionId),
+        )
+    }
+
+    override suspend fun recordSessionEvent(sessionId: String, code: String) {
+        withContext(ioDispatcher) {
+            database.withTransaction {
+                val owner = dao.sessionById(sessionId)?.ownerInstanceId ?: processInstanceId
+                appendEvent(
+                    sessionId = sessionId,
+                    attemptId = null,
+                    stage = null,
+                    code = code,
+                    ownerInstanceId = owner,
+                )
+            }
+        }
+    }
+
+    override suspend fun recordTelemetry(
+        sessionId: String,
+        attemptId: String?,
+        name: String,
+        value: Double?,
+        unit: String,
+        scope: String,
+        origin: EvidenceOrigin,
+        unavailableReason: String?,
+    ) {
+        require(value != null || !unavailableReason.isNullOrBlank()) {
+            "A missing telemetry value must carry a reason"
+        }
+        withContext(ioDispatcher) {
+            dao.insertTelemetry(
+                TelemetryEntity(
+                    sessionId = sessionId,
+                    attemptId = attemptId,
+                    name = name,
+                    value = value,
+                    unit = unit,
+                    scope = scope,
+                    origin = origin.name,
+                    unavailableReason = unavailableReason?.take(MAX_FAILURE_DETAIL_CHARS),
+                    wallTimeMs = clock.wallTimeMs(),
+                ),
+            )
+        }
+    }
+
     override suspend fun createSession(plan: SessionPlan): CreateSessionResult =
         withContext(ioDispatcher) {
             database.withTransaction {

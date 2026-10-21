@@ -14,6 +14,8 @@ import com.slafftrosheen.halomodellab.data.SessionRepository
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.PlanLimits
 import com.slafftrosheen.halomodellab.domain.PlannedItem
+import com.slafftrosheen.halomodellab.domain.QueueItemState
+import com.slafftrosheen.halomodellab.domain.QueueItemView
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.slafftrosheen.halomodellab.domain.SessionPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
@@ -30,6 +32,8 @@ sealed interface SessionMessage {
     data object Created : SessionMessage
     data class Blocked(val state: SessionState) : SessionMessage
     data object NoScenarios : SessionMessage
+    data object RetryPlanned : SessionMessage
+    data object SkipPlanned : SessionMessage
     data class StorageFailure(val detail: String) : SessionMessage
 }
 
@@ -53,12 +57,31 @@ data class SessionUiState(
             selectedScenarios.isNotEmpty() &&
             !creating
 
-    val canCancelOpenSession: Boolean
-        get() = openSession?.summary?.state in setOf(
-            SessionState.DRAFT,
-            SessionState.PAUSED,
-            SessionState.INTERRUPTED,
-        )
+    val needsDecisionItems: List<QueueItemView>
+        get() = openSession?.queue.orEmpty().filter { it.state == QueueItemState.NEEDS_DECISION }
+
+    val sessionState: SessionState?
+        get() = openSession?.summary?.state
+
+    val canStartOrResume: Boolean
+        get() = startup is StartupState.Ready &&
+            (
+                sessionState == SessionState.DRAFT ||
+                    sessionState == SessionState.PAUSED ||
+                    sessionState == SessionState.INTERRUPTED
+                ) &&
+            needsDecisionItems.isEmpty()
+
+    val canPause: Boolean
+        get() = sessionState == SessionState.RUNNING
+
+    val canStop: Boolean
+        get() = sessionState == SessionState.RUNNING || sessionState == SessionState.PAUSING
+
+    val canCancel: Boolean
+        get() = sessionState == SessionState.DRAFT ||
+            sessionState == SessionState.PAUSED ||
+            sessionState == SessionState.INTERRUPTED
 }
 
 private data class LocalState(
@@ -71,8 +94,10 @@ private data class LocalState(
 )
 
 /**
- * Builds and stores an immutable plan. It never starts execution: the queue runner arrives
- * in HML-L2, so this ViewModel only writes a DRAFT session through the repository.
+ * Builds and stores an immutable plan and forwards explicit user decisions.
+ *
+ * It never runs the queue: execution belongs to the foreground service and coordinator.
+ * The ViewModel only writes durable state and observes Room.
  */
 class SessionViewModel(
     private val catalogRepository: CatalogRepository,
@@ -167,13 +192,37 @@ class SessionViewModel(
 
     fun cancelOpenSession() {
         val detail = state.value.openSession ?: return
-        if (!state.value.canCancelOpenSession) return
+        if (!state.value.canCancel) return
+        launchStorageCommand {
+            sessionRepository.cancelSession(
+                sessionId = detail.summary.sessionId,
+                reasonCode = "USER_DECLINED_CONTINUATION",
+            )
+        }
+    }
+
+    fun retryItem(queueItemId: String) {
+        launchStorageCommand(
+            block = { sessionRepository.retryItem(queueItemId) },
+            successMessage = SessionMessage.RetryPlanned,
+        )
+    }
+
+    fun skipItem(queueItemId: String) {
+        launchStorageCommand(
+            block = { sessionRepository.skipItem(queueItemId) },
+            successMessage = SessionMessage.SkipPlanned,
+        )
+    }
+
+    private fun launchStorageCommand(
+        block: suspend () -> Any?,
+        successMessage: SessionMessage? = null,
+    ) {
         viewModelScope.launch {
             try {
-                sessionRepository.cancelSession(
-                    sessionId = detail.summary.sessionId,
-                    reasonCode = "USER_DECLINED_CONTINUATION",
-                )
+                block()
+                if (successMessage != null) local.update { it.copy(message = successMessage) }
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (failure: Exception) {
