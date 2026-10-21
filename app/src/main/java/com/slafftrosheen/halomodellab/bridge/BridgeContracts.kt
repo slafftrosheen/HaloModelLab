@@ -344,13 +344,18 @@ data class ModelInventoryEntry(
     val manifest: ArtifactManifest?,
     val unavailableReason: String?,
     val roles: Set<String>,
-    val backends: Set<RealBackend>,
+    val backendCodes: Set<String>,
 ) {
     init {
         require(isBoundedId(providerId) && isBoundedId(modelId))
         require(generationId == null || isBoundedId(generationId))
-        require(roles.size <= 16 && backends.size <= RealBackend.entries.size)
+        require(roles.size <= 16 && backendCodes.size <= 16)
+        require(roles.all(::isBoundedId) && backendCodes.all(::isBoundedId))
         require(manifest == null || (manifest.providerId == providerId && manifest.modelId == modelId))
+        require(manifest == null || generationId == null || manifest.generationId == generationId)
+        if (state == ModelInventoryState.INSTALLED_VERIFIED) {
+            require(generationId != null && manifest != null && unavailableReason == null)
+        }
     }
 }
 

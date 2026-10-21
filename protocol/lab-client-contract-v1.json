@@ -47,6 +47,12 @@
     "artifactManifestHash": "sha256-canonical-json-v1",
     "executionScopeHash": "sha256-canonical-json-v1"
   },
+  "modelInventory": {
+    "states": ["INSTALLED_UNVERIFIED", "INSTALLED_VERIFIED", "PARTIAL", "CORRUPT", "MISSING", "UNSUPPORTED", "MANUAL_IMPORT_ONLY"],
+    "roleCodes": "bounded array of open strings; unknown values are unsupported",
+    "backendCodes": "bounded array of open strings; unknown values are unsupported",
+    "verifiedLeasePrecondition": "generationId and complete artifact manifest required"
+  },
   "limits": {
     "requestBytes": 32768,
     "replyBytes": 65536,
