@@ -6,7 +6,7 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "cc12a63",
+    "lastImplementationCommit": "8dcafbe",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": false,
     "pushAuthorized": false
@@ -29,7 +29,7 @@
     "C4": "BLOCKED_HALO_WRITE_ACCESS",
     "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; profiles are CONTRACT_ONLY without C4 adapters; commit cc12a63; tests NOT_RUN",
     "C6": "NOT_STARTED",
-    "C7": "NOT_STARTED",
+    "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; not connected to a real runner/supervisor; commit 8dcafbe; tests NOT_RUN",
     "C8": "BLOCKED_HALO_WRITE_ACCESS",
     "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; exact scope reuse requires verified eligibility, contradictions remain INCONCLUSIVE; persistence/UI filters NOT_WIRED; commits 2158c36 and 4a8cee6",
     "C10": "NOT_STARTED"
@@ -69,5 +69,5 @@
     "baselineHashMatch": "PASS",
     "gitDiffCheck": "PASS"
   },
-  "next": "Commit Lab budget-policy source as partial C7; proceed to bounded export C10 and stop at the Halo write boundary."
+  "next": "Commit C10 bounded exporter source, verify allowed static checks, and record remaining Halo and verification blockers."
 }
