@@ -6,7 +6,7 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "currentCommit": "pending HML-C0 commit",
+    "currentCommit": "cbe39d7",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": false,
     "pushAuthorized": false
@@ -18,10 +18,11 @@
     "attachedContinuationFolderPresent": false,
     "starterSpecSource": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_Agent_Pack\\SPEC.md",
     "starterSpecPreservedAs": "baseline/STARTER_SPEC.md",
+    "starterSpecSha256": "47eea7be2d5b711830dec38a803421cc97754774b10d7ba0b9092d283e9607b6",
     "labAgentsMdPresent": false
   },
   "batches": {
-    "C0": "SOURCE_AUDIT_WRITTEN; source repairs not required by static findings; regression source added",
+    "C0": "SOURCE_AUDIT_WRITTEN; source repairs not required by static findings; regression source added; commit cbe39d7",
     "C1": "NOT_STARTED",
     "C2": "NOT_STARTED",
     "C3": "NOT_STARTED",
@@ -53,5 +54,11 @@
     "phoneTests": "NOT_RUN",
     "allowedThisTurn": ["source inspection", "JSON/XML parsing", "protocol hash checks", "git diff --check"]
   },
-  "next": "Commit C0 audit on the existing main branch, then proceed with unblocked Lab-side C1 contracts and migration/test sources. Stop before any Halo mutation or claim of real inference."
+  "sourceChecks": {
+    "jsonParse": "PASS",
+    "xmlParse": "PASS",
+    "baselineHashMatch": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "next": "Proceed with unblocked Lab-side C1 contracts and migration/test sources. Stop before any Halo mutation or claim of real inference."
 }
