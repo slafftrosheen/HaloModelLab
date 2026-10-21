@@ -6,7 +6,7 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "8dcafbe",
+    "lastImplementationCommit": "cfb663b",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": false,
     "pushAuthorized": false
@@ -24,15 +24,15 @@
   "batches": {
     "C0": "SOURCE_AUDIT_WRITTEN; regression source added; commit cbe39d7; state checkpoint a81302f",
     "C1": "LAB_SOURCE_IMPLEMENTED; Room schema v2 ungenerated; validation/migration tests NOT_RUN; commit 74f9f55",
-    "C2": "LAB_CONTRACTS_AND_REPLAY_IMPORTER_SOURCE_IMPLEMENTED; authenticated Binder/server/consent/canonical protocol BLOCKED_HALO_WRITE_ACCESS; commit c59e0a9; checkpoint bed5683",
-    "C3": "LAB_INVENTORY_PROJECTION_SOURCE_IMPLEMENTED; live inventory/artifact leases/runtime admission BLOCKED_HALO_WRITE_ACCESS; commit fe97a05",
+    "C2": "LAB_CONTRACTS_AND_REPLAY_IMPORTER_SOURCE_IMPLEMENTED; requires DEVICE_MEASUREMENT real-plan and session-owned attempt IDs; authenticated Binder/server/consent/canonical protocol BLOCKED_HALO_WRITE_ACCESS; commits c59e0a9, 22ff0a3; tests NOT_RUN",
+    "C3": "LAB_INVENTORY_PROJECTION_SOURCE_IMPLEMENTED; live inventory/artifact leases/runtime admission BLOCKED_HALO_WRITE_ACCESS; commit fe97a05; tests NOT_RUN",
     "C4": "BLOCKED_HALO_WRITE_ACCESS",
-    "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; profiles are CONTRACT_ONLY without C4 adapters; commit cc12a63; tests NOT_RUN",
-    "C6": "NOT_STARTED",
+    "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe; tests NOT_RUN",
+    "C6": "BLOCKED_C4_ADAPTERS_AND_HALO_CAPABILITY_ACCESS; no modality suites advertised as runnable",
     "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; not connected to a real runner/supervisor; commit 8dcafbe; tests NOT_RUN",
     "C8": "BLOCKED_HALO_WRITE_ACCESS",
-    "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; exact scope reuse requires verified eligibility, contradictions remain INCONCLUSIVE; persistence/UI filters NOT_WIRED; commits 2158c36 and 4a8cee6",
-    "C10": "NOT_STARTED"
+    "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; exact scope requires verified eligibility; persistence/UI filters NOT_WIRED; commits 2158c36, 4a8cee6; tests NOT_RUN",
+    "C10": "LAB_EXPORT_SCHEMA_V2_SOURCE_IMPLEMENTED; atomic Room export snapshot and bounded reproduction sections; real terminal reconciliation/output capture/UI not wired; commit cfb663b; tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main",
@@ -69,5 +69,14 @@
     "baselineHashMatch": "PASS",
     "gitDiffCheck": "PASS"
   },
-  "next": "Commit C10 bounded exporter source, verify allowed static checks, and record remaining Halo and verification blockers."
+  "next": "STOP_AT_BLOCKED_HALO_WRITE_ACCESS: the authenticated bridge, runtime leases, worker/supervisor, and actual adapters require an explicitly authorized Halo editable target. V0/V1 also require separate explicit authorization.",
+  "versions": {
+    "planSchema": 1,
+    "roomSchema": 2,
+    "roomSchemaV2Generated": false,
+    "exportSchema": 2,
+    "qualificationPolicy": 1,
+    "clientProtocol": "1.0 CLIENT_DRAFT_ONLY",
+    "canonicalHaloProtocol": null
+  }
 }
