@@ -6,7 +6,7 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "c59e0a9",
+    "lastImplementationCommit": "fe97a05",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": false,
     "pushAuthorized": false
@@ -24,8 +24,8 @@
   "batches": {
     "C0": "SOURCE_AUDIT_WRITTEN; regression source added; commit cbe39d7; state checkpoint a81302f",
     "C1": "LAB_SOURCE_IMPLEMENTED; Room schema v2 ungenerated; validation/migration tests NOT_RUN; commit 74f9f55",
-    "C2": "LAB_CONTRACTS_AND_REPLAY_IMPORTER_SOURCE_IMPLEMENTED; authenticated Binder/server/consent/canonical protocol BLOCKED_HALO_WRITE_ACCESS; commit c59e0a9",
-    "C3": "NOT_STARTED",
+    "C2": "LAB_CONTRACTS_AND_REPLAY_IMPORTER_SOURCE_IMPLEMENTED; authenticated Binder/server/consent/canonical protocol BLOCKED_HALO_WRITE_ACCESS; commit c59e0a9; checkpoint bed5683",
+    "C3": "LAB_INVENTORY_PROJECTION_SOURCE_IMPLEMENTED; live inventory/artifact leases/runtime admission BLOCKED_HALO_WRITE_ACCESS; commit fe97a05",
     "C4": "BLOCKED_HALO_WRITE_ACCESS",
     "C5": "NOT_STARTED",
     "C6": "NOT_STARTED",
@@ -46,7 +46,7 @@
     "clientMinorVersion": 0,
     "roleMappingVersion": 1,
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
-    "labClientDraftSha256": "88a4e78d56883780d97a11e0ac2bacfa180f7e98c64380d33789600fc5638d5a",
+    "labClientDraftSha256": "c068ebc704968d82f2d5a9e8e77df399be9fd31ad8d8304b9ffd74c512af5fd9",
     "canonicalHaloProtocolVersion": null,
     "compatibleCommitPair": null,
     "protocolHash": null,
@@ -56,7 +56,12 @@
     "build": "NOT_RUN",
     "automatedTests": "NOT_RUN",
     "phoneTests": "NOT_RUN",
-    "allowedThisTurn": ["source inspection", "JSON/XML parsing", "protocol hash checks", "git diff --check"]
+    "allowedThisTurn": [
+      "source inspection",
+      "JSON/XML parsing",
+      "protocol hash checks",
+      "git diff --check"
+    ]
   },
   "sourceChecks": {
     "jsonParse": "PASS",
@@ -64,5 +69,5 @@
     "baselineHashMatch": "PASS",
     "gitDiffCheck": "PASS"
   },
-  "next": "Continue with unblocked Lab-side C3 inventory/admission descriptors and remaining local coding batches. Stop before any Halo mutation or claim of real inference."
+  "next": "Continue with unblocked Lab-side C5 profile contracts, C7 local budgets, C9 scoped qualification, and C10 bounded real-report export; stop at Halo write boundary."
 }
