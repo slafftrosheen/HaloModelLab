@@ -1,5 +1,11 @@
 # Handoff to Codex — Halo Model Lab v0
 
+## Current continuation status (2026-10-22)
+
+This file is the historical v0 handoff. The active v1 continuation is resolved from the workspace single-file package `HaloModelLab_CODEX_COMPLETE.md`; current C0 findings and the read-only Halo map are in `docs/TAKEOVER_AUDIT.md` and `docs/HALO_INTEGRATION_MAP.md`. Build, automated tests, and phone tests for this continuation are all **NOT_RUN**. The prior 2026-10-21 results below remain historical reports only.
+
+The Lab checkout is on `main` with no remote configured. The separate Halo checkout was inspected read-only and was already dirty; this continuation does not have authority to edit it. The bridge, leases, worker, and native supervisor remain `BLOCKED_HALO_WRITE_ACCESS`. See `docs/CONTINUATION_STATE.json` for the resumable batch and commit state.
+
 Состояние: HML-L0…HML-L4 + C0 завершены. Приложение **собрано** (`assembleDebug`),
 unit-тесты **проходят** (55/55), instrumentation-исходники **компилируются**;
 на устройстве **не проверялось**. Настоящего inference, моста Halo, весов и runtime

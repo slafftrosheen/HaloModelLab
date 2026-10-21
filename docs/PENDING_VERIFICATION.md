@@ -1,4 +1,14 @@
-# Pending verification — HML-L0…L4 + C0
+# Pending verification — current v1 continuation
+
+**Current continuation status (2026-10-22): Build NOT_RUN; automated tests NOT_RUN; phone tests NOT_RUN.** The historical C0 report below records what the prior agent reported on 2026-10-21. It is not a verification result for the current source tree or this continuation.
+
+No Gradle, build, automated test, emulator, ADB, install, or phone benchmark command was run in this continuation. Allowed source-only checks and their results are recorded in `docs/TAKEOVER_AUDIT.md` and `docs/CONTINUATION_STATE.json`.
+
+The prior report must not be used to claim a usable APK, native crash resilience, or real-model success. Device and real-inference acceptance remains open. C1-C10 source verification will remain `NOT_RUN` until a separate V0/V1 authorisation.
+
+---
+
+# Historical pending verification — HML-L0…L4 + C0 (report dated 2026-10-21)
 
 Сборка и unit-тесты **выполнены 21 октября 2026** (C0, JDK 21, Gradle 9.6.0,
 AGP 9.4.0, compileSdk 37):

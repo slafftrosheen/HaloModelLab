@@ -20,6 +20,9 @@ import com.slafftrosheen.halomodellab.domain.SessionPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.domain.TestStage
 import com.slafftrosheen.halomodellab.runner.LabClock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -72,6 +75,18 @@ class SessionRepositoryTest {
 
         assertTrue(second is CreateSessionResult.Blocked)
         assertEquals(first.sessionId, (second as CreateSessionResult.Blocked).existingSessionId)
+        assertEquals(1, database.labDao().observeSummaryRows().first().size)
+    }
+
+    @Test
+    fun concurrentOpenSessionCreationAdmitsOnlyOne() = runTest {
+        val results = listOf(
+            async(Dispatchers.IO) { repository.createSession(plan()) },
+            async(Dispatchers.IO) { repository.createSession(plan()) },
+        ).awaitAll()
+
+        assertEquals(1, results.count { it is CreateSessionResult.Created })
+        assertEquals(1, results.count { it is CreateSessionResult.Blocked })
         assertEquals(1, database.labDao().observeSummaryRows().first().size)
     }
 

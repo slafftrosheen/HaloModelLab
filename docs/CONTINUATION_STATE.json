@@ -1,0 +1,57 @@
+{
+  "formatVersion": 1,
+  "updatedAt": "2026-10-22",
+  "project": "HaloModelLab",
+  "repository": {
+    "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
+    "branch": "main",
+    "baseCommit": "9b09e78",
+    "currentCommit": "pending HML-C0 commit",
+    "workingTreeAtTakeover": "clean",
+    "remoteConfigured": false,
+    "pushAuthorized": false
+  },
+  "handoff": {
+    "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
+    "format": "single-file edition: implementation plan, protocol reference, acceptance matrix, source notes, and prompt",
+    "docsHmlCodexPresent": false,
+    "attachedContinuationFolderPresent": false,
+    "starterSpecSource": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_Agent_Pack\\SPEC.md",
+    "starterSpecPreservedAs": "baseline/STARTER_SPEC.md",
+    "labAgentsMdPresent": false
+  },
+  "batches": {
+    "C0": "SOURCE_AUDIT_WRITTEN; source repairs not required by static findings; regression source added",
+    "C1": "NOT_STARTED",
+    "C2": "NOT_STARTED",
+    "C3": "NOT_STARTED",
+    "C4": "BLOCKED_HALO_WRITE_ACCESS",
+    "C5": "NOT_STARTED",
+    "C6": "NOT_STARTED",
+    "C7": "NOT_STARTED",
+    "C8": "BLOCKED_HALO_WRITE_ACCESS",
+    "C9": "NOT_STARTED",
+    "C10": "NOT_STARTED"
+  },
+  "halo": {
+    "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main",
+    "head": "2d7b650faa3ade3c00f504f13bf9f91495d6b73d",
+    "worktree": "pre-existing dirty; read-only inspection only",
+    "writeAuthorized": false,
+    "status": "BLOCKED_HALO_WRITE_ACCESS"
+  },
+  "protocol": {
+    "clientVersion": 1,
+    "canonicalHaloProtocolVersion": null,
+    "compatibleCommitPair": null,
+    "protocolHash": null,
+    "status": "UNFROZEN; no Halo-side canonical source or compatible commit pair authorized"
+  },
+  "verification": {
+    "build": "NOT_RUN",
+    "automatedTests": "NOT_RUN",
+    "phoneTests": "NOT_RUN",
+    "allowedThisTurn": ["source inspection", "JSON/XML parsing", "protocol hash checks", "git diff --check"]
+  },
+  "next": "Commit C0 audit on the existing main branch, then proceed with unblocked Lab-side C1 contracts and migration/test sources. Stop before any Halo mutation or claim of real inference."
+}

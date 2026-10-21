@@ -1,6 +1,17 @@
 # Implementation status — Halo Model Lab
 
-Последнее обновление: 21 октября 2026. Пакеты: **HML-L0 … HML-L4** + **C0** (первая сборка).
+Последнее обновление: 22 октября 2026. Историческая запись ниже отражает отчёты прошлой работы. В этой continuation сборки и тесты не запускались; актуальный статус — см. раздел «Продолжение v1».
+
+## Продолжение v1 — 2026-10-22
+
+- **C0: аудит исходников завершён; текущая проверка только статическая.** Основа L0–L4 присутствует в исходниках, но её runtime/verification состояние не переутверждается. См. `docs/TAKEOVER_AUDIT.md`.
+- Lab находится на `main`, базовый commit `9b09e78`; takeover начат с чистого дерева. Локальные commit разрешены, remote не настроен и не создавался, push не разрешён.
+- Handoff разрешён как `HaloModelLab_CODEX_COMPLETE.md` в workspace; отдельные `docs/hml-codex` и attached continuation folder не обнаружены. `HaloModelLab_Agent_Pack/SPEC.md` сохранён неизменённым в `baseline/STARTER_SPEC.md`.
+- Halo checkout прочитан только для интеграционной карты: HEAD `2d7b650faa3ade3c00f504f13bf9f91495d6b73d`, worktree уже был dirty. Editable Halo target не предоставлен: реальная bridge/worker/lease интеграция остановлена на `BLOCKED_HALO_WRITE_ACCESS`.
+- Версия клиента пока `1`; canonical Halo protocol version, compatible commit pair, and protocol hash остаются `null` до согласованного canonical source на стороне Halo.
+- Добавлен source regression для параллельного создания сессий. Existing source tests already cover repeated Start at repository boundary, terminal result immutability, process recovery, storage failure, origin mismatch, and four demo scenarios. Activity recreation and in-progress ZIP cancellation remain source gaps assigned to later batches.
+- Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN**. Historical results from 2026-10-21 below are not current verification for this continuation.
+- Next: C1 Lab-side versioned real-run contracts and migration/test sources; no Gradle, test, emulator, ADB, install, or phone benchmark commands.
 
 ## Итог
 
