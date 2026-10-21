@@ -25,6 +25,11 @@ object TestProfileRegistry {
         TestProfileDescriptor("text-smoke", "1", "profile_text_smoke", ProfileAvailability.CONTRACT_ONLY, "FIXTURES_NOT_IMPLEMENTED"),
         TestProfileDescriptor("text-standard", "1", "profile_text_standard", ProfileAvailability.CONTRACT_ONLY, "FIXTURES_NOT_IMPLEMENTED"),
         TestProfileDescriptor("warm-series", "1", "profile_warm_series", ProfileAvailability.CONTRACT_ONLY, "WARM_SERIES_NOT_IMPLEMENTED"),
+        TestProfileDescriptor("fast-smoke", "1", "profile_fast_smoke", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
+        TestProfileDescriptor("chat-standard", "1", "profile_chat_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
+        TestProfileDescriptor("think-standard", "1", "profile_think_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
+        TestProfileDescriptor("action-standard", "1", "profile_action_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
+        TestProfileDescriptor("fast-warm-series", "1", "profile_fast_warm_series", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
     )
 
     fun all(): List<TestProfileDescriptor> = profiles
