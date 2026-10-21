@@ -4,6 +4,7 @@
 
 ## Продолжение v1 — 2026-10-22
 
+- **Stage transition:** this v1 continuation supersedes only the starter's simulation-only scope limit and stop-after-one-starter-batch instruction. Signing/privacy, repository authority, and verification restrictions continue to apply.
 - **C2 Lab-side contracts and replay importer implemented.** Added bounded typed bridge request/response contracts, explicit unknown-state decoding, protocol negotiation, typed event payloads, artifact lease and inventory DTOs, and a Room transaction that verifies payload hashes, rejects run identity conflicts/gaps, deduplicates committed events, stores attempt correlation, and advances only a contiguous cursor. Added unit and instrumentation test sources; they are **NOT_RUN**.
 - **C2 integration remains blocked at the authority boundary.** No Binder adapter, authenticated Halo service, consent store, manifest package binding, or canonical shared wire schema is claimed. The Lab protocol file remains a draft. `BLOCKED_HALO_WRITE_ACCESS` is recorded because the Halo checkout was not supplied as an authorized editable target.
 - **C0: аудит исходников завершён; текущая проверка только статическая.** Основа L0–L4 присутствует в исходниках, но её runtime/verification состояние не переутверждается. См. `docs/TAKEOVER_AUDIT.md`.
@@ -15,7 +16,7 @@
 - Версия клиента пока `1`; canonical Halo protocol version, compatible commit pair, and protocol hash остаются `null` до согласованного canonical source на стороне Halo.
 - Добавлен source regression для параллельного создания сессий. Existing source tests already cover repeated Start at repository boundary, terminal result immutability, process recovery, storage failure, origin mismatch, and four demo scenarios. Activity recreation and in-progress ZIP cancellation remain source gaps assigned to later batches.
 - Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN**. Historical results from 2026-10-21 below are not current verification for this continuation.
-- Next: continue with Lab-side C3 inventory/admission descriptors, C5 deterministic fixture contracts, C7 local budget policy, C9 qualification logic, and C10 bounded export. Stop before Halo-side bridge or runtime mutation. No Gradle, test, emulator, ADB, install, or phone benchmark commands.
+- Next: implement the Lab-side C3 inventory projection contract and continue through other unblocked Lab coding batches. Stop before Halo-side bridge or runtime mutation. No Gradle, test, emulator, ADB, install, or phone benchmark commands.
 
 ## Итог
 

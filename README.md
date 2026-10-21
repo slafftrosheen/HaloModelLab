@@ -2,7 +2,7 @@
 
 ## Continuation stage
 
-This checkout has advanced from the starter's simulation-only phase into the v1 real-model-lab continuation. The original privacy, signing, repository authority, and no-build/no-test/no-device-verification restrictions remain in force. The synthetic engine stays explicitly synthetic. Real bridge and inference integration stop at `BLOCKED_HALO_WRITE_ACCESS` until an editable Halo checkout is explicitly provided.
+This checkout has advanced from the starter's simulation-only phase into the v1 real-model-lab continuation. This transition replaces only the starter's L0–L4 scope limit and stop-after-one-starter-batch rule. The original privacy, signing, repository authority, and no-build/no-test/no-device-verification restrictions remain in force. The synthetic engine stays explicitly synthetic. Real bridge and inference integration stop at `BLOCKED_HALO_WRITE_ACCESS` until an editable Halo checkout is explicitly provided.
 
 The resolved continuation handoff and C0 takeover record are tracked in `docs/TAKEOVER_AUDIT.md` and `docs/CONTINUATION_STATE.json`. See `docs/IMPLEMENTATION_STATUS.md` and `docs/PENDING_VERIFICATION.md` for current source and verification status.
 
