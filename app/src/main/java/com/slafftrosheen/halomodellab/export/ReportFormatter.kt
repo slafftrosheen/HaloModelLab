@@ -127,6 +127,7 @@ object ReportFormatter {
             appendLine("- results.json — план, очередь, попытки, причины.")
             appendLine("- events.jsonl — сохранённые события по seq.")
             appendLine("- telemetry.csv — сэмплы контроллера.")
+            appendLine("- coverage.json, qualification.json, comparison.json — coverage и verdict availability.")
             appendLine("- failures/ — отдельный JSON на attemptId.")
             appendLine("- checksums.sha256 — контрольные суммы payload-файлов.")
         }
@@ -148,6 +149,8 @@ object ReportFormatter {
             "${outcome?.name ?: "NO_RESULT"}: ${counts[outcome] ?: 0}"
         }
     }
+
+    internal fun bound(text: String): String = truncateToUtf8Bytes(text, MAX_REPORT_BYTES)
 
     private fun truncateToUtf8Bytes(text: String, maxBytes: Int): String {
         if (text.toByteArray(Charsets.UTF_8).size <= maxBytes) return text

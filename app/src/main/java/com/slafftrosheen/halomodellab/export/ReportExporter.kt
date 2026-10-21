@@ -1,6 +1,7 @@
 package com.slafftrosheen.halomodellab.export
 
 import com.slafftrosheen.halomodellab.data.SessionRepository
+import com.slafftrosheen.halomodellab.data.RealEvidenceExportSnapshot
 import com.slafftrosheen.halomodellab.domain.AttemptView
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.FailureInfo
@@ -10,6 +11,7 @@ import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.domain.TelemetryView
 import com.slafftrosheen.halomodellab.runner.LabClock
 import java.io.BufferedOutputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
@@ -19,6 +21,8 @@ import java.util.zip.ZipOutputStream
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
 sealed interface ExportResult {
@@ -52,22 +56,25 @@ class ReportExporter(
 ) {
 
     suspend fun export(sessionId: String): ExportResult = withContext(ioDispatcher) {
-        val detail = repository.sessionDetail(sessionId)
+        val snapshot = repository.exportSnapshot(sessionId)
             ?: return@withContext ExportResult.MissingSession(sessionId)
+        val detail = snapshot.detail
 
         if (detail.summary.state in NON_EXPORTABLE_STATES) {
             return@withContext ExportResult.NotExportable(detail.summary.state)
         }
 
         try {
-            ExportResult.Success(writeArchive(detail))
+            ExportResult.Success(writeArchive(detail, snapshot.realEvidence))
         } catch (cancellation: CancellationException) {
             throw cancellation
         } catch (tooLarge: ArchiveTooLargeException) {
             ExportResult.Failure(
                 code = "EXPORT_TOO_LARGE",
-                detail = tooLarge.message ?: "The archive exceeds the v0 limit.",
+                detail = tooLarge.message ?: "The archive exceeds the configured limit.",
             )
+        } catch (sectionTooLarge: ExportSectionTooLargeException) {
+            ExportResult.Failure("EXPORT_SECTION_TOO_LARGE", sectionTooLarge.message ?: "A required section exceeds its bound.")
         } catch (failure: Exception) {
             ExportResult.Failure(
                 code = "EXPORT_FAILED",
@@ -76,7 +83,7 @@ class ReportExporter(
         }
     }
 
-    private fun writeArchive(detail: SessionDetail): File {
+    private suspend fun writeArchive(detail: SessionDetail, realEvidence: RealEvidenceExportSnapshot?): File {
         val omissions = mutableListOf<String>()
         val generatedAt = iso(clock.wallTimeMs())
 
@@ -84,15 +91,37 @@ class ReportExporter(
         payload["results.json"] = ExportJson.results(toResults(detail))
         payload["events.jsonl"] = buildEventsJsonl(detail, omissions)
         payload["telemetry.csv"] = buildTelemetryCsv(detail, omissions)
+        payload["coverage.json"] = RealEvidenceExportJson.coverage(detail, realEvidence)
+        val qualificationBytes = RealEvidenceExportJson.qualifications(realEvidence)
+        if (qualificationBytes.size > MAX_SECTION_BYTES) {
+            throw ExportSectionTooLargeException("qualification.json is ${qualificationBytes.size} bytes; the section limit is $MAX_SECTION_BYTES.")
+        }
+        payload["qualification.json"] = qualificationBytes
+        payload["comparison.json"] = RealEvidenceExportJson.comparison()
+        payload["failures/index.json"] = RealEvidenceExportJson.failureIndex(detail)
         buildFailureFiles(detail, omissions).forEach { (name, bytes) -> payload[name] = bytes }
+        if (realEvidence != null) {
+            val realPlan = RealEvidenceExportJson.plan(realEvidence, detail.planJson)
+            if (realPlan.size > MAX_SECTION_BYTES) {
+                throw ExportSectionTooLargeException("real-plan.json is ${realPlan.size} bytes; the section limit is $MAX_SECTION_BYTES.")
+            }
+            payload["real-plan.json"] = realPlan
+            payload["remote-events.jsonl"] = buildRemoteEventsJsonl(realEvidence, omissions)
+            if (realEvidence.events.size >= MAX_REMOTE_EVENT_ROWS) {
+                omissions += "remote-events.jsonl reached the $MAX_REMOTE_EVENT_ROWS row cap; completeness is unknown."
+            }
+            realEvidence.truncatedSections.forEach { omissions += "$it was limited while reading the Room snapshot." }
+        }
         payload["report.md"] = ReportFormatter
             .format(detail, generatedAt, omissions)
+            .let { base -> appendRealEvidenceSummary(base, realEvidence) }
+            .let { ReportFormatter.bound(it) }
             .toByteArray(Charsets.UTF_8)
 
         val payloadBytes = payload.values.sumOf { it.size.toLong() }
         if (payloadBytes > MAX_ARCHIVE_BYTES) {
             throw ArchiveTooLargeException(
-                "Payload is $payloadBytes bytes; the v0 archive limit is $MAX_ARCHIVE_BYTES.",
+                "Payload is $payloadBytes bytes; the archive limit is $MAX_ARCHIVE_BYTES.",
             )
         }
 
@@ -152,7 +181,7 @@ class ReportExporter(
         val totalBytes = payloadBytes + manifestBytes.size + checksums.size
         if (totalBytes > MAX_ARCHIVE_BYTES) {
             throw ArchiveTooLargeException(
-                "Archive is $totalBytes bytes; the v0 archive limit is $MAX_ARCHIVE_BYTES.",
+                "Archive is $totalBytes bytes; the archive limit is $MAX_ARCHIVE_BYTES.",
             )
         }
 
@@ -170,7 +199,7 @@ class ReportExporter(
         )
     }
 
-    private fun writeZip(
+    private suspend fun writeZip(
         order: List<String>,
         payload: Map<String, ByteArray>,
         manifestBytes: ByteArray,
@@ -186,15 +215,27 @@ class ReportExporter(
         try {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(part))).use { zip ->
                 order.forEach { name ->
+                    currentCoroutineContext().ensureActive()
                     val bytes = when (name) {
                         MANIFEST_ENTRY -> manifestBytes
                         CHECKSUMS_ENTRY -> checksumBytes
                         else -> payload.getValue(name)
                     }
                     zip.putNextEntry(ZipEntry(name))
-                    zip.write(bytes)
+                    var offset = 0
+                    while (offset < bytes.size) {
+                        currentCoroutineContext().ensureActive()
+                        val length = minOf(ZIP_WRITE_CHUNK_BYTES, bytes.size - offset)
+                        zip.write(bytes, offset, length)
+                        offset += length
+                    }
                     zip.closeEntry()
                 }
+            }
+
+            currentCoroutineContext().ensureActive()
+            if (part.length() > MAX_ARCHIVE_BYTES) {
+                throw ArchiveTooLargeException("Compressed ZIP is ${part.length()} bytes; the archive limit is $MAX_ARCHIVE_BYTES.")
             }
 
             target.delete()
@@ -345,6 +386,24 @@ class ReportExporter(
         return builder.toString().toByteArray(Charsets.UTF_8)
     }
 
+    private fun buildRemoteEventsJsonl(
+        snapshot: RealEvidenceExportSnapshot,
+        omissions: MutableList<String>,
+    ): ByteArray {
+        val output = ByteArrayOutputStream()
+        var included = 0
+        for (event in snapshot.events) {
+            val line = (RealEvidenceExportJson.remoteEvent(event) + "\n").toByteArray(Charsets.UTF_8)
+            if (output.size() + line.size > MAX_SECTION_BYTES) {
+                omissions += "remote-events.jsonl truncated at a record boundary after $included events."
+                break
+            }
+            output.write(line)
+            included += 1
+        }
+        return output.toByteArray()
+    }
+
     private fun buildFailureFiles(
         detail: SessionDetail,
         omissions: MutableList<String>,
@@ -417,13 +476,14 @@ class ReportExporter(
         if (UUID_PATTERN.matches(raw)) raw else "attempt-$index"
 
     private class ArchiveTooLargeException(message: String) : Exception(message)
+    private class ExportSectionTooLargeException(message: String) : Exception(message)
 
     companion object {
         /** Single source of truth for the UI button and the exporter guard. */
         fun isExportable(state: SessionState): Boolean = state !in NON_EXPORTABLE_STATES
 
-        const val SCHEMA_VERSION: Int = 1
-        const val EXPORT_VERSION: Int = 1
+        const val SCHEMA_VERSION: Int = 2
+        const val EXPORT_VERSION: Int = 2
         const val MAX_ARCHIVE_BYTES: Long = 32L * 1024L * 1024L
         const val SOURCE_REVISION_UNKNOWN: String = "not_recorded"
         const val PRIVACY_MODE: String = "local_only_no_network"
@@ -434,6 +494,8 @@ class ReportExporter(
         private const val MAX_SECTION_BYTES: Int = 4 * 1024 * 1024
         private const val MAX_TELEMETRY_ROWS: Int = 5_000
         private const val MAX_FAILURE_FILES: Int = 200
+        private const val MAX_REMOTE_EVENT_ROWS: Int = 1_000
+        private const val ZIP_WRITE_CHUNK_BYTES: Int = 64 * 1024
 
         private val NON_EXPORTABLE_STATES = setOf(
             SessionState.RUNNING,
@@ -444,5 +506,25 @@ class ReportExporter(
         private val UUID_PATTERN = Regex(
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
         )
+    }
+
+    private fun appendRealEvidenceSummary(base: String, snapshot: RealEvidenceExportSnapshot?): String {
+        if (snapshot == null) return base
+        val binding = snapshot.binding
+        return buildString {
+            append(base.trimEnd())
+            append("\n\n## Real-run reproduction data\n\n")
+            append("The archive contains `real-plan.json` and `remote-events.jsonl` from the Lab Room snapshot. ")
+            append("Their presence records a plan or imported remote facts; it does not establish that native inference completed.\n")
+            if (binding?.serverEpoch == null || binding.remoteRunId == null) {
+                append("Remote execution binding: unavailable (`REMOTE_RUN_NOT_ACCEPTED`).\n")
+            } else {
+                append("Remote execution binding: recorded; imported event cursor ")
+                append(binding.highestImportedSequence)
+                append(".\n")
+            }
+            append("Qualification records: ").append(snapshot.qualifications.size).append("; output artifact records: ")
+            append(snapshot.artifacts.size).append(". Artifact metadata is included; model weights are not.\n")
+        }
     }
 }

@@ -10,10 +10,9 @@ The resolved continuation handoff and C0 takeover record are tracked in `docs/TA
 локальных benchmark-сессий. В этой версии исполняется **только управляемая симуляция**;
 настоящих моделей, весов, моста Halo и inference здесь нет.
 
-> **Статус:** исходники HML-L0…HML-L4 собраны и покрыты unit-тестами (C0, 21.10.2026).
-> `Build: PASSED (assembleDebug)`, `Automated tests: PASSED (55/55 testDebugUnitTest)`,
-> `Device tests: NOT_RUN` — instrumentation-тесты компилируются, но на устройстве
-> не запускались.
+> **Исторический отчёт (21.10.2026):** прежний источник сообщил об успешной сборке и
+> 55/55 unit-тестов для тогдашнего L0–L4 checkout. Это не проверка текущего дерева.
+> Для этой v1 continuation Build / Automated tests / Phone tests: **NOT_RUN**.
 
 ## Что можно увидеть после сборки
 
@@ -41,14 +40,20 @@ Demo-сценарии: `demo/success`, `demo/load-failure`, `demo/empty-output`,
 
 ## Экспорт
 
-`cache/exports/halo-model-lab_<sessionId>.zip`:
+`cache/exports/halo-model-lab_<sessionId>.zip` (export schema v2):
 
 ```text
-manifest.json      schemaVersion=1, origin, план, omissions, files
-report.md          ≤ 8 KiB, предупреждение о симуляции, уникальные ошибки
-results.json       очередь, попытки, validity, reasonCode, метрики
+manifest.json      schemaVersion=2, origin, план, omissions, files
+report.md          ≤ 8 KiB, warning based on evidence origin, targeted failure links
+results.json       schemaVersion=2: очередь, попытки, validity, reasonCode, метрики
 events.jsonl       сохранённые события по seq
 telemetry.csv      телеметрия контроллера (scope device/lab_process)
+coverage.json      bounded queue coverage; real execution stays unknown until reconciled
+qualification.json exact local qualification records or explicit absence
+comparison.json   explicit unavailable reason when no compatible comparison exists
+failures/index.json links structured failure rows to bounded per-attempt evidence
+real-plan.json     exact plan/configuration snapshot when a real plan exists
+remote-events.jsonl bounded imported Halo facts when present; never proof by itself
 failures/          <attemptId>.json
 checksums.sha256   SHA-256 всех payload-файлов и manifest
 ```

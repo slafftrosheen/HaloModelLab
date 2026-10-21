@@ -84,7 +84,7 @@ class AppContainer(context: Context) {
         const val PROTOCOL_VERSION: Int = 1
 
         /** Export schemaVersion for future archives. */
-        const val EXPORT_SCHEMA_VERSION: Int = 1
+        const val EXPORT_SCHEMA_VERSION: Int = 2
 
         /** Honest v0 bridge state; see SPEC §11. */
         const val BRIDGE_STATUS: String = "NOT_IMPLEMENTED"

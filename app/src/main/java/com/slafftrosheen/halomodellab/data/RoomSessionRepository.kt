@@ -104,6 +104,41 @@ class RoomSessionRepository(
         }
     }
 
+    override suspend fun exportSnapshot(sessionId: String): SessionExportSnapshot? = withContext(ioDispatcher) {
+        database.withTransaction {
+            val session = dao.sessionById(sessionId) ?: return@withTransaction null
+            val detail = buildDetail(
+                session = session,
+                items = dao.queueItems(sessionId),
+                attempts = dao.attemptsForSession(sessionId),
+                events = dao.events(sessionId),
+                telemetry = dao.telemetry(sessionId),
+            )
+            val realPlan = dao.realPlanSnapshot(sessionId)
+            val binding = dao.remoteBinding(sessionId)
+            val remoteEvents = if (binding == null) emptyList() else
+                dao.remoteEventsForSession(sessionId, REAL_EXPORT_EVENT_LIMIT + 1)
+            val outputArtifacts = dao.outputArtifactsForSession(sessionId, REAL_EXPORT_ROW_LIMIT + 1)
+            val qualifications = dao.qualificationsForSession(sessionId, REAL_EXPORT_ROW_LIMIT + 1)
+            val truncated = buildSet {
+                if (remoteEvents.size > REAL_EXPORT_EVENT_LIMIT) add("remote-events.jsonl")
+                if (outputArtifacts.size > REAL_EXPORT_ROW_LIMIT) add("real-plan.json:artifacts")
+                if (qualifications.size > REAL_EXPORT_ROW_LIMIT) add("real-plan.json:qualifications")
+            }
+            val realEvidence = if (realPlan == null && binding == null) null else RealEvidenceExportSnapshot(
+                plan = realPlan,
+                models = dao.modelSnapshotsForSession(sessionId),
+                configurations = dao.configurationSnapshotsForSession(sessionId),
+                binding = binding,
+                events = remoteEvents.take(REAL_EXPORT_EVENT_LIMIT),
+                artifacts = outputArtifacts.take(REAL_EXPORT_ROW_LIMIT),
+                qualifications = qualifications.take(REAL_EXPORT_ROW_LIMIT),
+                truncatedSections = truncated,
+            )
+            SessionExportSnapshot(detail, realEvidence)
+        }
+    }
+
     override suspend fun recordSessionEvent(sessionId: String, code: String) {
         withContext(ioDispatcher) {
             database.withTransaction {
@@ -1162,5 +1197,7 @@ class RoomSessionRepository(
     private companion object {
         const val MAX_FAILURE_DETAIL_CHARS = 4_096
         const val REAL_BRIDGE_ENGINE_ID = "halo-lab-bridge-v1"
+        const val REAL_EXPORT_EVENT_LIMIT = 1_000
+        const val REAL_EXPORT_ROW_LIMIT = 1_000
     }
 }

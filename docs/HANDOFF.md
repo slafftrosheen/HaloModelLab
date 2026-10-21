@@ -6,7 +6,7 @@ This file is the historical v0 handoff. The active v1 continuation is resolved f
 
 The Lab checkout is on `main` with no remote configured. The separate Halo checkout was inspected read-only and was already dirty; this continuation does not have authority to edit it. The bridge, leases, worker, and native supervisor remain `BLOCKED_HALO_WRITE_ACCESS`. See `docs/CONTINUATION_STATE.json` for the resumable batch and commit state.
 
-C1 now defines and persists real-plan snapshots and the additive Room migration source. C2 adds the Lab protocol DTOs and replay-safe Room event importer. Their generated v2 schema and all C1/C2 tests remain `NOT_RUN`; the Lab client protocol file is a draft with no Halo compatibility claim. The authenticated Binder/server endpoint remains `BLOCKED_HALO_WRITE_ACCESS`. The v1 stage transition replaces only the starter scope limit and one-batch stop rule; signing/privacy, repository authority and verification restrictions remain active.
+C1 now defines and persists real-plan snapshots and the additive Room migration source. C2 adds bounded Lab protocol DTOs and replay-safe Room event import restricted to device-measurement plans and their own persisted attempts. C3 adds a truthful Lab inventory projection; C5 adds non-runnable text probe contracts; C7 adds local budget policy; C9 adds exact-scope qualification logic; C10 adds export schema v2 with bounded reproduction data. C4/C6/C8 remain blocked by the missing authorized Halo target. The generated Room v2 schema, exporter ZIP, and all new tests remain `NOT_RUN`; the Lab client protocol file is a draft with no Halo compatibility claim. The authenticated Binder/server endpoint, runtime leases, worker, and acquisition integrations remain `BLOCKED_HALO_WRITE_ACCESS`. The v1 stage transition replaces only the starter scope limit and one-batch stop rule; signing/privacy, repository authority and verification restrictions remain active.
 
 Состояние: HML-L0…HML-L4 + C0 завершены. Приложение **собрано** (`assembleDebug`),
 unit-тесты **проходят** (55/55), instrumentation-исходники **компилируются**;
@@ -54,7 +54,7 @@ SessionDetailsScreen ──> SessionDetailsViewModel ──> ReportExporter ─�
 | `runner/SessionCoordinator.kt` | оркестрация; здесь появится настоящий worker/watchdog |
 | `runner/DeviceConditions.kt` | условия запуска и wake lock |
 | `runner/BenchForegroundService.kt` | foreground host; не запускать работу при старте процесса |
-| `export/ExportDtos.kt`, `export/ExportJson.kt` | схема v1; при добавлении полей runtime поднять `schemaVersion` |
+| `export/ExportDtos.kt`, `export/ExportJson.kt` | schema v2 добавляет bounded Lab-side real-plan/replay summaries; inference facts remain gated on Halo |
 | `export/ReportExporter.kt` | снимок и ZIP; лимиты 8 KiB/32 MiB сохранить |
 | `AppContainer.kt` | единственная точка подстановки настоящего gateway/engine |
 

@@ -43,6 +43,22 @@ data class RecoveryReport(
     val needsDecisionItemIds: List<String>,
 )
 
+data class RealEvidenceExportSnapshot(
+    val plan: RealPlanSnapshotEntity?,
+    val models: List<ModelSnapshotEntity>,
+    val configurations: List<ConfigurationSnapshotEntity>,
+    val binding: RemoteBindingEntity?,
+    val events: List<RemoteEventEntity>,
+    val artifacts: List<OutputArtifactEntity>,
+    val qualifications: List<QualificationEntity>,
+    val truncatedSections: Set<String>,
+)
+
+data class SessionExportSnapshot(
+    val detail: SessionDetail,
+    val realEvidence: RealEvidenceExportSnapshot?,
+)
+
 /**
  * Authoritative session store.
  *
@@ -57,6 +73,10 @@ interface SessionRepository {
 
     /** One consistent snapshot for the runner and, later, the exporter. */
     suspend fun sessionDetail(sessionId: String): SessionDetail?
+
+    /** Additive export view; implementations without real evidence retain the starter behavior. */
+    suspend fun exportSnapshot(sessionId: String): SessionExportSnapshot? =
+        sessionDetail(sessionId)?.let { SessionExportSnapshot(it, null) }
 
     /** Records a diagnostic event that is not tied to an attempt (conditions, recovery). */
     suspend fun recordSessionEvent(sessionId: String, code: String)

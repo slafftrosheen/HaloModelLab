@@ -73,6 +73,10 @@ class RemoteEventImporterTest {
             database.labDao().remoteEventsAfter(sessionId, "epoch-1", "remote-run-1", 0L, 1)
                 .single().attemptId,
         )
+        val exportSnapshot = RoomSessionRepository(database, FakeClock(), "owner-1").exportSnapshot(sessionId)
+        assertEquals(EvidenceOrigin.DEVICE_MEASUREMENT, exportSnapshot?.detail?.summary?.origin)
+        assertEquals(1, exportSnapshot?.realEvidence?.events?.size)
+        assertEquals(attemptId, exportSnapshot?.realEvidence?.events?.single()?.attemptId)
     }
 
     @Test

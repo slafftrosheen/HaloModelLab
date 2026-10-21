@@ -66,7 +66,7 @@ class ReportExporterTest {
 
         ZipFile(file).use { zip ->
             val names = zip.entries().toList().map { it.name }
-            val failureNames = names.filter { it.startsWith("failures/") }
+            val failureNames = names.filter { it.startsWith("failures/") && it != "failures/index.json" }
             assertEquals("report.md", names.first())
             assertEquals(1, failureNames.size)
             assertEquals(REQUIRED_ENTRIES + failureNames, names.toSet())
@@ -85,8 +85,8 @@ class ReportExporterTest {
 
         val manifest = String(entryBytes(export(), ReportExporter.MANIFEST_ENTRY), Charsets.UTF_8)
 
-        assertTrue(manifest.contains("\"schemaVersion\": 1"))
-        assertTrue(manifest.contains("\"exportVersion\": 1"))
+        assertTrue(manifest.contains("\"schemaVersion\": 2"))
+        assertTrue(manifest.contains("\"exportVersion\": 2"))
         assertTrue(manifest.contains("\"sessionOrigin\": \"SYNTHETIC\""))
         assertTrue(manifest.contains("\"evidenceOrigin\": \"SYNTHETIC\""))
         assertTrue(manifest.contains("\"synthetic\": true"))
@@ -114,6 +114,21 @@ class ReportExporterTest {
         assertTrue(results.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
         assertTrue(results.contains("\"code\": \"SIMULATED_ADAPTER_LOAD_FAILURE\""))
         assertFalse(results.contains(exportRoot.absolutePath))
+    }
+
+    @Test
+    fun newHandoffSectionsKeepSyntheticEvidenceAndUnavailableComparisonExplicit() = runTest {
+        completedSessionWithFailure()
+        val file = export()
+
+        val coverage = String(entryBytes(file, "coverage.json"), Charsets.UTF_8)
+        val comparison = String(entryBytes(file, "comparison.json"), Charsets.UTF_8)
+        val failures = String(entryBytes(file, "failures/index.json"), Charsets.UTF_8)
+
+        assertTrue(coverage.contains("\"coverageStatus\": \"SYNTHETIC_ONLY\""))
+        assertTrue(comparison.contains("NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED"))
+        assertTrue(failures.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
+        assertTrue(failures.contains("failures/"))
     }
 
     @Test
@@ -329,6 +344,10 @@ class ReportExporterTest {
             "results.json",
             "events.jsonl",
             "telemetry.csv",
+            "coverage.json",
+            "qualification.json",
+            "comparison.json",
+            "failures/index.json",
             "checksums.sha256",
         )
 
