@@ -130,7 +130,11 @@ class HaloBinderGateway(context: Context) : HaloLabGateway {
                 .put("planDigestSha256", payload.planDigestSha256).put("fixtureManifestSha256", case.fixtureManifestSha256)
                 .put("suiteId", case.suiteId).put("suiteVersion", case.suiteVersion).put("caseId", case.caseId)
                 .put("role", case.role.name).put("requestedBackend", case.requestedBackend.name)
-                .put("maximumOutputTokens", case.maximumOutputTokens),
+                .put("maximumOutputTokens", case.maximumOutputTokens)
+                .put("stageBudgets", JSONObject()
+                    .put("loadMs", payload.stageBudgets.loadMs)
+                    .put("executeMs", payload.stageBudgets.executeMs)
+                    .put("unloadMs", payload.stageBudgets.unloadMs)),
             IHaloLabBridge::submitCase,
         ) { row -> row.optString("attemptId", payload.attemptId) }
     }
