@@ -6,15 +6,15 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "e8ddf44ae4cf5e08427db684bb49ef03513fd36a",
+    "lastImplementationCommit": "ce63a9414389fdc8264b0055187764022dd6124f",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "e8ddf44ae4cf5e08427db684bb49ef03513fd36a",
-    "currentWorkingTree": "C7-C10 source committed; C10 runtime export addition after pushed d53087f; docs checkpoint pending; verification not run",
+    "currentHead": "ce63a9414389fdc8264b0055187764022dd6124f",
+    "currentWorkingTree": "C7-C10 source committed through selected-session comparison export; docs checkpoint pending; verification not run",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "AUTHORIZED; checkpoint d53087f is pushed; e8ddf44 and updated docs are local on main; push pending",
-    "sourceImplementationHead": "e8ddf44ae4cf5e08427db684bb49ef03513fd36a",
+    "pushState": "AUTHORIZED; checkpoint d53087f is pushed; ce63a94 and updated docs are local on main; push pending",
+    "sourceImplementationHead": "ce63a9414389fdc8264b0055187764022dd6124f",
     "verificationCheckpointCommit": "pending"
   },
   "handoff": {
@@ -37,8 +37,8 @@
     "C6": "PARTIAL_SOURCE_IMPLEMENTED: capability registry and catalog coverage UI identify Halo owner APIs and exact Lab blockers for CHAT/THINK/ACTION/VISION/STT/TTS/EMBEDDING/VAD; only fixed FAST smoke has source execution; multimodal test sources and execution remain open",
     "C7": "PARTIAL_SOURCE_IMPLEMENTED: boot-aware active-time persistence, conservative cross-boot budget recovery, 10,000 queue expansion cap, schema 2->3 and test sources; native supervisor/budget controller integration remains open; commit 95894b2; tests NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
-    "C9": "PARTIAL_SOURCE_IMPLEMENTED: timeout and single-failure exclusion rules corrected; exact scope matcher and deliberate retest planner added; observation persistence, Show excluded and catalogue filter wiring remain open; tests NOT_RUN",
-    "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels and bounded failure clusters added to ZIP/report with tests; prior-compatible comparison selection, complete UI path and real artifact payloads remain open; tests NOT_RUN"
+    "C9": "PARTIAL_SOURCE_IMPLEMENTED: timeout and single-failure exclusion rules corrected; exact scope matcher, deliberate retest planner and bounded Room projection store added; observation mapping, Show excluded and catalogue filter wiring remain open; tests NOT_RUN",
+    "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Checkpoint and push Lab source. Continue unblocked C7 supervisor contract/test sources, C9 observation persistence and UI explanations, and C10 compatible-session comparison/user flows. Keep multimodal paths and acquisition unsupported unless their actual Halo owners are integrated; no real-model acceptance claim before permitted verification.",
+  "next": "Checkpoint and push Lab source. Continue unblocked C7 long-run policy/supervisor integration and tests, then C9 terminal observation mapping plus Show excluded/catalogue filter UI. C10 selected-session failure comparison is wired; decide from source whether metric deltas and evidence artifacts can be added without weakening exact-identity guarantees. Keep multimodal paths and acquisition unsupported unless their actual Halo owners are integrated; no real-model acceptance claim before permitted verification.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
