@@ -28,6 +28,7 @@ import com.slafftrosheen.halomodellab.domain.SessionSummary
 import com.slafftrosheen.halomodellab.domain.TelemetryView
 import com.slafftrosheen.halomodellab.domain.TestStage
 import com.slafftrosheen.halomodellab.runner.LabClock
+import java.security.MessageDigest
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -341,8 +342,8 @@ class RoomSessionRepository(
                         requestedBackend = case.requestedBackend.name,
                         requestedConfigurationJson = case.requestedConfigurationJson(),
                         effectiveBackend = null,
-                        executionScopeJson = null,
-                        scopeDigestSha256 = null,
+                        executionScopeJson = case.executionScope?.canonicalJson(),
+                        scopeDigestSha256 = case.executionScope?.canonicalJson()?.let(::sha256Hex),
                     )
                 })
                 dao.insertRemoteBinding(
@@ -1201,3 +1202,7 @@ class RoomSessionRepository(
         const val REAL_EXPORT_ROW_LIMIT = 1_000
     }
 }
+
+private fun sha256Hex(value: String): String = MessageDigest.getInstance("SHA-256")
+    .digest(value.toByteArray(Charsets.UTF_8))
+    .joinToString("") { "%02x".format(it) }

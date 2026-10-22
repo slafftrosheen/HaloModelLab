@@ -258,6 +258,32 @@ data class ExecutionScope(
                 effectiveBackend != RealBackend.UNSPECIFIED &&
                 effectiveBackend != RealBackend.AUTO
 
+    /** Stable JSON persisted with the plan so an accepted run can be recovered after process death. */
+    fun canonicalJson(): String = buildString {
+        append('{').append("\"schemaVersion\":").append(schemaVersion).append(',')
+        scopeJsonField("deviceProfileId", deviceProfileId)
+        append(','); scopeJsonField("osBuildId", osBuildId)
+        append(','); scopeJsonField("haloSourceId", haloSourceId)
+        append(','); scopeJsonField("labSourceId", labSourceId)
+        append(','); scopeJsonField("runtimeId", runtimeId)
+        append(','); scopeJsonField("runtimeVersion", runtimeVersion)
+        append(','); scopeJsonField("adapterCompatibilityId", adapterCompatibilityId)
+        append(','); scopeJsonField("artifactManifestSha256", artifactManifestSha256)
+        append(','); scopeJsonField("role", role.name)
+        append(','); scopeJsonField("requestedBackend", requestedBackend.name)
+        append(','); scopeJsonField("effectiveBackend", effectiveBackend?.name)
+        append(','); scopeJsonField("effectiveConfigurationSha256", effectiveConfigurationSha256)
+        append(','); scopeJsonField("suiteId", suiteId)
+        append(','); scopeJsonField("suiteVersion", suiteVersion)
+        append(','); scopeJsonField("fixtureManifestSha256", fixtureManifestSha256)
+        append(',').append("\"qualificationPolicyVersion\":").append(qualificationPolicyVersion)
+        append(','); scopeJsonField("qualificationPolicySha256", qualificationPolicySha256)
+        append(','); scopeJsonField("measurementMode", measurementMode)
+        append(','); scopeJsonField("language", language)
+        append(','); scopeJsonField("voiceId", voiceId)
+        append(",\"sourceIdentitiesVerified\":").append(sourceIdentitiesVerified).append('}')
+    }
+
     companion object {
         const val MAX_OPTION_LENGTH = 128
         const val MAX_SCOPE_FIELD_LENGTH = 256
@@ -292,6 +318,7 @@ data class RealCasePlan(
     val fixtureManifestSha256: String?,
     val repetitionIndex: Int,
     val maximumOutputTokens: Int?,
+    val executionScope: ExecutionScope? = null,
 ) {
     init {
         require(isUuid(queueItemId))
@@ -310,6 +337,12 @@ data class RealCasePlan(
         require(maximumOutputTokens == null || maximumOutputTokens in 1..MAX_OUTPUT_TOKENS)
         require(requestedConfiguration.size <= MAX_CONFIGURATION_ITEMS)
         require(requestedConfiguration.map { it.key }.distinct().size == requestedConfiguration.size)
+        require(executionScope == null || (
+            executionScope.role == role && executionScope.requestedBackend == requestedBackend &&
+                executionScope.suiteId == suiteId && executionScope.suiteVersion == suiteVersion &&
+                executionScope.fixtureManifestSha256 == fixtureManifestSha256 &&
+                executionScope.artifactManifestSha256 == artifactManifest?.canonicalSha256()
+            ))
     }
 
     fun requestedConfigurationJson(): String = buildString {
@@ -438,7 +471,8 @@ data class RealRunPlan(
             append("\"fixtureManifestSha256\":")
                 .append(case.fixtureManifestSha256?.let(::jsonString) ?: "null")
             append(',').append("\"repetitionIndex\":").append(case.repetitionIndex).append(',')
-            append("\"maximumOutputTokens\":").append(case.maximumOutputTokens ?: "null").append('}')
+            append("\"maximumOutputTokens\":").append(case.maximumOutputTokens ?: "null").append(',')
+            append("\"executionScope\":").append(case.executionScope?.canonicalJson() ?: "null").append('}')
         }
         append("]}")
     }
@@ -493,6 +527,10 @@ private const val MAX_UNKNOWN_VALUE_LENGTH = 128
 
 private fun StringBuilder.jsonField(name: String, value: String) {
     append(jsonString(name)).append(':').append(jsonString(value))
+}
+
+private fun StringBuilder.scopeJsonField(name: String, value: String?) {
+    append(jsonString(name)).append(':').append(value?.let(::jsonString) ?: "null")
 }
 
 private fun jsonString(value: String): String = buildString {

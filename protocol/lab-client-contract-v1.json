@@ -47,6 +47,14 @@
     "artifactManifestHash": "sha256-canonical-json-v1",
     "executionScopeHash": "sha256-canonical-json-v1"
   },
+  "terminalEvidence": {
+    "outputPreviewMaximumCharacters": 512,
+    "outputBytes": "UTF-8 bytes in the bounded preview",
+    "outputSha256": "SHA-256 of the exact UTF-8 preview bytes",
+    "outputTruncated": "explicit boolean when a preview is present; null when output is unavailable",
+    "metrics": ["loadMs", "timeToFirstTokenMs", "generationMs", "effectiveBackendCode", "runtimeVersion"],
+    "unknownMeasurements": "explicit null"
+  },
   "modelInventory": {
     "states": ["INSTALLED_UNVERIFIED", "INSTALLED_VERIFIED", "PARTIAL", "CORRUPT", "MISSING", "UNSUPPORTED", "MANUAL_IMPORT_ONLY"],
     "roleCodes": "bounded array of open strings; unknown values are unsupported",

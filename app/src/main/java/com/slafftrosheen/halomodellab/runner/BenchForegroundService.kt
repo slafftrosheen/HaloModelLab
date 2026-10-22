@@ -49,6 +49,7 @@ class BenchForegroundService : Service() {
             engine = FakeBenchmarkEngine(),
             conditions = AndroidDeviceConditions(this),
             processInstanceId = container.processInstanceId,
+            additionalEngines = listOf(container.haloRemoteBenchmarkEngine),
         )
     }
 

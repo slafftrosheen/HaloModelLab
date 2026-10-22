@@ -322,6 +322,15 @@ class HaloBinderGateway(context: Context) : HaloLabGateway {
         workerInstanceId = row.optStringOrNull("workerInstanceId"), artifactId = row.optStringOrNull("artifactId"),
         artifactBytes = if (row.isNull("artifactBytes")) null else row.optLong("artifactBytes"),
         artifactSha256 = row.optStringOrNull("artifactSha256"), unavailableReason = row.optStringOrNull("unavailableReason"),
+        outputPreview = row.optStringOrNull("outputPreview"),
+        outputBytes = if (row.isNull("outputBytes")) null else row.optLong("outputBytes"),
+        outputSha256 = row.optStringOrNull("outputSha256"),
+        outputTruncated = if (row.isNull("outputTruncated")) null else row.optBoolean("outputTruncated"),
+        loadMs = if (row.isNull("loadMs")) null else row.optLong("loadMs"),
+        timeToFirstTokenMs = if (row.isNull("timeToFirstTokenMs")) null else row.optLong("timeToFirstTokenMs"),
+        generationMs = if (row.isNull("generationMs")) null else row.optLong("generationMs"),
+        effectiveBackendCode = row.optStringOrNull("effectiveBackendCode"),
+        runtimeVersion = row.optStringOrNull("runtimeVersion"),
     )
 
     private fun unavailable<T>(reason: String) = BridgeOperationResult.Unavailable(BridgeConnectionStatus.Unsupported(reason))

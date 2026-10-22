@@ -46,9 +46,16 @@ fun CatalogRoute(
     onOpenSession: () -> Unit,
 ) {
     val viewModel: CatalogViewModel = viewModel(
-        factory = CatalogViewModel.factory(container.catalogRepository, container.installedCatalogRepository),
+        factory = CatalogViewModel.factory(
+            container.catalogRepository,
+            container.installedCatalogRepository,
+            container.sessionRepository,
+            container.haloGateway,
+            container.processInstanceId,
+        ),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val realPlanCreation by viewModel.realPlanCreation.collectAsStateWithLifecycle()
 
     CatalogScreen(
         state = state,
@@ -57,6 +64,8 @@ fun CatalogRoute(
         onToggleScenario = viewModel::toggleScenario,
         onClearSelection = viewModel::clearSelection,
         onRefreshRealInventory = viewModel::refreshRealInventory,
+        realPlanCreation = realPlanCreation,
+        onCreateFastSmokePlan = { model -> viewModel.createFastSmokePlan(model, onOpenSession) },
         onOpenSession = onOpenSession,
     )
 }
@@ -70,6 +79,8 @@ fun CatalogScreen(
     onToggleScenario: (String) -> Unit,
     onClearSelection: () -> Unit,
     onRefreshRealInventory: () -> Unit,
+    realPlanCreation: RealPlanCreationState,
+    onCreateFastSmokePlan: (com.slafftrosheen.halomodellab.catalog.InstalledModelDescriptor) -> Unit,
     onOpenSession: () -> Unit,
 ) {
     Scaffold(
@@ -97,7 +108,7 @@ fun CatalogScreen(
                     onOpenSession = onOpenSession,
                 )
             } else {
-                RealCatalogSection(state, onRefreshRealInventory)
+                RealCatalogSection(state, realPlanCreation, onRefreshRealInventory, onCreateFastSmokePlan)
             }
         }
     }
@@ -139,7 +150,12 @@ private fun ModeSwitch(
 }
 
 @Composable
-private fun RealCatalogSection(state: CatalogState, onRefresh: () -> Unit) {
+private fun RealCatalogSection(
+    state: CatalogState,
+    planCreation: RealPlanCreationState,
+    onRefresh: () -> Unit,
+    onCreateFastSmokePlan: (com.slafftrosheen.halomodellab.catalog.InstalledModelDescriptor) -> Unit,
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -182,8 +198,21 @@ private fun RealCatalogSection(state: CatalogState, onRefresh: () -> Unit) {
                     Text(stringResource(R.string.catalog_real_model_generation, manifest.generationId.take(16)),
                         style = MaterialTheme.typography.bodySmall)
                 }
+                Button(
+                    onClick = { onCreateFastSmokePlan(model) },
+                    enabled = !planCreation.inProgress && model.eligibleForArtifactLease &&
+                        com.slafftrosheen.halomodellab.domain.ModelRole.FAST in model.supportedRoles &&
+                        com.slafftrosheen.halomodellab.domain.RealBackend.CPU in model.backendCandidates,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.catalog_create_fast_smoke))
+                }
             }
         }
+    }
+
+    planCreation.messageCode?.let { code ->
+        Text(stringResource(R.string.catalog_real_plan_status, code), style = MaterialTheme.typography.bodySmall)
     }
 
     Card(modifier = Modifier.fillMaxWidth()) {

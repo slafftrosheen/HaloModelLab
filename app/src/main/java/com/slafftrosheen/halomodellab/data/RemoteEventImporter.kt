@@ -37,6 +37,11 @@ class RemoteEventImporter(
     private val wallTimeMs: () -> Long = System::currentTimeMillis,
 ) {
 
+    /** Returns the durable remote identity before the runner considers another submission. */
+    suspend fun bindingForSession(sessionId: String): RemoteBindingEntity? = withContext(ioDispatcher) {
+        database.labDao().remoteBinding(sessionId)
+    }
+
     suspend fun bindAcceptedRun(
         sessionId: String,
         serverEpoch: String,

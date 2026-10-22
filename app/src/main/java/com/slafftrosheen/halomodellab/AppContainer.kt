@@ -7,10 +7,13 @@ import com.slafftrosheen.halomodellab.data.LabDatabase
 import com.slafftrosheen.halomodellab.data.RecoveryReport
 import com.slafftrosheen.halomodellab.data.RoomSessionRepository
 import com.slafftrosheen.halomodellab.data.SessionRepository
+import com.slafftrosheen.halomodellab.data.RemoteEventImporter
 import com.slafftrosheen.halomodellab.bridge.HaloBinderGateway
 import com.slafftrosheen.halomodellab.export.ReportExporter
 import com.slafftrosheen.halomodellab.runner.LabClock
 import com.slafftrosheen.halomodellab.runner.SystemLabClock
+import com.slafftrosheen.halomodellab.runner.HaloRemoteBenchmarkEngine
+import com.slafftrosheen.halomodellab.runner.PersistedRealExecutionContextSource
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
@@ -50,10 +53,23 @@ class AppContainer(context: Context) {
 
     private val database: LabDatabase = LabDatabase.build(context)
 
+    val remoteEventImporter: RemoteEventImporter = RemoteEventImporter(database)
+
     val sessionRepository: SessionRepository = RoomSessionRepository(
         database = database,
         clock = clock,
         processInstanceId = processInstanceId,
+    )
+
+    /** Real runs use only the explicit Halo bridge and a context reconstructed from Room. */
+    val haloRemoteBenchmarkEngine = HaloRemoteBenchmarkEngine(
+        gateway = haloGateway,
+        importer = remoteEventImporter,
+        contexts = PersistedRealExecutionContextSource(sessionRepository),
+        clientProcessInstanceId = processInstanceId,
+        clientSourceId = UNVERIFIED_SOURCE_ID,
+        clientSchemaSha256 = LAB_CLIENT_SCHEMA_SHA256,
+        haloProtocolSchemaSha256 = HALO_PROTOCOL_SCHEMA_SHA256,
     )
 
     /** Writes only to private cache; sharing happens through the FileProvider afterwards. */
@@ -94,5 +110,8 @@ class AppContainer(context: Context) {
 
         /** Source exists for opt-in inventory IPC; runtime compatibility is not verified. */
         const val BRIDGE_STATUS: String = "SOURCE_PRESENT_UNVERIFIED"
+        const val UNVERIFIED_SOURCE_ID: String = "not_recorded"
+        const val LAB_CLIENT_SCHEMA_SHA256: String = "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231"
+        const val HALO_PROTOCOL_SCHEMA_SHA256: String = "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c"
     }
 }

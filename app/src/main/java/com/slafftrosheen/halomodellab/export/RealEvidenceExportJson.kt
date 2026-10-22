@@ -104,14 +104,14 @@ internal object RealEvidenceExportJson {
             when {
                 detail.summary.origin.name == "SYNTHETIC" -> "SYNTHETIC_ONLY"
                 snapshot == null || snapshot.events.isEmpty() -> "UNKNOWN_NO_REMOTE_EVENTS"
-                else -> "REMOTE_FACTS_IMPORTED_EXECUTION_COVERAGE_UNVERIFIED"
+                else -> "REMOTE_EVIDENCE_AND_LOCAL_ATTEMPT_STATUS_EXPORTED"
             },
         )
         name("reasonCode").value(
             when {
                 detail.summary.origin.name == "SYNTHETIC" -> "SYNTHETIC_EVIDENCE_NOT_QUALIFYING"
                 snapshot?.events.isNullOrEmpty() -> "REAL_EXECUTION_NOT_ESTABLISHED"
-                else -> "REMOTE_TERMINAL_RECONCILIATION_NOT_IMPLEMENTED"
+                else -> "REMOTE_EVENTS_AND_LOCAL_ATTEMPT_OUTCOME_RETAINED_SEPARATELY"
             },
         )
         endObject()

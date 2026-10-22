@@ -218,6 +218,15 @@ data class BridgeEventPayload(
     val artifactBytes: Long?,
     val artifactSha256: String?,
     val unavailableReason: String?,
+    val outputPreview: String? = null,
+    val outputBytes: Long? = null,
+    val outputSha256: String? = null,
+    val outputTruncated: Boolean? = null,
+    val loadMs: Long? = null,
+    val timeToFirstTokenMs: Long? = null,
+    val generationMs: Long? = null,
+    val effectiveBackendCode: String? = null,
+    val runtimeVersion: String? = null,
 ) {
     init {
         require(isBoundedId(eventCode))
@@ -228,6 +237,17 @@ data class BridgeEventPayload(
         require(artifactBytes == null || artifactBytes >= 0L)
         require(artifactSha256 == null || SHA256_HEX.matches(artifactSha256))
         require(unavailableReason == null || isBoundedId(unavailableReason))
+        require(outputPreview == null || outputPreview.length <= MAX_OUTPUT_PREVIEW_CHARS)
+        require(outputBytes == null || outputBytes >= 0L)
+        require(outputSha256 == null || SHA256_HEX.matches(outputSha256))
+        require(loadMs == null || loadMs >= 0L)
+        require(timeToFirstTokenMs == null || timeToFirstTokenMs >= 0L)
+        require(generationMs == null || generationMs >= 0L)
+        require(effectiveBackendCode == null || isBoundedId(effectiveBackendCode))
+        require(runtimeVersion == null || isBoundedId(runtimeVersion))
+        val outputFieldsPresent = listOf(outputPreview != null, outputBytes != null, outputSha256 != null, outputTruncated != null)
+        require(outputFieldsPresent.all { it } || outputFieldsPresent.none { it })
+        require(outputPreview == null || outputBytes == outputPreview.toByteArray(Charsets.UTF_8).size.toLong())
         require((failureCode == null) == (failureDomain == null))
         when (kind) {
             BridgeEventKind.SESSION_ACCEPTED -> require(attemptId == null && stage == null && outcome == null)
@@ -270,6 +290,22 @@ data class BridgeEventPayload(
         appendNullableField("artifactSha256", artifactSha256)
         append(',')
         appendNullableField("unavailableReason", unavailableReason)
+        append(',')
+        appendNullableField("outputPreview", outputPreview)
+        append(",\"outputBytes\":").append(outputBytes?.toString() ?: "null").append(',')
+        appendNullableField("outputSha256", outputSha256)
+        append(',')
+        append("\"outputTruncated\":").append(outputTruncated?.toString() ?: "null")
+        append(',')
+        append("\"loadMs\":").append(loadMs?.toString() ?: "null")
+        append(',')
+        append("\"timeToFirstTokenMs\":").append(timeToFirstTokenMs?.toString() ?: "null")
+        append(',')
+        append("\"generationMs\":").append(generationMs?.toString() ?: "null")
+        append(',')
+        appendNullableField("effectiveBackendCode", effectiveBackendCode)
+        append(',')
+        appendNullableField("runtimeVersion", runtimeVersion)
         append('}')
     }
 
@@ -416,6 +452,7 @@ object BridgeLimits {
     const val MAX_OUTSTANDING_COMMANDS = 4
     const val MAX_CONCURRENT_ARTIFACT_TRANSFERS = 2
     const val MAX_UNKNOWN_CODE_CHARS = 128
+    const val MAX_OUTPUT_PREVIEW_CHARS = 512
 
     fun requireRequestSize(payload: ByteArray) {
         if (payload.size > MAX_REQUEST_BYTES) throw BridgePayloadLimitException("REQUEST_TOO_LARGE")

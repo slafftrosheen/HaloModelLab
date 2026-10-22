@@ -36,10 +36,12 @@
     <string name="catalog_real_model_state">Состояние установки: %1$s</string>
     <string name="catalog_real_model_backends">Движки: %1$s</string>
     <string name="catalog_real_model_generation">Поколение: %1$s</string>
-    <string name="catalog_real_note">Это только инвентаризация. Создание плана и запуск проверки пока не подключены.</string>
+    <string name="catalog_real_note">Проверенная локальная модель может создать фиксированный план FAST / CPU. Получение моделей пока недоступно: им управляет Halo.</string>
     <string name="catalog_download_title">Загрузка моделей в Halo</string>
     <string name="catalog_download_body">Пока недоступна: Halo не предоставляет Lab подключение к существующим загрузчикам. Установите модель через Halo. Lab не скачивает и не хранит веса.</string>
     <string name="catalog_download_button">Загрузка недоступна</string>
+    <string name="catalog_create_fast_smoke">Создать план FAST / CPU</string>
+    <string name="catalog_real_plan_status">План: %1$s</string>
     <string name="catalog_excluded_title">Исключённые модели</string>
     <string name="catalog_excluded_body">Появится на следующем этапе. В v0 нет вердиктов, поэтому исключать нечего и скрывать нечего.</string>
     <string name="catalog_excluded_switch">Показать исключённые</string>
