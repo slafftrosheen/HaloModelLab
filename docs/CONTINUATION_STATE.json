@@ -10,12 +10,12 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
+    "currentHead": "784dd4fc94de1cecf148d5a207dd27a89d7cf42f",
     "currentWorkingTree": "C7 sends persisted bounded stage budgets to Halo; Halo persists the accepted total deadline and uses it for worker stop/recovery; verification not run",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "AUTHORIZED; breaker commits through 8b8ef45 and docs checkpoint 4857855 pushed; C7 budget commit db23840 local on main; push pending",
+    "pushState": "AUTHORIZED; Lab source commit db23840 and docs checkpoint 784dd4f pushed; clean and in sync; Halo source commit 7a8994e remains local and unpushed",
     "sourceImplementationHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
-    "verificationCheckpointCommit": "pending"
+    "verificationCheckpointCommit": "784dd4fc94de1cecf148d5a207dd27a89d7cf42f"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
