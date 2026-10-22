@@ -38,6 +38,16 @@ class ThermalCooldownGateTest {
         assertEquals(3, store.writeCount)
     }
 
+    @Test fun checkpointWriteFailureKeepsCooldownClosed() {
+        val store = FailingStore()
+        val gate = ThermalCooldownGate(store = store)
+
+        assertEquals(ThermalGateDecision.Blocked(ConditionBlockReason.THERMAL_CONSTRAINT),
+            gate.sample(ThermalLevel.SEVERE, 1_000L))
+        assertEquals(ThermalGateDecision.CoolingDown(60_000L), gate.sample(ThermalLevel.LIGHT, 2_000L))
+        assertEquals(ThermalGateDecision.CoolingDown(60_000L), gate.sample(ThermalLevel.LIGHT, 62_000L))
+    }
+
     private class CountingStore : ThermalCooldownStore {
         var checkpoint = ThermalCooldownCheckpoint(false, null)
         var writeCount = 0
@@ -46,5 +56,10 @@ class ThermalCooldownGateTest {
             this.checkpoint = checkpoint
             writeCount++
         }
+    }
+
+    private class FailingStore : ThermalCooldownStore {
+        override fun read(): ThermalCooldownCheckpoint = ThermalCooldownCheckpoint(false, null)
+        override fun write(checkpoint: ThermalCooldownCheckpoint) { error("PREFERENCE_WRITE_FAILED") }
     }
 }
