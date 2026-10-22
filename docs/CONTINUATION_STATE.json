@@ -6,16 +6,16 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "db23840e9509c0810185b01c5bd4ce60adc2e920",
+    "lastImplementationCommit": "b20f9e1",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "cd161bf7490669e57b4ad8af7ae325ac8d2b4e98",
-    "currentWorkingTree": "C7 Lab stage event watchdog, disk reserve/evidence quota, thermal cooldown, and C9 safe mapping/history inspection source changes; source tests added; verification NOT_RUN",
+    "currentHead": "b20f9e1",
+    "currentWorkingTree": "C7 safety gates (event-based stage watchdog, persistent thermal gate, disk/evidence quotas) and C9 safe terminal mapper plus Show excluded review UI committed; Build, automated tests and phone tests NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "Lab source changes are locally committed and pushed only after static checks; Halo source remains local/unpushed",
-    "sourceImplementationHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
-    "verificationCheckpointCommit": "cd161bf7490669e57b4ad8af7ae325ac8d2b4e98"
+    "pushState": "AUTHORIZED: Lab source commit b20f9e1 and checkpoint docs will be pushed to existing origin/main; Halo unchanged and local/unpushed",
+    "sourceImplementationHead": "b20f9e1",
+    "verificationCheckpointCommit": "b20f9e1"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -54,7 +54,7 @@
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
     "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab db23840e9509c0810185b01c5bd4ce60adc2e920 / Halo 53ef62d5626832f2b9b59d00a1807eed6d36def9; protocol v1.0 files remain byte-identical; additive stageBudgets request field and fixture alignment source checks only; runtime compatibility NOT_RUN",
+    "compatibleCommitPair": "Lab b20f9e1 / Halo 53ef62d5626832f2b9b59d00a1807eed6d36def9; shared protocol v1.0 files byte-identical; Lab stage watchdog code remains source-only and Halo runtime replay lacks distinct load/unload milestones",
     "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
     "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commit pair recorded; runtime compatibility NOT_RUN",
     "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
