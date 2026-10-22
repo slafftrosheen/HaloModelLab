@@ -10,12 +10,12 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "b20f9e1",
+    "currentHead": "a5d17a0",
     "currentWorkingTree": "C7 safety gates (event-based stage watchdog, persistent thermal gate, disk/evidence quotas) and C9 safe terminal mapper plus Show excluded review UI committed; Build, automated tests and phone tests NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "AUTHORIZED: Lab source commit b20f9e1 and checkpoint docs will be pushed to existing origin/main; Halo unchanged and local/unpushed",
+    "pushState": "PUSHED: Lab commits b20f9e1 and a5d17a0 are on authorized origin/main",
     "sourceImplementationHead": "b20f9e1",
-    "verificationCheckpointCommit": "b20f9e1"
+    "verificationCheckpointCommit": "a5d17a0"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -35,9 +35,9 @@
     "C4": "SOURCE_INTEGRATED_WITH_REPAIR: fixed stale arithmetic fixture ID that rejected the current FAST smoke request; bridge and worker now share the protocol fixture constant; Halo C4/C7 source local commits 7a8994e and 53ef62d; runtime compatibility/build/phone tests NOT_RUN",
     "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
     "C6": "PARTIAL_SOURCE_IMPLEMENTED: capability registry and catalog coverage UI identify Halo owner APIs and exact Lab blockers for CHAT/THINK/ACTION/VISION/STT/TTS/EMBEDDING/VAD; only fixed FAST smoke has source execution; multimodal test sources and execution remain open",
-    "C7": "PARTIAL_SOURCE_IMPLEMENTED: replay-event stage watchdog and saved stage budgets added in Lab; Halo currently does not emit separately timed LOAD/UNLOAD milestones, so per-stage coverage is incomplete; coordinator enforces 256 MiB free-space reserve and 64 MiB Lab-owned DB/WAL/SHM/export quota; thermal UNKNOWN/MODERATE blocks and severe requires 60 seconds continuous NONE/LIGHT cooldown; cooldown checkpoint persists in Lab-private preferences with reboot reset safety; tests NOT_RUN",
+    "C7": "PARTIAL_SOURCE_IMPLEMENTED: Lab event-based stage watchdog, persistent monotonic thermal cooldown gate, 256 MiB free-space reserve and 64 MiB Lab-owned database/WAL/SHM/export quota; Halo still lacks separately timed load/execute/unload events; tests NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
-    "C9": "PARTIAL_SOURCE_IMPLEMENTED: terminal replay observation mapper preserves unknown scope/assertion unless verified, and History has Show excluded for persisted exact-scope projections; cross-session observation aggregation, automatic projection recomputation, and current catalog filtering remain open; no unknown identity can hide a model",
+    "C9": "PARTIAL_SOURCE_IMPLEMENTED: safe terminal observation mapper, exact-scope unknown handling, and History Show excluded projection view added; cross-session aggregation/recomputation and current catalog filter remain open; tests NOT_RUN",
     "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
   },
   "halo": {
