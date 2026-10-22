@@ -10,8 +10,8 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "ca26a2371decae31d07aab0c34136276c874a5a7",
-    "currentWorkingTree": "checkpoint state refreshed after public push; no source changes remain",
+    "currentHead": "6ca7e9b89635f4c4bf7417c53bd370ed19fa5cc3",
+    "currentWorkingTree": "C4/C8 source checkpoint in progress; no verification runs permitted",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
     "pushState": "PUSHED: origin/main matches local main at the current checkpoint"
   },
@@ -30,11 +30,11 @@
     "C1": "LAB_SOURCE_IMPLEMENTED; generated Room schema v2 committed; validation and migration tests PASS on V0; implementation commit 74f9f55; verification repair commit 015b497",
     "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
     "C3": "LAB_INVENTORY_PROJECTION_IMPLEMENTED; explicit opt-in Halo inventory refresh connected in source; runtime compatibility NOT_RUN",
-    "C4": "HALO_AND_LAB_SOURCE_IN_PROGRESS: signed opt-in AIDL, journal, file/resource leases, private worker and existing LiteRT CPU adapter source added; Lab explicit read-only inventory refresh connected; real plan/session runner and remote event import remain unwired; build/tests/e2e NOT_RUN",
+    "C4": "PARTIAL_SOURCE: Halo bridge/worker exists; Lab coordinator selects engine by persisted engineId and has a Halo remote engine source with protocol/consent/lease checks and cleanup-owned deadline; application registration and persisted execution-context resolver remain unwired; build/tests/e2e NOT_RUN",
     "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; unit tests PASS; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe",
     "C6": "CONTRACT_ONLY except Halo fixed fast-smoke/1/short-ready CPU fixture; no Lab capability-selected plan UI/session engine wiring",
     "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; unit tests PASS; not connected to a real runner/supervisor; commit 8dcafbe",
-    "C8": "PARTIAL_SOURCE: Halo journal replay and Lab gateway source exist; remote import/reconciliation, real runner and real ZIP reproduction path not wired",
+    "C8": "SOURCE_COMPLETE_UNSUPPORTED: real catalog UI explains Halo-owned acquisition is unavailable because the Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, network permission, or weight cache added. Enable only after a concrete existing Halo acquisition API is exposed and audited",
     "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; unit tests PASS; exact scope requires verified eligibility; persistence/UI filters NOT_WIRED; commits 2158c36, 4a8cee6",
     "C10": "LAB_EXPORT_SCHEMA_V2_SOURCE_IMPLEMENTED; unit tests PASS; atomic Room export snapshot and bounded reproduction sections; real terminal reconciliation/output capture/UI not wired; commit cfb663b; synthetic device ZIP smoke PASS"
   },
@@ -93,7 +93,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; real Lab plan/session/event-import path is incomplete; no build or phone verification in this continuation"
   },
-  "next": "Continue C4 Lab integration: persist and start only the fixed fast-smoke CPU plan; connect the real runner to Halo leases, worker supervision, replay importer and recovery before scheduling another remote attempt. Then continue C6-C10 integration and update the bounded checkpoint. Do not run Gradle, automated tests, ADB or phone benchmarks.",
+  "next": "Complete the C6 fixed fast-smoke plan/context factory and persist the execution scope so BenchForegroundService can register HaloRemoteBenchmarkEngine without inventing identity or configuration. Then reconcile terminal remote evidence into immutable local attempts and bounded ZIP reproduction/output sections. C8 remains explicitly unsupported until an existing Halo acquisition API is exposed. Build, automated tests and phone tests remain NOT_RUN; do not run Gradle or ADB.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 2,

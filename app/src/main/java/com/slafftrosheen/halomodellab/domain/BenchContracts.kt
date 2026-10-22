@@ -83,6 +83,10 @@ fun interface AttemptEventSink {
 interface BenchmarkEngine {
     val engineId: String
     val origin: EvidenceOrigin
+
+    /** True when the engine owns a deadline that can stop and confirm remote/native cleanup. */
+    val managesOwnDeadline: Boolean get() = false
+
     suspend fun execute(
         request: BenchmarkRequest,
         events: AttemptEventSink,

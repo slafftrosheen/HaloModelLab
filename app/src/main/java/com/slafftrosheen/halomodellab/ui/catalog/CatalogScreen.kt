@@ -186,6 +186,13 @@ private fun RealCatalogSection(state: CatalogState, onRefresh: () -> Unit) {
         }
     }
 
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.catalog_download_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.catalog_download_body), style = MaterialTheme.typography.bodySmall)
+        }
+    }
+
     Text(
         text = stringResource(R.string.catalog_real_note),
         style = MaterialTheme.typography.bodySmall,

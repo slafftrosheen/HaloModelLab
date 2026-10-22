@@ -55,7 +55,13 @@ class SessionCoordinator(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val conditionPollMs: Long = DEFAULT_CONDITION_POLL_MS,
     private val minimumFreeBytes: Long = AndroidDeviceConditions.MINIMUM_FREE_BYTES_V0,
+    additionalEngines: List<BenchmarkEngine> = emptyList(),
 ) {
+
+    private val enginesById: Map<String, BenchmarkEngine> =
+        (listOf(engine) + additionalEngines).associateBy { it.engineId }.also { engines ->
+            require(engines.size == 1 + additionalEngines.size) { "DUPLICATE_ENGINE_ID" }
+        }
 
     private val running = AtomicBoolean(false)
     private val engineScope = CoroutineScope(SupervisorJob() + dispatcher)
@@ -137,11 +143,12 @@ class SessionCoordinator(
         }
         val detail = loaded ?: return CoordinatorResult.Rejected("SESSION_MISSING")
 
-        if (detail.summary.engineId != engine.engineId) {
+        val selectedEngine = enginesById[detail.summary.engineId]
+        if (selectedEngine == null) {
             return failInfrastructure(
                 sessionId = sessionId,
                 code = "ENGINE_ID_MISMATCH",
-                detail = "Plan requires engine ${detail.summary.engineId}, runner provides ${engine.engineId}.",
+                detail = "No registered engine can run ${detail.summary.engineId}.",
             )
         }
 
@@ -224,7 +231,7 @@ class SessionCoordinator(
 
                 is BeginAttempt.Ready -> {
                     val attemptRun = try {
-                        runAttempt(sessionId, begun, detail.requireCharging)
+                        runAttempt(sessionId, begun, detail.requireCharging, selectedEngine)
                     } catch (cancellation: CancellationException) {
                         throw cancellation
                     } catch (failure: Exception) {
@@ -270,6 +277,7 @@ class SessionCoordinator(
         sessionId: String,
         begun: BeginAttempt.Ready,
         requireCharging: Boolean,
+        selectedEngine: BenchmarkEngine,
     ): AttemptRun {
         val request = begun.request
         val sink = RecordingSink(
@@ -289,7 +297,7 @@ class SessionCoordinator(
         val watchdog = launchConditionWatchdog(requireCharging)
 
         val execution = try {
-            executeEngine(request, sink)
+            executeEngine(selectedEngine, request, sink)
         } finally {
             watchdog.cancel()
             wakeLock.release()
@@ -301,7 +309,7 @@ class SessionCoordinator(
         return when (execution) {
             is EngineExecution.Finished -> {
                 val result = execution.result
-                if (result.origin != request.origin || result.origin != engine.origin) {
+                if (result.origin != request.origin || result.origin != selectedEngine.origin) {
                     val invalid = AttemptResult(
                         outcome = AttemptOutcome.FAILED,
                         validity = ResultValidity.INVALID,
@@ -386,12 +394,17 @@ class SessionCoordinator(
     }
 
     private suspend fun executeEngine(
+        selectedEngine: BenchmarkEngine,
         request: BenchmarkRequest,
         sink: RecordingSink,
     ): EngineExecution {
         val deferred = engineScope.async {
-            withTimeout(request.caseTimeoutMs) {
-                engine.execute(request, sink)
+            if (selectedEngine.managesOwnDeadline) {
+                selectedEngine.execute(request, sink)
+            } else {
+                withTimeout(request.caseTimeoutMs) {
+                    selectedEngine.execute(request, sink)
+                }
             }
         }
         attemptJob = deferred

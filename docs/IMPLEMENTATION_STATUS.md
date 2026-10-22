@@ -2,6 +2,25 @@
 
 ## Active v1 continuation checkpoint — 2026-10-22 (supersedes older access-status notes below)
 
+### C4/C8 source checkpoint — 2026-10-22
+
+- `SessionCoordinator` can select an engine by the persisted engine ID while retaining the
+  existing synthetic engine path.
+- `HaloRemoteBenchmarkEngine` source now checks protocol/schema/consent, matches a verified
+  artifact lease to the frozen plan, queries the attempt ID before submission, imports contiguous
+  hashed replay pages before acknowledging them, and waits for confirmed cleanup or worker death
+  after cancellation. It owns the remote deadline; coroutine timeout is not treated as native
+  cancellation.
+- A coordinator engine-selection regression test source was added. It has not been executed.
+- C4 remains **PARTIAL**: the foreground service still registers only the synthetic engine;
+  the repository has no recoverable execution-scope/context resolver, terminal remote evidence
+  is not reconciled into immutable local attempts, and inference output is not included in the
+  real ZIP. C6's fixed-plan/context factory is the next dependency. C8 is **complete as an
+  explicit unsupported capability** in the real catalog UI because Halo's bridge returns
+  `HALO_ACQUISITION_NOT_IMPLEMENTED`; Lab adds no downloader, network permission, or weight cache.
+- Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN**. Only source
+  inspection and `git diff --check` are allowed during this continuation.
+
 - The owner authorized editing `C:\Users\slavd\HaloEco\Halo-main` and preserving its existing changes. Halo bridge/supervisor source is committed locally on `main` as `83c2a67ebb2bfd32aae49e4fbc18c859d574318f`; it has not been pushed and is one commit ahead of its tracked origin. Lab gateway/catalog source is committed as `1c2dadf` with a source checkpoint `031e802`; public `main` is pushed and matches local `main`.
 - Protocol v1.0 source is now present in both repositories. Shared schema SHA-256: `264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e`. Compatible commit pair is pending because the source changes are not committed yet.
 - Halo source now includes signature-protected AIDL, explicit in-Halo consent, a durable remote attempt/event journal, verified inventory projection, exact model-file leases, a private `:modelbench` process, stop/recovery supervision and a fixed CPU `fast-smoke/1/short-ready` fixture through the existing `LiteRtLocalProvider`. Lab source now includes an AIDL client gateway wired to an explicit, read-only catalog refresh. Real plan creation, remote import and execution are still not connected.

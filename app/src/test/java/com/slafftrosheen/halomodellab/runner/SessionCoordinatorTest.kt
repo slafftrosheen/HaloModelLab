@@ -15,6 +15,7 @@ import com.slafftrosheen.halomodellab.domain.ResultValidity
 import com.slafftrosheen.halomodellab.domain.SessionPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceTimeBy
@@ -47,6 +48,36 @@ class SessionCoordinatorTest {
         assertEquals(AttemptOutcome.FAILED, repository.attempts[1].outcome)
         assertEquals("SIMULATED_ADAPTER_LOAD_FAILURE", repository.attempts[1].failure?.code)
         assertTrue(repository.codes().contains("BEFORE_EXECUTION"))
+    }
+
+    @Test
+    fun dispatchesByPersistedEngineIdAndPreservesOrigin() = runTest {
+        val repository = FakeSessionRepository()
+        repository.createSession(
+            plan(DemoCatalog.SUCCESS, caseTimeoutMs = 1_000L).copy(
+                origin = EvidenceOrigin.DEVICE_MEASUREMENT,
+                engineId = "real-fixture-engine",
+            ),
+        )
+        var invoked = false
+        val realEngine = object : BenchmarkEngine {
+            override val engineId = "real-fixture-engine"
+            override val origin = EvidenceOrigin.DEVICE_MEASUREMENT
+            override val managesOwnDeadline = true
+            override suspend fun execute(request: BenchmarkRequest, events: AttemptEventSink): AttemptResult {
+                invoked = request.origin == origin
+                delay(request.caseTimeoutMs + 500L)
+                return AttemptResult(AttemptOutcome.PASSED, ResultValidity.VALID, origin)
+            }
+        }
+        val coordinator = coordinator(
+            repository, FakeConditions(), testScheduler,
+            additionalEngines = listOf(realEngine),
+        )
+
+        assertEquals(CoordinatorResult.Completed, coordinator.runSession(repository.sessionId))
+        assertTrue(invoked)
+        assertEquals(AttemptOutcome.PASSED, repository.attempts.single().outcome)
     }
 
     @Test
@@ -255,6 +286,7 @@ class SessionCoordinatorTest {
         conditions: DeviceConditions,
         scheduler: TestCoroutineScheduler,
         engine: BenchmarkEngine = FakeBenchmarkEngine(),
+        additionalEngines: List<BenchmarkEngine> = emptyList(),
     ): SessionCoordinator = SessionCoordinator(
         repository = repository,
         engine = engine,
@@ -262,6 +294,7 @@ class SessionCoordinatorTest {
         processInstanceId = "owner-1",
         dispatcher = StandardTestDispatcher(scheduler),
         conditionPollMs = 100L,
+        additionalEngines = additionalEngines,
     )
 
     private fun plan(vararg scenarios: String, caseTimeoutMs: Long = 2_000L): SessionPlan =

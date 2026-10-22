@@ -2,6 +2,20 @@
 
 **Historical V0/V1 record (2026-10-22): Build PASS; automated tests PASS; device instrumentation PASS; synthetic manual smoke PASS. During the current source continuation, Build, Automated tests, and Phone tests are NOT_RUN. Real-model acceptance remains NOT_RUN pending the separately permitted verification stage.**
 
+## Current C4/C8 source checkpoint
+
+- Added engine selection and the `HaloRemoteBenchmarkEngine` source, plus a coordinator dispatch
+  regression test source. `BenchForegroundService` still registers only the synthetic engine
+  because a persisted execution-scope/context resolver has not been implemented.
+- The remote engine imports hashed event pages transactionally before acknowledgement and waits
+  for remote cleanup/death confirmation after cancellation. It does not yet reconcile terminal
+  events into the immutable local attempt or export bounded inference output.
+- Build: **NOT_RUN**. Automated tests: **NOT_RUN** (including the newly added source test).
+  Phone tests: **NOT_RUN**. No Gradle, build, emulator, ADB, install, or benchmark command was
+  run in this continuation. Required next source work: C6 fixed fast-smoke plan/context factory,
+  service registration, terminal recovery mapping, and bounded ZIP evidence path. C8 acquisition
+  is explicitly unsupported because Halo currently exposes no existing acquisition API to Lab.
+
 V0 used JDK 21, Android SDK 37 and Windows Gradle wrapper 9.6.0. Final commands:
 
 ```text
