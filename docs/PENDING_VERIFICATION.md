@@ -2,7 +2,7 @@
 
 ## Current source head after C7/C9/C10 edits
 
-- Lab source commits `95894b2`, `b33eb1e`, `e8ddf44`, `a52915e`, `ce63a94`, `07e9dd4`, and `8b8ef45` are not yet covered by build or automated tests. Current Build / Automated tests / Phone tests are **NOT_RUN**. Added C7 test sources cover the three-fault pause, the persisted resume guard, and retention of the streak across a non-success outcome.
+- Lab source commits through `db23840` and Halo managed-worktree commit `7a8994e` are not yet covered by builds or automated tests. Current Build / Automated tests / Phone tests are **NOT_RUN**. Added C7 test sources cover the persisted circuit breaker and stage-deadline validation/reboot behavior. Exact protocol v1.0 files still parse and match byte-for-byte; this does not verify bridge runtime compatibility.
 - Room schema 3 and its additive 2→3 migration need generation/validation on the separately authorized V0 pass. Protocol bytes match between Lab and the Halo managed worktree (SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`).
 - Current Halo source compile previously failed on unrelated app errors. Halo branch still diverges from its local `origin/main` ref (4 ahead / 33 behind); no rebase or push has occurred.
 - Manual Lab install previously returned `INSTALL_FAILED_USER_RESTRICTED`. No bypass was attempted; current APK usability, V1 synthetic export, paired Halo connection, real inference, cleanup-before-next-allocation, native crash resilience and real qualification remain unverified.

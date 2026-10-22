@@ -6,16 +6,16 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "8b8ef4520cf58240d0f57397f02fd0ae937c0a34",
+    "lastImplementationCommit": "db23840e9509c0810185b01c5bd4ce60adc2e920",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "808626bb2dce3afd8c43499eedf3909a22f28649",
-    "currentWorkingTree": "C7 breaker is reconstructed from committed attempts, counts harness faults until a valid control success, and pauses before another allocation at threshold; verification not run",
+    "currentHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
+    "currentWorkingTree": "C7 sends persisted bounded stage budgets to Halo; Halo persists the accepted total deadline and uses it for worker stop/recovery; verification not run",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "AUTHORIZED; C7 source commit 8b8ef45 and docs checkpoint 808626b pushed to Lab main; clean and in sync",
-    "sourceImplementationHead": "8b8ef4520cf58240d0f57397f02fd0ae937c0a34",
-    "verificationCheckpointCommit": "808626bb2dce3afd8c43499eedf3909a22f28649"
+    "pushState": "AUTHORIZED; breaker commits through 8b8ef45 and docs checkpoint 4857855 pushed; C7 budget commit db23840 local on main; push pending",
+    "sourceImplementationHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
+    "verificationCheckpointCommit": "pending"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -35,17 +35,17 @@
     "C4": "SOURCE_INTEGRATED; Lab and Halo C4 source commits recorded; Lab V0/unit/instrumentation PASS; Halo app compile blocked by unrelated errors; phone app install restricted; real-model acceptance NOT_RUN",
     "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
     "C6": "PARTIAL_SOURCE_IMPLEMENTED: capability registry and catalog coverage UI identify Halo owner APIs and exact Lab blockers for CHAT/THINK/ACTION/VISION/STT/TTS/EMBEDDING/VAD; only fixed FAST smoke has source execution; multimodal test sources and execution remain open",
-    "C7": "PARTIAL_SOURCE_IMPLEMENTED: boot-aware active-time persistence, conservative cross-boot budget recovery, 10,000 queue expansion cap, schema 2->3, plus resume-safe circuit breaker that pauses after three committed harness faults without an intervening valid control success; stage/thermal hysteresis/storage caps and native supervisor integration remain open; commits 95894b2, 07e9dd4, and 8b8ef45; tests NOT_RUN",
+    "C7": "PARTIAL_SOURCE_IMPLEMENTED: boot-aware active-time persistence, conservative cross-boot budget recovery, 10,000 queue expansion cap, schema 2->3, and resume-safe persisted-history circuit breaker that pauses after three harness faults without valid control success; Lab now sends validated stage budgets and authorized Halo persists and applies their bounded total deadline through recovery; per-stage enforcement, thermal hysteresis, storage caps, full run-controller and native-supervisor integration remain open; Lab commits 95894b2, 07e9dd4, 8b8ef45, db23840; Halo commit 7a8994e; tests NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "PARTIAL_SOURCE_IMPLEMENTED: timeout and single-failure exclusion rules corrected; exact scope matcher, deliberate retest planner and bounded Room projection store added; observation mapping, Show excluded and catalogue filter wiring remain open; tests NOT_RUN",
     "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
-    "head": "75da9ca49bfeea2da6fd914dde5380e8f6745e9d",
-    "worktree": "authorized managed worktree local main commit 75da9ca49bfeea2da6fd914dde5380e8f6745e9d; ahead 4/behind 33 vs local origin/main ref; not pushed; original Halo-main user branch and dirty change untouched",
+    "head": "7a8994ed01d444905d0e1dceaf6b3791c768900a",
+    "worktree": "authorized managed worktree local main commit 7a8994ed; ahead 5/behind 33 vs local origin/main ref; not pushed; original Halo-main user branch and dirty change untouched",
     "writeAuthorized": true,
-    "status": "C4_SOURCE_COMMITTED_HALO_APP_COMPILE_BLOCKED_UNRELATED_NOT_PUSHED"
+    "status": "C4_C7_SOURCE_COMMITTED; stage-budget deadline and recovery source added; not pushed; runtime/build compatibility NOT_RUN"
   },
   "protocol": {
     "clientVersion": 1,
@@ -54,14 +54,14 @@
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
     "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab 1f328c9e16463751df1946a2b01e69a95d19f1eb / Halo 75da9ca49bfeea2da6fd914dde5380e8f6745e9d; exact shared protocol file bytes; runtime compatibility NOT_RUN",
+    "compatibleCommitPair": "Lab db23840e9509c0810185b01c5bd4ce60adc2e920 / Halo 7a8994ed01d444905d0e1dceaf6b3791c768900a; protocol v1.0 files remain byte-identical; additive stageBudgets request field and runtime compatibility NOT_RUN",
     "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
     "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commit pair recorded; runtime compatibility NOT_RUN",
     "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
-    "build": "NOT_RUN for current C5-C10 source head; earlier Lab V0 PASS is historical; earlier Halo app compile FAIL on unrelated sources",
-    "automatedTests": "NOT_RUN for current C5-C10 source head; earlier Lab unit/instrumentation PASS results are historical only",
+    "build": "NOT_RUN for current C5-C10 source head; earlier Lab V0 PASS is historical; Halo's prior compile failed on unrelated sources and latest Halo changes are uncompiled",
+    "automatedTests": "NOT_RUN for current C5-C10 source head; earlier Lab unit/instrumentation PASS results are historical only; Halo deadline test sources NOT_RUN",
     "phoneTests": "NOT_RUN for current source head; prior manual Lab install blocked INSTALL_FAILED_USER_RESTRICTED; synthetic V1 and real-model V1 NOT_RUN",
     "allowedThisTurn": [
       "source inspection",
@@ -75,15 +75,15 @@
       "labUnitTests": "NOT_RUN after C5-C10 source edits",
       "androidTestApkCompile": "NOT_RUN after schema 3 source edit",
       "connectedInstrumentation": "NOT_RUN after C5-C10 source edits",
-      "haloCompile": "FAIL: unrelated existing app compile errors; no C4 bridge/worker errors",
+      "haloCompile": "NOT_RUN after C7 deadline source changes; prior compile failed on unrelated existing errors",
       "labApkSha256": "41759c1cad8c92f307487d7e33fdf1be8fc85edd3ba1182e36119bafc32be2a0",
       "labManualInstall": "BLOCKED: INSTALL_FAILED_USER_RESTRICTED",
       "syntheticV1": "NOT_RUN: app install blocked",
       "realModelV1": "NOT_RUN: paired Halo app unavailable",
-      "sourceDiffCheck": "PASS for C7 and C9/C10 source commits",
+      "sourceDiffCheck": "PASS for current Lab and Halo source changes",
       "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; exact bytes in Lab and Halo",
       "jsonXmlParsing": "PASS",
-      "phoneTests": "Instrumentation only; no real inference"
+      "phoneTests": "NOT_RUN during coding; no new install or inference"
     }
   },
   "sourceChecks": {
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Push the C7 breaker correction checkpoint. Continue C7 budget/thermal/storage guard wiring, then C9 terminal observation mapping plus Show excluded/catalogue filter UI. C10 selected-session failure comparison is wired; inspect whether metric deltas and bounded evidence payloads can be added without weakening exact-identity guarantees. Keep multimodal paths and acquisition unsupported unless their actual Halo owners are integrated; no real-model acceptance claim before permitted verification.",
+  "next": "Checkpoint and push Lab C7 request wiring. Continue C7 per-stage enforcement, thermal cooldown and storage guards, then C9 terminal observation mapping plus Show excluded/catalogue filter UI. Halo worktree remains local and diverged; do not push/rebase it. Protocol is v1.0 with the same exact schema bytes; the additive stageBudgets request field and deadline behavior are unverified. Keep multimodal paths and acquisition unsupported; no real-model acceptance claim before permitted verification.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
