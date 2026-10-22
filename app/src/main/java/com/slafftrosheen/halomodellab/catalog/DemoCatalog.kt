@@ -6,15 +6,18 @@ import com.slafftrosheen.halomodellab.domain.ModelRole
 /**
  * Which catalog the UI is allowed to show.
  *
- * There is no third "connected" mode in v0: the Halo bridge does not exist yet.
+ * Real inventory is read from Halo on explicit request; DEMO entries remain synthetic.
  */
-enum class CatalogMode { REAL_UNAVAILABLE, DEMO }
+enum class CatalogMode { REAL, DEMO }
 
 /**
- * Why the real catalog is empty. NEVER report "no models found" for this state:
- * the app has not asked anyone, so the only honest statement is that the bridge is missing.
+ * Status of a user-requested read-only inventory query. Do not infer absence from errors.
  */
-enum class RealCatalogStatus { BRIDGE_NOT_IMPLEMENTED }
+enum class RealCatalogStatus {
+    NOT_CHECKED, LOADING, READY, EMPTY, HALO_NOT_INSTALLED, BRIDGE_NOT_SUPPORTED,
+    SIGNATURE_MISMATCH, CONSENT_REQUIRED, PROTOCOL_MISMATCH, BRIDGE_BUSY,
+    BRIDGE_RECONNECTING, UNAVAILABLE,
+}
 
 /**
  * A controlled fixture, not a model.

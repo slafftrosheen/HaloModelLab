@@ -2,10 +2,12 @@ package com.slafftrosheen.halomodellab
 
 import android.content.Context
 import com.slafftrosheen.halomodellab.catalog.CatalogRepository
+import com.slafftrosheen.halomodellab.catalog.HaloInstalledCatalogRepository
 import com.slafftrosheen.halomodellab.data.LabDatabase
 import com.slafftrosheen.halomodellab.data.RecoveryReport
 import com.slafftrosheen.halomodellab.data.RoomSessionRepository
 import com.slafftrosheen.halomodellab.data.SessionRepository
+import com.slafftrosheen.halomodellab.bridge.HaloBinderGateway
 import com.slafftrosheen.halomodellab.export.ReportExporter
 import com.slafftrosheen.halomodellab.runner.LabClock
 import com.slafftrosheen.halomodellab.runner.SystemLabClock
@@ -41,6 +43,10 @@ class AppContainer(context: Context) {
     val clock: LabClock = SystemLabClock()
 
     val catalogRepository: CatalogRepository = CatalogRepository()
+
+    /** Real inventory is queried from Halo only after a screen/user action requests it. */
+    val haloGateway = HaloBinderGateway(context.applicationContext)
+    val installedCatalogRepository = HaloInstalledCatalogRepository(haloGateway)
 
     private val database: LabDatabase = LabDatabase.build(context)
 
@@ -86,7 +92,7 @@ class AppContainer(context: Context) {
         /** Export schemaVersion for future archives. */
         const val EXPORT_SCHEMA_VERSION: Int = 2
 
-        /** Honest v0 bridge state; see SPEC §11. */
-        const val BRIDGE_STATUS: String = "NOT_IMPLEMENTED"
+        /** Source exists for opt-in inventory IPC; runtime compatibility is not verified. */
+        const val BRIDGE_STATUS: String = "SOURCE_PRESENT_UNVERIFIED"
     }
 }

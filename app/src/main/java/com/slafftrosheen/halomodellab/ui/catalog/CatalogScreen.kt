@@ -46,7 +46,7 @@ fun CatalogRoute(
     onOpenSession: () -> Unit,
 ) {
     val viewModel: CatalogViewModel = viewModel(
-        factory = CatalogViewModel.factory(container.catalogRepository),
+        factory = CatalogViewModel.factory(container.catalogRepository, container.installedCatalogRepository),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -56,6 +56,7 @@ fun CatalogRoute(
         onQueryChange = viewModel::setQuery,
         onToggleScenario = viewModel::toggleScenario,
         onClearSelection = viewModel::clearSelection,
+        onRefreshRealInventory = viewModel::refreshRealInventory,
         onOpenSession = onOpenSession,
     )
 }
@@ -68,6 +69,7 @@ fun CatalogScreen(
     onQueryChange: (String) -> Unit,
     onToggleScenario: (String) -> Unit,
     onClearSelection: () -> Unit,
+    onRefreshRealInventory: () -> Unit,
     onOpenSession: () -> Unit,
 ) {
     Scaffold(
@@ -95,7 +97,7 @@ fun CatalogScreen(
                     onOpenSession = onOpenSession,
                 )
             } else {
-                RealCatalogEmptySection()
+                RealCatalogSection(state, onRefreshRealInventory)
             }
         }
     }
@@ -123,7 +125,7 @@ private fun ModeSwitch(
                 Switch(
                     checked = demoEnabled,
                     onCheckedChange = { checked ->
-                        onModeChange(if (checked) CatalogMode.DEMO else CatalogMode.REAL_UNAVAILABLE)
+                        onModeChange(if (checked) CatalogMode.DEMO else CatalogMode.REAL)
                     },
                 )
             }
@@ -137,7 +139,7 @@ private fun ModeSwitch(
 }
 
 @Composable
-private fun RealCatalogEmptySection() {
+private fun RealCatalogSection(state: CatalogState, onRefresh: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -152,51 +154,64 @@ private fun RealCatalogEmptySection() {
                 style = MaterialTheme.typography.bodyMedium,
             )
             Text(
-                text = stringResource(R.string.catalog_real_status),
+                text = stringResource(
+                    R.string.catalog_real_status,
+                    realCatalogStatusText(state.realCatalogStatus, state.realCatalogReason),
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
 
-    SectionCard(
-        title = stringResource(R.string.catalog_download_title),
-        body = stringResource(R.string.catalog_download_body),
-    )
-
-    OutlinedButton(
-        onClick = {},
-        enabled = false,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Text(stringResource(R.string.catalog_download_button))
+    OutlinedButton(onClick = onRefresh, enabled = state.realCatalogStatus != com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.LOADING,
+        modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.catalog_real_refresh))
     }
 
-    SectionCard(
-        title = stringResource(R.string.catalog_excluded_title),
-        body = stringResource(R.string.catalog_excluded_body),
-    )
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(R.string.catalog_excluded_switch),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f),
-        )
-        Switch(
-            checked = false,
-            enabled = false,
-            onCheckedChange = {},
-        )
+    state.installedModels.forEach { model ->
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(model.modelId, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.catalog_real_model_provider, model.providerId), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.catalog_real_model_state, model.state.name), style = MaterialTheme.typography.bodySmall)
+                val backendCodes = (model.backendCandidates.map { it.name } + model.unsupportedBackendCodes).sorted()
+                Text(stringResource(R.string.catalog_real_model_backends, backendCodes.joinToString().ifEmpty { "unknown" }),
+                    style = MaterialTheme.typography.bodySmall)
+                model.manifest?.let { manifest ->
+                    Text(stringResource(R.string.catalog_real_model_generation, manifest.generationId.take(16)),
+                        style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
     }
 
     Text(
         text = stringResource(R.string.catalog_real_note),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+private fun realCatalogStatusText(
+    status: com.slafftrosheen.halomodellab.catalog.RealCatalogStatus,
+    reason: String?,
+): String = when (status) {
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.NOT_CHECKED -> stringResource(R.string.catalog_real_not_checked)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.LOADING -> stringResource(R.string.catalog_real_loading)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.READY -> stringResource(R.string.catalog_real_ready)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.EMPTY -> stringResource(R.string.catalog_real_empty)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.HALO_NOT_INSTALLED -> stringResource(R.string.catalog_real_halo_missing)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.BRIDGE_NOT_SUPPORTED -> stringResource(R.string.catalog_real_bridge_missing)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.SIGNATURE_MISMATCH -> stringResource(R.string.catalog_real_signature)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.CONSENT_REQUIRED -> stringResource(R.string.catalog_real_consent)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.PROTOCOL_MISMATCH -> stringResource(R.string.catalog_real_protocol)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.BRIDGE_BUSY -> stringResource(R.string.catalog_real_busy)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.BRIDGE_RECONNECTING -> stringResource(R.string.catalog_real_reconnecting)
+    com.slafftrosheen.halomodellab.catalog.RealCatalogStatus.UNAVAILABLE -> stringResource(
+        R.string.catalog_real_unavailable,
+        reason ?: "UNKNOWN",
     )
 }
 

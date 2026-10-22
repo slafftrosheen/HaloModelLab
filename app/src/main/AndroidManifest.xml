@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="com.aistudio.braintool.xkqzps.permission.HALO_LAB_BRIDGE" />
+    <queries>
+        <package android:name="com.aistudio.braintool.xkqzps" />
+    </queries>
+
     <!--
       No INTERNET and no storage permissions. POST_NOTIFICATIONS is requested in the UI for
       the foreground service; refusing it is not treated as a model or test failure.

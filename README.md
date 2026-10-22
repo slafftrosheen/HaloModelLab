@@ -2,7 +2,7 @@
 
 ## Continuation stage
 
-This checkout has advanced from the starter's simulation-only phase into the v1 real-model-lab continuation. This transition replaces only the starter's L0–L4 scope limit and stop-after-one-starter-batch rule. The original privacy, signing, repository authority, and no-build/no-test/no-device-verification restrictions remain in force. The synthetic engine stays explicitly synthetic. Real bridge and inference integration stop at `BLOCKED_HALO_WRITE_ACCESS` until an editable Halo checkout is explicitly provided.
+This checkout has advanced from the starter's simulation-only phase into the v1 real-model-lab continuation. This transition replaces only the starter's L0–L4 scope limit and stop-after-one-starter-batch rule. The original privacy, signing, repository authority, and no-build/no-test/no-device-verification restrictions remain in force. The synthetic engine stays explicitly synthetic. An editable Halo checkout is now authorized; the bridge/worker source integration is underway and remains unverified.
 
 The resolved continuation handoff and C0 takeover record are tracked in `docs/TAKEOVER_AUDIT.md` and `docs/CONTINUATION_STATE.json`. See `docs/IMPLEMENTATION_STATUS.md` and `docs/PENDING_VERIFICATION.md` for current source and verification status.
 
@@ -103,3 +103,7 @@ docs/                 статус, ожидающие проверки, руч�
 Нет облачных API и аналитики, нет загрузки весов, нет ADB/root, нет CI и signing keys.
 Результаты симуляции нельзя считать пригодностью Qwen, Gemma, Kokoro или любой другой
 модели. Настоящая интеграция с Halo — отдельный этап; см. handoff.
+
+## Переход к v1 real-model laboratory — 2026-10-22
+
+Этот этап продолжает starter simulation-only v0 и снимает только прежний scope-limit L0–L4 и правило остановиться после одного starter batch. В v1 работу продолжаем по C1–C10 в порядке зависимостей. Signing/privacy, авторитет владельца каждого репозитория и ограничения проверки остаются активны. Halo владеет model artifacts/acquisition; Lab хранит планы, результаты и отчёты, не имеет INTERNET permission и не кеширует веса. Код моста и worker пока source-only: в этой continuation Build, Automated tests и Phone tests не запускались; real-model acceptance остаётся NOT_RUN.

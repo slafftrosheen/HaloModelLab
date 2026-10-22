@@ -1,4 +1,12 @@
-# Halo integration map — read-only source inspection
+# Halo integration map — authorized source integration checkpoint
+
+## 2026-10-22 continuation update
+
+The user authorized an editable target at `C:\Users\slavd\HaloEco\Halo-main`. The Halo tree now contains uncommitted source changes for the signature permission + caller/package/signature checks, opt-in consent, AIDL service, model inventory and verified artifact file leases, durable replay journal, separate `:modelbench` process, fail-fast central resource lease and a fixed LiteRT CPU text fixture. The Lab tree contains a matching AIDL definition, bounded gateway source and `AppContainer` exposure. Both `protocol/halo-lab-bridge-v1.json` files currently hash to `264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e`.
+
+This source handshake advertises only inventory, artifact leases, event replay, and the fixed FAST/CPU fixture. Arbitrary prompt, acquisition, speech, embedding, vision and tool dispatch remain unsupported. The Lab session coordinator/UI/event importer still does not invoke the gateway, so the end-to-end real session remains unavailable. Build / Automated tests / Phone tests are NOT_RUN. Signing compatibility, generated AIDL, runtime behavior, worker death handling, and real measurements remain unverified.
+
+The prior read-only map below records the original source seam and remains useful historical context; its former `BLOCKED_HALO_WRITE_ACCESS` state has been superseded by authorization to edit this checkout. The Halo endpoint and Lab real-run orchestration remain source-in-progress and unverified.
 
 Inspection date: 2026-10-22 (Europe/Riga)
 
@@ -21,4 +29,4 @@ The Lab's `protocol/lab-client-contract-v1.json` repeats only the client role/ba
 
 ## Blocked boundary
 
-This continuation has no owner-provided editable Halo target. Lab-side domain contracts, local validation, schemas, tests, profile definitions, qualification, and reporting may proceed. Implementing a real bridge endpoint, artifact mutation leases, production runtime admission, process bootstrap, native worker/supervisor, or existing-adapter integration requires Halo write access. Stop at that boundary with `BLOCKED_HALO_WRITE_ACCESS`; do not simulate a connected bridge or real measurements.
+At the initial takeover there was no owner-provided editable Halo target, so that audit stopped at `BLOCKED_HALO_WRITE_ACCESS`. The owner later authorized this checkout; the active integration is described above and remains unverified. No simulated bridge or fabricated measurement is used.

@@ -16,10 +16,27 @@
     <string name="catalog_title">Каталог моделей</string>
     <string name="catalog_mode_simulation">Симуляция инфраструктуры</string>
     <string name="catalog_mode_simulation_hint">Сценарии проверяют только очередь, хранение и отчётность Model Lab. Это не проверка AI-моделей.</string>
-    <string name="catalog_real_title">Реальные модели недоступны</string>
-    <string name="catalog_real_body">Подключение к Halo ещё не реализовано. Реальные модели недоступны.</string>
-    <string name="catalog_real_status">Состояние: BRIDGE_NOT_IMPLEMENTED</string>
-    <string name="catalog_real_note">Настоящие Qwen, Gemma, Kokoro и другие модели здесь не перечислены: приложение их не обнаруживало и не проверяло.</string>
+    <string name="catalog_real_title">Модели, установленные в Halo</string>
+    <string name="catalog_real_body">Показываются только сведения из Halo. Model Lab не загружает веса и не запускает модель из этого каталога.</string>
+    <string name="catalog_real_status">Состояние: %1$s</string>
+    <string name="catalog_real_not_checked">Ещё не проверено</string>
+    <string name="catalog_real_loading">Обновление списка…</string>
+    <string name="catalog_real_ready">Список обновлён</string>
+    <string name="catalog_real_empty">В Halo нет доступных установленных моделей</string>
+    <string name="catalog_real_halo_missing">Halo не установлен</string>
+    <string name="catalog_real_bridge_missing">Halo не поддерживает подключение Model Lab</string>
+    <string name="catalog_real_signature">Подпись приложения не совпадает</string>
+    <string name="catalog_real_consent">Разрешите подключение в настройках Halo</string>
+    <string name="catalog_real_protocol">Версия протокола не совпадает</string>
+    <string name="catalog_real_busy">Halo занят; повторите позже</string>
+    <string name="catalog_real_reconnecting">Связь с Halo восстанавливается</string>
+    <string name="catalog_real_unavailable">Список недоступен; причина: %1$s</string>
+    <string name="catalog_real_refresh">Обновить список из Halo</string>
+    <string name="catalog_real_model_provider">Поставщик: %1$s</string>
+    <string name="catalog_real_model_state">Состояние установки: %1$s</string>
+    <string name="catalog_real_model_backends">Движки: %1$s</string>
+    <string name="catalog_real_model_generation">Поколение: %1$s</string>
+    <string name="catalog_real_note">Это только инвентаризация. Создание плана и запуск проверки пока не подключены.</string>
     <string name="catalog_download_title">Загрузка моделей</string>
     <string name="catalog_download_body">Загрузка недоступна: нет подключения к каталогу и хранилищу Halo. Веса моделей не скачиваются.</string>
     <string name="catalog_download_button">Загрузить модель (недоступно)</string>
@@ -190,10 +207,10 @@
     <string name="settings_protocol">Версия протокола отчётов: %1$d</string>
     <string name="settings_export_schema">Версия схемы экспорта: %1$d</string>
     <string name="settings_bridge">Мост Halo: %1$s</string>
-    <string name="settings_inference">Inference: отсутствует, runtime не подключён</string>
+    <string name="settings_inference">Проверка моделей: исполнение из Lab пока не подключено</string>
     <string name="settings_network">Сеть: разрешение INTERNET не запрашивается</string>
-    <string name="settings_boundary_title">Ограничения v0</string>
-    <string name="settings_boundary_body">Нет настоящих моделей, весов, IPC и native-вычислений. Demo-сценарии исполняются тем же процессом, что и интерфейс.</string>
+    <string name="settings_boundary_title">Граница Lab и Halo</string>
+    <string name="settings_boundary_body">Lab хранит планы и результаты. Halo хранит модели и управляет их получением. Lab не загружает и не кэширует веса. Связь с Halo и native-проверка пока не подтверждены.</string>
     <string name="settings_boundary_fixture">Результаты симуляции нельзя считать пригодностью Qwen, Gemma, Kokoro или любой другой модели.</string>
 
     <!-- Экспорт ZIP -->

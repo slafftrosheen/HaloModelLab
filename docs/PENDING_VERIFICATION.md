@@ -1,6 +1,6 @@
 # Pending verification — current v1 continuation
 
-**Authorized V0/V1 record (2026-10-22): Build PASS; automated tests PASS; device instrumentation PASS; synthetic manual smoke PASS. Real-model phone acceptance remains NOT_RUN / BLOCKED_HALO_WRITE_ACCESS.**
+**Historical V0/V1 record (2026-10-22): Build PASS; automated tests PASS; device instrumentation PASS; synthetic manual smoke PASS. During the current source continuation, Build, Automated tests, and Phone tests are NOT_RUN. Real-model acceptance remains NOT_RUN pending the separately permitted verification stage.**
 
 V0 used JDK 21, Android SDK 37 and Windows Gradle wrapper 9.6.0. Final commands:
 
@@ -104,3 +104,8 @@ AGP 9.4.0, compileSdk 37):
 - Не помечать SYNTHETIC-архив как DEVICE_MEASUREMENT и не добавлять фиктивные model hash.
 - Не расширять FileProvider до `root-path` или всего `filesDir`.
 - Не утверждать, что ZIP проверен, пока он не открыт и checksums не сверены.
+# Active v1 verification gate — 2026-10-22
+
+For this continuation, **Build: NOT_RUN; Automated tests: NOT_RUN; Phone tests: NOT_RUN.** Do not interpret the older V0/V1 PASS reports below as verification of the new bridge/worker source.
+
+Before any later build or device acceptance, first commit the Lab and Halo source independently and record the exact compatible commit pair plus protocol SHA. Then, after separate verification authorization, run Lab unit/migration tests and assemble both apps; check AIDL generation and signing-certificate compatibility; install both permitted debug packages; enable Halo consent in Halo's model settings; perform handshake/schema validation and inventory read-only first. Only then try one verified local model with the fixed `fast-smoke/1/short-ready` CPU fixture. Inspect event replay/dedup after reconnect, cancel during native inference and confirm unload or worker death before another attempt, and confirm no provider selection/role change or Halo artifact mutation. Finally export one bounded ZIP and verify its reproduction manifest/checksums. Never download automatically; acquisition currently returns `HALO_ACQUISITION_NOT_IMPLEMENTED`. Do not infer native crash resilience or real-model qualification from a successful build or synthetic run.

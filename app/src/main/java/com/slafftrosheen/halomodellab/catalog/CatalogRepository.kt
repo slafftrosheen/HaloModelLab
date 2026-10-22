@@ -6,19 +6,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * Catalog state for HML-L0.
+ * Catalog state for the Lab's simulation and read-only Halo inventory views.
  *
  * In-memory only: nothing here is persisted, and the selected scenarios are lost when the
  * process dies. Persisted plans arrive with Room in HML-L1.
  *
- * The real catalog is always empty because the Halo bridge is not implemented. This class
+ * The real catalog is populated only from an explicit Halo inventory response. This class
  * must never invent entries, and it must never turn a synthetic scenario into real evidence.
  */
 data class CatalogState(
-    val mode: CatalogMode = CatalogMode.REAL_UNAVAILABLE,
+    val mode: CatalogMode = CatalogMode.DEMO,
     val query: String = "",
     val selectedScenarioIds: List<String> = emptyList(),
-    val realCatalogStatus: RealCatalogStatus = RealCatalogStatus.BRIDGE_NOT_IMPLEMENTED,
+    val realCatalogStatus: RealCatalogStatus = RealCatalogStatus.NOT_CHECKED,
+    val realCatalogReason: String? = null,
+    val installedModels: List<InstalledModelDescriptor> = emptyList(),
 )
 
 class CatalogRepository {
@@ -50,5 +52,13 @@ class CatalogRepository {
 
     fun clearSelection() {
         _state.update { it.copy(selectedScenarioIds = emptyList()) }
+    }
+
+    fun setRealCatalogStatus(
+        status: RealCatalogStatus,
+        models: List<InstalledModelDescriptor> = emptyList(),
+        reason: String? = null,
+    ) {
+        _state.update { it.copy(realCatalogStatus = status, realCatalogReason = reason, installedModels = models) }
     }
 }

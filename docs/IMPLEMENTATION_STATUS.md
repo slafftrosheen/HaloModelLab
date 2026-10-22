@@ -1,5 +1,15 @@
 # Implementation status — Halo Model Lab
 
+## Active v1 continuation checkpoint — 2026-10-22 (supersedes older access-status notes below)
+
+- The owner authorized editing `C:\Users\slavd\HaloEco\Halo-main` and preserving its existing changes. Halo is currently on `main` at `fec8fdd0dc58d8660fee7687ea8d27151cc42f54`, one commit ahead of `origin/main`; no Halo push has been made by this continuation. The Lab is on `main` at `a3040e2fd30bdd6e2a6129e28d30670788706510`, tracking public `origin/main` at the same SHA.
+- Protocol v1.0 source is now present in both repositories. Shared schema SHA-256: `264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e`. Compatible commit pair is pending because the source changes are not committed yet.
+- Halo source now includes signature-protected AIDL, explicit in-Halo consent, a durable remote attempt/event journal, verified inventory projection, exact model-file leases, a private `:modelbench` process, stop/recovery supervision and a fixed CPU `fast-smoke/1/short-ready` fixture through the existing `LiteRtLocalProvider`. Lab source now includes an AIDL client gateway wired to an explicit, read-only catalog refresh. Real plan creation, remote import and execution are still not connected.
+- **C4 is source-in-progress, not accepted.** Real plan creation and the `SessionCoordinator` still use the existing synthetic flow; the Binder gateway is not wired to the remote event importer or a real `BenchmarkEngine`. The catalog can explicitly refresh Halo inventory and display provider/model/generation/state/backend metadata without starting inference. C6 remains contract-only except for the one Halo fixed fixture; C8's end-to-end remote reconciliation/export is not wired. Acquisition remains explicitly unsupported. No feature outside verified local CPU text is advertised by Halo.
+- The fixed fixture hash is `59e0652c15e4dff7dd7bfebd7cd7c04b478ddf8824995f9a610e13b9c90dfa40`. Halo accepts no arbitrary prompt, no model download request, and no non-CPU backend request.
+- Verification during this continuation: **Build NOT_RUN; Automated tests NOT_RUN; Phone tests NOT_RUN**. Source tests were added but not executed. Source inspection, JSON/XML parsing and `git diff --check` are permitted; these do not establish compilation, Binder compatibility, native crash resilience, or real-model qualification.
+- Preserve all earlier V0/V1 verification entries below as historical evidence. The v1 stage transition supersedes only the L0–L4 scope limit and stop-after-one-starter-batch rule; signing/privacy, repository authority and verification restrictions remain.
+
 Последнее обновление: 22 октября 2026. Исторические отчёты ниже относятся к прежним этапам; актуальные V0/V1 результаты зафиксированы в разделах ниже и в `docs/PENDING_VERIFICATION.md`.
 
 ## Продолжение v1 — 2026-10-22

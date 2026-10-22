@@ -8,8 +8,10 @@
     "baseCommit": "9b09e78",
     "lastImplementationCommit": "015b497c59d8e3dcb28f299a0eb458e0b2fa955e",
     "workingTreeAtTakeover": "clean",
-    "remoteConfigured": false,
-    "pushAuthorized": false
+    "remoteConfigured": true,
+    "pushAuthorized": true,
+    "currentHead": "a3040e2fd30bdd6e2a6129e28d30670788706510",
+    "currentWorkingTree": "dirty: signed AIDL gateway, shared protocol copy, AppContainer wiring, and explicit Halo inventory refresh UI/resource mapping"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -24,22 +26,22 @@
   "batches": {
     "C0": "SOURCE_AUDIT_WRITTEN; regression source added; V0 source/unit/instrumentation checks PASS; commit cbe39d7; state checkpoint a81302f",
     "C1": "LAB_SOURCE_IMPLEMENTED; generated Room schema v2 committed; validation and migration tests PASS on V0; implementation commit 74f9f55; verification repair commit 015b497",
-    "C2": "LAB_CONTRACTS_AND_REPLAY_IMPORTER_SOURCE_IMPLEMENTED; unit and device replay/import tests PASS; requires DEVICE_MEASUREMENT real-plan and session-owned attempt IDs; authenticated Binder/server/consent/canonical protocol BLOCKED_HALO_WRITE_ACCESS; commits c59e0a9, 22ff0a3",
+    "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
     "C3": "LAB_INVENTORY_PROJECTION_SOURCE_IMPLEMENTED; unit tests PASS; live inventory/artifact leases/runtime admission BLOCKED_HALO_WRITE_ACCESS; commit fe97a05",
-    "C4": "BLOCKED_HALO_WRITE_ACCESS",
+    "C4": "HALO_AND_LAB_SOURCE_IN_PROGRESS: signed opt-in AIDL, journal, file/resource leases, private worker and existing LiteRT CPU adapter source added; Lab explicit read-only inventory refresh connected; real plan/session runner and remote event import remain unwired; build/tests/e2e NOT_RUN",
     "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; unit tests PASS; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe",
-    "C6": "BLOCKED_C4_ADAPTERS_AND_HALO_CAPABILITY_ACCESS; no modality suites advertised as runnable",
+    "C6": "CONTRACT_ONLY except Halo fixed fast-smoke/1/short-ready CPU fixture; no Lab capability-selected plan UI/session engine wiring",
     "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; unit tests PASS; not connected to a real runner/supervisor; commit 8dcafbe",
-    "C8": "BLOCKED_HALO_WRITE_ACCESS",
+    "C8": "PARTIAL_SOURCE: Halo journal replay and Lab gateway source exist; remote import/reconciliation, real runner and real ZIP reproduction path not wired",
     "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; unit tests PASS; exact scope requires verified eligibility; persistence/UI filters NOT_WIRED; commits 2158c36, 4a8cee6",
     "C10": "LAB_EXPORT_SCHEMA_V2_SOURCE_IMPLEMENTED; unit tests PASS; atomic Room export snapshot and bounded reproduction sections; real terminal reconciliation/output capture/UI not wired; commit cfb663b; synthetic device ZIP smoke PASS"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main",
-    "head": "2d7b650faa3ade3c00f504f13bf9f91495d6b73d",
-    "worktree": "pre-existing dirty; read-only inspection only",
-    "writeAuthorized": false,
-    "status": "BLOCKED_HALO_WRITE_ACCESS"
+    "head": "bef700a8d0d8eb7c90b8192ca1f7c86915ba2fd3",
+    "worktree": "dirty: authorized continuation source changes; unrelated changes preserved",
+    "writeAuthorized": true,
+    "status": "SOURCE_IN_PROGRESS_UNVERIFIED"
   },
   "protocol": {
     "clientVersion": 1,
@@ -47,10 +49,11 @@
     "roleMappingVersion": 1,
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "c068ebc704968d82f2d5a9e8e77df399be9fd31ad8d8304b9ffd74c512af5fd9",
-    "canonicalHaloProtocolVersion": null,
+    "canonicalHaloProtocolVersion": "1.0",
     "compatibleCommitPair": null,
-    "protocolHash": null,
-    "status": "UNFROZEN; no Halo-side canonical source or compatible commit pair authorized"
+    "protocolHash": "264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e",
+    "status": "SHARED_SCHEMA_SOURCE_HASH_MATCHES; compatible commit pair pending; runtime compatibility NOT_RUN",
+    "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
     "build": "PASS: :app:assembleDebug and :app:assembleDebugAndroidTest; Gradle 9.6.0, JDK 21, Android SDK 37",
@@ -60,7 +63,16 @@
       "authorized V0 Gradle build and automated tests",
       "authorized V1 phone instrumentation and bounded synthetic smoke",
       "source inspection and git diff --check"
-    ]
+    ],
+    "thisContinuation": {
+      "noGradleOrADB": true,
+      "build": "NOT_RUN",
+      "automatedTests": "NOT_RUN",
+      "sourceDiffCheck": "PASS",
+      "protocolHashCheck": "PASS: 264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e",
+      "sourceTestsAdded": true,
+      "phoneTests": "NOT_RUN"
+    }
   },
   "sourceChecks": {
     "jsonParse": "PASS",
@@ -78,7 +90,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; BLOCKED_HALO_WRITE_ACCESS"
   },
-  "next": "V0 PASS; bounded synthetic V1 smoke PASS. STOP_REAL_MODEL_ACCEPTANCE_AT_BLOCKED_HALO_WRITE_ACCESS: authenticated bridge, runtime leases, worker/supervisor and actual adapters require an explicitly authorized Halo editable target.",
+  "next": "Continue C4 by connecting a persisted exact fast-smoke CPU plan to a supervised remote runner and the existing idempotent event importer; keep no-next-allocation-until-cleanup and restore/replay semantics. Then continue C6-C10 integration, add/maintain verification sources and procedures, commit both repositories locally on main preserving unrelated changes, push only the authorized public Lab repository, and do not run Gradle/tests/ADB.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 2,

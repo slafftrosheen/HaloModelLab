@@ -44,3 +44,8 @@ Date: 2026-10-22 (Europe/Riga)
 ## Current checkpoint
 
 See `docs/CONTINUATION_STATE.json` for the machine-readable batch, repository, protocol, verification, and blocker state. After separate owner authorization, V0 build/unit/instrumentation checks passed and a bounded synthetic phone smoke/export passed. Real-model phone acceptance remains `NOT_RUN` at `BLOCKED_HALO_WRITE_ACCESS`.
+# Continuation update — 2026-10-22
+
+The user has now explicitly authorized editing `C:\Users\slavd\HaloEco\Halo-main` while preserving changes, and separately confirmed the empty public remote `slafftrosheen/HaloModelLab`. The Lab remote was created and its prior `main` history pushed. Current Lab base is `a3040e2fd30bdd6e2a6129e28d30670788706510`; current Halo base observed for this continuation is `fec8fdd0dc58d8660fee7687ea8d27151cc42f54` on local `main`, one commit ahead of `origin/main`.
+
+Halo source edits now add the minimal opt-in bridge, private native worker/supervisor, model leases and existing LiteRT adapter call. Lab source edits add its AIDL gateway and `AppContainer` exposure. The shared protocol SHA-256 is `264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e`. This is implementation source, not a verified compatible release. Real UI/session execution wiring, end-to-end event import, bounded real ZIP reproduction, and acquisition remain unfinished. Build, automated tests, and phone tests are NOT_RUN for this continuation.
