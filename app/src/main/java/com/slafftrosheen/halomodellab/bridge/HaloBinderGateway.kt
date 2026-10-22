@@ -333,7 +333,8 @@ class HaloBinderGateway(context: Context) : HaloLabGateway {
         runtimeVersion = row.optStringOrNull("runtimeVersion"),
     )
 
-    private fun unavailable<T>(reason: String) = BridgeOperationResult.Unavailable(BridgeConnectionStatus.Unsupported(reason))
+    private fun <T> unavailable(reason: String): BridgeOperationResult<T> =
+        BridgeOperationResult.Unavailable(BridgeConnectionStatus.Unsupported(reason))
 
     private class BridgeUnavailableException(val status: BridgeConnectionStatus) : Exception(status.toString())
 

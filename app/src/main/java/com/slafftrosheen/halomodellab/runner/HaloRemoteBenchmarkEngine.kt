@@ -152,7 +152,7 @@ class HaloRemoteBenchmarkEngine(
         var acceptedRemoteId: String? = null
         var safeToReleaseLease = false
         var remoteSubmissionMayExist = false
-        try {
+        return try {
             // Halo uses attemptId as its idempotency and remote-run key. Query first so a lost
             // submit reply cannot create a second native allocation after process recovery.
             val prior = gateway.queryCase(envelope(request, QueryCaseRequest(request.attemptId)))
@@ -251,6 +251,9 @@ class HaloRemoteBenchmarkEngine(
             ) {
                 return unknown("TERMINAL_RUNTIME_IDENTITY_UNKNOWN", "Terminal evidence did not confirm the planned runtime version.")
             }
+            if (completed.outcome == AttemptOutcome.PASSED && completed.validity != ResultValidity.VALID) {
+                return unknown("TERMINAL_VALIDITY_UNKNOWN", "Halo did not mark the terminal result as valid evidence.")
+            }
             val expectedText = TextProfileRegistry.resolve(
                 context.casePlan.suiteId,
                 context.casePlan.suiteVersion,
@@ -264,7 +267,7 @@ class HaloRemoteBenchmarkEngine(
             if (completed.outcome == AttemptOutcome.PASSED &&
                 (observedPreview == null || completed.outputTruncated != false)
             ) return unknown("OUTPUT_EVIDENCE_MISSING", "Halo reported success without a complete bounded output preview.")
-            val outputMismatch = completed.outcome == AttemptOutcome.PASSED && observedPreview?.trim() != expectedText
+            val outputMismatch = completed.outcome == AttemptOutcome.PASSED && observedPreview != expectedText
             AttemptResult(
                 outcome = if (outputMismatch) AttemptOutcome.FAILED else completed.outcome ?: AttemptOutcome.FAILED,
                 validity = completed.validity ?: ResultValidity.UNKNOWN,

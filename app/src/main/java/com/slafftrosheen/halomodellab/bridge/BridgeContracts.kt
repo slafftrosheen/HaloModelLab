@@ -237,7 +237,7 @@ data class BridgeEventPayload(
         require(artifactBytes == null || artifactBytes >= 0L)
         require(artifactSha256 == null || SHA256_HEX.matches(artifactSha256))
         require(unavailableReason == null || isBoundedId(unavailableReason))
-        require(outputPreview == null || outputPreview.length <= MAX_OUTPUT_PREVIEW_CHARS)
+        require(outputPreview == null || outputPreview.length <= BridgeLimits.MAX_OUTPUT_PREVIEW_CHARS)
         require(outputBytes == null || outputBytes >= 0L)
         require(outputSha256 == null || SHA256_HEX.matches(outputSha256))
         require(loadMs == null || loadMs >= 0L)

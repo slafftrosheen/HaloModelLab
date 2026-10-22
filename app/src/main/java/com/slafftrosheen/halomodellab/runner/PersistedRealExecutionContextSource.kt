@@ -13,6 +13,7 @@ import com.slafftrosheen.halomodellab.domain.RealCasePlan
 import com.slafftrosheen.halomodellab.domain.RealContractVersions
 import com.slafftrosheen.halomodellab.domain.StageBudgets
 import com.slafftrosheen.halomodellab.bridge.SubmitCaseRequest
+import com.slafftrosheen.halomodellab.catalog.FastSmokePlanFactory
 import java.security.MessageDigest
 import org.json.JSONObject
 
@@ -21,7 +22,8 @@ class PersistedRealExecutionContextSource(
     private val repository: SessionRepository,
 ) : RealExecutionContextSource {
     override suspend fun forAttempt(request: BenchmarkRequest): SubmitCaseRequest? {
-        val detail = repository.sessionDetail(request.sessionId) ?: return null
+        val snapshot = repository.exportSnapshot(request.sessionId) ?: return null
+        val detail = snapshot.detail
         if (detail.summary.origin != EvidenceOrigin.DEVICE_MEASUREMENT ||
             detail.summary.engineId != REAL_ENGINE_ID
         ) return null
@@ -56,6 +58,17 @@ class PersistedRealExecutionContextSource(
 
         val manifest = case.artifactManifest ?: return null
         val scope = case.executionScope ?: return null
+        val evidence = snapshot.realEvidence ?: return null
+        val savedPlan = evidence.plan ?: return null
+        val digest = sha256(detail.planJson)
+        if (savedPlan.planDigestSha256 != digest) return null
+        val savedConfiguration = evidence.configurations.singleOrNull {
+            it.queueItemId == case.queueItemId
+        } ?: return null
+        val scopeJson = scope.canonicalJson()
+        if (savedConfiguration.executionScopeJson != scopeJson ||
+            savedConfiguration.scopeDigestSha256 != sha256(scopeJson)
+        ) return null
         val stageRow = root.optJSONObject("stageBudgets") ?: return null
         val stageBudgets = runCatching {
             StageBudgets(
@@ -69,7 +82,6 @@ class PersistedRealExecutionContextSource(
             scope.role != case.role || scope.requestedBackend != case.requestedBackend
         ) return null
 
-        val digest = sha256(detail.planJson)
         return runCatching {
             SubmitCaseRequest(
                 sessionId = request.sessionId,
