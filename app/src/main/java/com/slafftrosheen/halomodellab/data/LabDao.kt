@@ -53,6 +53,9 @@ abstract class LabDao {
     abstract suspend fun insertQualification(qualification: QualificationEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun upsertQualificationProjection(qualification: QualificationEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun upsertAcquisitionProjection(projection: AcquisitionProjectionEntity)
 
     @Query("SELECT * FROM real_plan_snapshots WHERE sessionId = :sessionId")
@@ -69,6 +72,9 @@ abstract class LabDao {
 
     @Query("SELECT * FROM qualifications WHERE sessionId = :sessionId ORDER BY scopeDigestSha256, policyDigestSha256 LIMIT :limit")
     abstract suspend fun qualificationsForSession(sessionId: String, limit: Int): List<QualificationEntity>
+
+    @Query("SELECT * FROM qualifications ORDER BY updatedAtWallTimeMs DESC, id LIMIT :limit")
+    abstract fun observeQualificationHistory(limit: Int): Flow<List<QualificationEntity>>
 
     @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND remoteSequence = :sequence")
     abstract suspend fun remoteEvent(serverEpoch: String, remoteRunId: String, sequence: Long): RemoteEventEntity?

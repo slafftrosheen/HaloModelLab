@@ -10,6 +10,7 @@ import com.slafftrosheen.halomodellab.data.SessionRepository
 import com.slafftrosheen.halomodellab.data.RemoteEventImporter
 import com.slafftrosheen.halomodellab.bridge.HaloBinderGateway
 import com.slafftrosheen.halomodellab.export.ReportExporter
+import com.slafftrosheen.halomodellab.qualification.QualificationRepository
 import com.slafftrosheen.halomodellab.runner.LabClock
 import com.slafftrosheen.halomodellab.runner.SystemLabClock
 import com.slafftrosheen.halomodellab.runner.HaloRemoteBenchmarkEngine
@@ -52,6 +53,8 @@ class AppContainer(context: Context) {
     val installedCatalogRepository = HaloInstalledCatalogRepository(haloGateway)
 
     private val database: LabDatabase = LabDatabase.build(context)
+
+    val qualificationRepository = QualificationRepository(database, clock)
 
     val remoteEventImporter: RemoteEventImporter = RemoteEventImporter(database)
 

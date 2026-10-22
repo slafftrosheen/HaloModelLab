@@ -24,6 +24,9 @@ import com.slafftrosheen.halomodellab.domain.SessionPlan
 import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.domain.TestStage
 import com.slafftrosheen.halomodellab.runner.LabClock
+import com.slafftrosheen.halomodellab.qualification.QualificationDecision
+import com.slafftrosheen.halomodellab.qualification.QualificationRepository
+import com.slafftrosheen.halomodellab.qualification.QualificationStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -96,6 +99,33 @@ class SessionRepositoryTest {
         assertEquals(plan.digestSha256(), snapshot?.planDigestSha256)
         assertEquals("BRIDGE_NOT_CONNECTED", model.availabilityCode)
         assertNull(model.manifestSha256)
+    }
+
+    @Test
+    fun qualificationProjectionRequiresDeviceOriginAndExactDigests() = runTest {
+        val qualifications = QualificationRepository(database, clock)
+        val decision = QualificationDecision(
+            status = QualificationStatus.PARTIAL,
+            exactScopeDigestSha256 = "a".repeat(64),
+            policyDigestSha256 = "b".repeat(64),
+            eligibleAttemptIds = listOf("11111111-2222-4333-8444-555555555555"),
+            reasonCodes = listOf("REQUIRED_CHECKS_INCOMPLETE"),
+            mayHideExactScope = false,
+        )
+
+        val syntheticId = createSession()
+        assertFalse(qualifications.persistProjection(syntheticId, decision))
+        repository.cancelSession(syntheticId, "TEST_DONE")
+
+        val deviceId = (repository.createRealSession(realPlan()) as CreateSessionResult.Created).sessionId
+        assertTrue(qualifications.persistProjection(deviceId, decision))
+        val saved = database.labDao().qualificationsForSession(deviceId, 10).single()
+        assertEquals("a".repeat(64), saved.scopeDigestSha256)
+        assertEquals(QualificationStatus.PARTIAL.name, saved.status)
+        assertTrue(saved.evidenceJson.contains("REQUIRED_CHECKS_INCOMPLETE"))
+
+        val invalidHide = decision.copy(mayHideExactScope = true)
+        assertFalse(qualifications.persistProjection(deviceId, invalidHide))
     }
 
     @Test
