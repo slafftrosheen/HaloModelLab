@@ -15,6 +15,13 @@
 - Lab branch `main`; current source is being committed locally and push remains authorized. Halo worktree remains at `53ef62d5626832f2b9b59d00a1807eed6d36def9`, 6 ahead / 33 behind its recorded `origin/main`, not pushed or rebased. Protocol v1.0 files remain byte-identical at `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.
 # Implementation status — Halo Model Lab
 
+## Latest continuation checkpoint — 2026-10-23 (C10)
+
+- C10 comparison now emits metric deltas only for exact verified device scope and policy matches. It keys metrics by name/unit/scope, uses the median of finite samples attached to `VALID` device attempts, and preserves missing/unavailable measurements as null with a reason. `comparison.json` is schema v2; no delta is described as a regression.
+- The bounded ZIP now includes `reproduction/<attemptId>.json` descriptors for at most 200 attempts, with stable case/configuration digests and attempt outcome/validity, and no raw model paths or weights. Targeted failure JSON remains per attempt. `artifacts/index.json` reports bounded metadata only: Lab's `openEvidenceArtifact` currently returns unavailable, so artifact bytes cannot be honestly exported. The archive records this boundary; adding payload bytes requires a real authorized bridge transfer and bounded pin lifecycle.
+- Added C10 source tests for known and unknown metric deltas and reproduction ZIP entries. **Build: NOT_RUN; Automated tests: NOT_RUN; Phone tests: NOT_RUN.**
+- Lab and Halo protocol v1.0 schemas are unchanged and remain byte-identical at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`. Current source is not yet committed/pushed; preserve the already-pushed Halo merge `5a4047fe` and Lab history. Continue C10 only where actual source support exists; artifact payload transfer and all runtime acceptance remain open.
+
 ## Latest source checkpoint — 2026-10-23
 
 - Current Lab source commit `1384fb1` is pushed to authorized `origin/main` and adds the requested C7 completion: independent stage limits trip at their saved boundaries, the Halo worker watchdog terminates a native-stuck process, and supervisor leases remain fenced until cleanup/death confirmation. Lab service explicitly wires the 256 MiB free-storage reserve and 64 MiB Lab-owned evidence quota. Severe thermal recovery persists synchronous monotonic checkpoints and requires a continuous safe minute. Halo counterpart commits are pushed in merge `5a4047fe`; no native crash-resilience claim is made without permitted runtime evidence.

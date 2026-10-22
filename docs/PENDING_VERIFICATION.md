@@ -145,6 +145,12 @@ AGP 9.4.0, compileSdk 37):
 - Не утверждать, что ZIP проверен, пока он не открыт и checksums не сверены.
 # Active v1 verification gate — 2026-10-22
 
+## C10 export additions — 2026-10-23
+
+- Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN** for the metric comparison schema v2, per-attempt reproduction files, artifact metadata index, and ZIP checksum/size behavior.
+- Later source checks must cover exact-scope/policy matching, per-case metric identity, invalid/environmental sample exclusion, null unknowns, non-finite delta handling, comparison JSON bounds, reproduction path safety/redaction, 200-entry caps, and checksums covering every new ZIP member.
+- Artifact payload transfer remains **BLOCKED_BY_PROTOCOL_IMPLEMENTATION**: Lab's `openEvidenceArtifact` has no matching AIDL method in the current Halo bridge and currently returns null. Keep artifact payloads absent with explicit metadata; do not fabricate output bytes. Any future transfer requires a versioned, permission-checked bounded API and lease/copy cleanup before export.
+
 For this continuation, **Build: NOT_RUN; Automated tests: NOT_RUN; Phone tests: NOT_RUN.** Do not interpret the older V0/V1 PASS reports below as verification of the new bridge/worker source.
 
 Before any later build or device acceptance, first commit the Lab and Halo source independently and record the exact compatible commit pair plus protocol SHA. Then, after separate verification authorization, run Lab unit/migration tests and assemble both apps; check AIDL generation and signing-certificate compatibility; install both permitted debug packages; enable Halo consent in Halo's model settings; perform handshake/schema validation and inventory read-only first. Only then try one verified local model with the fixed `fast-smoke/1/short-ready` CPU fixture. Inspect event replay/dedup after reconnect, cancel during native inference and confirm unload or worker death before another attempt, and confirm no provider selection/role change or Halo artifact mutation. Finally export one bounded ZIP and verify its reproduction manifest/checksums. Never download automatically; acquisition currently returns `HALO_ACQUISITION_NOT_IMPLEMENTED`. Do not infer native crash resilience or real-model qualification from a successful build or synthetic run.

@@ -11,7 +11,7 @@
     "remoteConfigured": true,
     "pushAuthorized": true,
     "currentHead": "1384fb12d219c0669681958e5417e6a08cd612e8",
-    "currentWorkingTree": "Lab C7/C9 source and checkpoint pushed and clean; Halo C4/C7 local commits merged with current Halo main and pushed; Build, automated tests, phone tests remain NOT_RUN",
+    "currentWorkingTree": "C10 source edits in progress; C7/C9 source remains pushed; Halo merge 5a4047fe remains pushed; Build, automated tests, phone tests NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
     "pushState": "PUSHED: Lab source 1384fb1 and checkpoints on slafftrosheen/HaloModelLab main; Halo merge 5a4047fe with local C4/C7 commits on Halo main; both synced",
     "sourceImplementationHead": "1384fb1",
@@ -38,7 +38,7 @@
     "C7": "SOURCE_IMPLEMENTED_UNVERIFIED: immutable stage budgets enforced at exact boundaries by Lab watchdog and isolated Halo worker process; Halo supervisor waits for worker death/cleanup before lease release; persistent thermal cooldown fails closed on unreadable/unwritable synchronous checkpoints; 256 MiB free-space reserve and 64 MiB Lab-only evidence cap explicitly wired; persisted session active-time budget admission remains enforced; source tests added, NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "SOURCE_IMPLEMENTED_UNVERIFIED: replayed terminal identity/output maps to known or unknown assertions; complete fixture mismatches become model failures; bounded observations recompute across independent exact-scope sessions; History excluded list is scrollable/deduplicated and offers evidence review and intentional catalog retest; catalog auto-filter remains gated because current scope identity is unverified; tests NOT_RUN",
-    "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
+    "C10": "SOURCE_IMPLEMENTED_WITH_ARTIFACT_PAYLOAD_BLOCKER: exact-scope/policy device metric deltas preserve unknown values; comparison schema v2; bounded per-attempt reproduction descriptors and artifact metadata index added beside targeted failures; openEvidenceArtifact still returns null so bytes cannot be included; C10 source tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "C7 requested source gates and C9 qualification/retest review are pushed. Continue C10 and other unblocked batches; preserve verification restrictions and mark runtime, build, automated tests and phone tests NOT_RUN until separately authorized.",
+  "next": "Finish C10 source review and static checks, checkpoint the artifact-payload bridge limitation, commit and push Lab changes on existing main. Artifact bytes require a versioned authorized bounded AIDL bridge transfer. Keep Build, Automated tests and Phone tests NOT_RUN.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,

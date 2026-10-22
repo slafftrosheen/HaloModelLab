@@ -2,7 +2,11 @@ package com.slafftrosheen.halomodellab.export
 
 import com.slafftrosheen.halomodellab.data.RealEvidenceExportSnapshot
 import com.slafftrosheen.halomodellab.data.RemoteEventEntity
+import com.slafftrosheen.halomodellab.data.ConfigurationSnapshotEntity
 import com.slafftrosheen.halomodellab.bridge.BridgeEventKind
+import com.slafftrosheen.halomodellab.domain.AttemptView
+import com.slafftrosheen.halomodellab.domain.QueueItemView
+import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.JsonReader
@@ -166,13 +170,37 @@ internal object RealEvidenceExportJson {
         endObject()
     }
 
+    fun artifactIndex(snapshot: RealEvidenceExportSnapshot?): ByteArray = build {
+        beginObject()
+        name("schemaVersion").value(1)
+        name("payloadsIncluded").value(false)
+        name("unavailableReason").value(if (snapshot == null) "NO_DEVICE_EVIDENCE_SNAPSHOT" else "BRIDGE_ARTIFACT_TRANSFER_UNAVAILABLE")
+        name("entries").beginArray()
+        snapshot?.artifacts.orEmpty().take(MAX_ARTIFACT_INDEX_ROWS).forEachIndexed { index, artifact ->
+            beginObject()
+            name("generatedArtifactId").value("artifact-$index")
+            name("attemptId").value(artifact.attemptId)
+            name("kind").value(artifact.artifactKind.take(80))
+            name("mimeType").value(artifact.mimeType.take(120))
+            name("byteCount").value(artifact.byteCount)
+            name("sha256").value(artifact.sha256)
+            name("availabilityCode").value(artifact.availabilityCode.take(80))
+            name("reasonCode").value(artifact.reasonCode?.take(80))
+            name("payloadFile").nullValue()
+            endObject()
+        }
+        endArray()
+        name("truncated").value((snapshot?.artifacts?.size ?: 0) > MAX_ARTIFACT_INDEX_ROWS)
+        endObject()
+    }
+
     fun comparison(
         previousSessionId: String? = null,
         comparison: SessionComparison? = null,
         unavailableReason: String = "NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED",
     ): ByteArray = build {
         beginObject()
-        name("schemaVersion").value(1)
+        name("schemaVersion").value(2)
         name("status").value(comparison?.status?.name ?: "NOT_AVAILABLE")
         name("reasonCode").value(comparison?.reasonCode ?: unavailableReason)
         name("previousSessionId").value(previousSessionId)
@@ -192,6 +220,25 @@ internal object RealEvidenceExportJson {
         comparison?.persistentFailures.orEmpty().sortedWith(FAILURE_ORDER).forEach { failure ->
             beginObject(); name("code").value(failure.code); name("domain").value(failure.domain)
             name("stage").value(failure.stage); endObject()
+        }
+        endArray()
+        val metricRows = comparison?.metricDeltas.orEmpty()
+        name("metricDeltasTruncated").value(metricRows.size > MAX_METRIC_DELTA_ROWS)
+        name("metricDeltas").beginArray()
+        metricRows.take(MAX_METRIC_DELTA_ROWS).forEach { metric ->
+            beginObject()
+            name("name").value(metric.key.name.take(120))
+            name("unit").value(metric.key.unit.take(40))
+            name("scope").value(metric.key.scope.take(120))
+            name("subjectId").value(metric.key.subjectId.take(240))
+            name("scenarioId").value(metric.key.scenarioId.take(120))
+            name("role").value(metric.key.role.take(40))
+            name("requestedBackend").value(metric.key.requestedBackend.take(40))
+            name("currentValue").nullableDouble(metric.currentValue)
+            name("previousValue").nullableDouble(metric.previousValue)
+            name("delta").nullableDouble(metric.delta)
+            name("unavailableReason").value(metric.unavailableReason)
+            endObject()
         }
         endArray()
         endObject()
@@ -219,6 +266,51 @@ internal object RealEvidenceExportJson {
         endArray()
         name("truncated").value(failures.size > MAX_FAILURE_INDEX_ROWS)
         endObject()
+    }
+
+    /** Minimal safe reproduction metadata; intentionally excludes raw paths and model bytes. */
+    fun reproduction(
+        item: QueueItemView,
+        attempt: AttemptView,
+        origin: EvidenceOrigin,
+        configuration: ConfigurationSnapshotEntity?,
+        snapshot: RealEvidenceExportSnapshot?,
+    ): ByteArray {
+        val subjectId = item.subjectId.take(MAX_REPRO_SUBJECT_CHARS)
+        val scenarioId = item.scenarioId?.take(MAX_REPRO_SCENARIO_CHARS)
+        val failureCode = attempt.failure?.code?.take(MAX_REPRO_CODE_CHARS)
+        val fieldsTruncated = subjectId.length != item.subjectId.length ||
+            scenarioId?.length != item.scenarioId?.length ||
+            failureCode?.length != attempt.failure?.code?.length
+        return build {
+        beginObject()
+        name("schemaVersion").value(1)
+        name("sessionOrigin").value(origin.name)
+        name("attemptId").value(attempt.attemptId)
+        name("queueItemOrdinal").value(item.ordinal.toLong())
+        name("subjectId").value(subjectId)
+        name("scenarioId").value(scenarioId)
+        name("role").value(item.role.name)
+        name("requestedBackend").value(item.requestedBackend.name)
+        name("repeatIndex").value(item.repeatIndex.toLong())
+        name("stage").value(attempt.stage.name)
+        name("outcome").value(attempt.outcome?.name)
+        name("validity").value(attempt.validity?.name)
+        name("failureCode").value(failureCode)
+        name("failureDomain").value(attempt.failure?.domain?.name)
+        name("startedWallTimeMs").value(attempt.startedWallTimeMs)
+        name("finishedWallTimeMs").value(attempt.finishedWallTimeMs)
+        name("elapsedMs").value(attempt.elapsedMs)
+        name("configuredRequestedBackend").value(configuration?.requestedBackend)
+        name("effectiveBackend").value(configuration?.effectiveBackend)
+        name("executionScopeSha256").value(configuration?.scopeDigestSha256)
+        name("planDigestSha256").value(snapshot?.plan?.planDigestSha256)
+        name("fixtureManifestSha256").value(snapshot?.plan?.fixtureManifestSha256)
+        name("qualificationPolicySha256").value(snapshot?.plan?.qualificationPolicySha256)
+        name("artifactPayloadStatus").value("NOT_INCLUDED_BYTES_UNAVAILABLE_OR_NOT_PINNED")
+        name("fieldsTruncated").value(fieldsTruncated)
+        endObject()
+        }
     }
 
     fun failureClusters(detail: SessionDetail): ByteArray = build {
@@ -271,7 +363,16 @@ internal object RealEvidenceExportJson {
         .digest(bytes)
         .joinToString("") { "%02x".format(it) }
 
+    private fun JsonWriter.nullableDouble(value: Double?) {
+        if (value != null && value.isFinite()) value(value) else nullValue()
+    }
+
     private const val MAX_FAILURE_INDEX_ROWS = 200
+    private const val MAX_ARTIFACT_INDEX_ROWS = 200
+    private const val MAX_METRIC_DELTA_ROWS = 5_000
+    private const val MAX_REPRO_SUBJECT_CHARS = 240
+    private const val MAX_REPRO_SCENARIO_CHARS = 120
+    private const val MAX_REPRO_CODE_CHARS = 80
     private val FAILURE_ORDER = compareBy<FailureSignature> { it.code }.thenBy { it.domain }.thenBy { it.stage }
     private val UUID_PATTERN = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 }

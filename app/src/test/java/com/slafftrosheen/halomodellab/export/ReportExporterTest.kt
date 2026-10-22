@@ -68,9 +68,11 @@ class ReportExporterTest {
             val names = zip.entries().toList().map { it.name }
             val failureNames = names.filter { it.startsWith("failures/") &&
                 it != "failures/index.json" && it != "failures/clusters.json" }
+            val reproductionNames = names.filter { it.startsWith("reproduction/") }
             assertEquals("report.md", names.first())
             assertEquals(1, failureNames.size)
-            assertEquals(REQUIRED_ENTRIES + failureNames, names.toSet())
+            assertEquals(1, reproductionNames.size)
+            assertEquals(REQUIRED_ENTRIES + failureNames + reproductionNames, names.toSet())
             assertEquals(1, names.count { it == ReportExporter.CHECKSUMS_ENTRY })
             assertTrue(failureNames.all { entry ->
                 UUID_PATTERN.matches(entry.removePrefix("failures/").removeSuffix(".json"))
@@ -126,13 +128,25 @@ class ReportExporterTest {
         val comparison = String(entryBytes(file, "comparison.json"), Charsets.UTF_8)
         val failures = String(entryBytes(file, "failures/index.json"), Charsets.UTF_8)
         val clusters = String(entryBytes(file, "failures/clusters.json"), Charsets.UTF_8)
+        val artifactIndex = String(entryBytes(file, "artifacts/index.json"), Charsets.UTF_8)
+        val reproduction = ZipFile(file).use { zip ->
+            val entry = zip.entries().toList().single { it.name.startsWith("reproduction/") }
+            zip.getInputStream(entry).bufferedReader().use { it.readText() }
+        }
 
         assertTrue(coverage.contains("\"coverageStatus\": \"SYNTHETIC_ONLY\""))
+        assertTrue(comparison.contains("\"schemaVersion\": 2"))
         assertTrue(comparison.contains("NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED"))
+        assertTrue(artifactIndex.contains("\"payloadsIncluded\": false"))
+        assertTrue(artifactIndex.contains("NO_DEVICE_EVIDENCE_SNAPSHOT"))
         assertTrue(failures.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
         assertTrue(failures.contains("failures/"))
         assertTrue(clusters.contains("current session only"))
         assertTrue(clusters.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
+        assertTrue(reproduction.contains("\"sessionOrigin\": \"SYNTHETIC\""))
+        assertTrue(reproduction.contains("\"attemptId\":"))
+        assertTrue(reproduction.contains("artifactPayloadStatus"))
+        assertFalse(reproduction.contains(exportRoot.absolutePath))
     }
 
     @Test
@@ -361,6 +375,7 @@ class ReportExporterTest {
             "coverage.json",
             "qualification.json",
             "comparison.json",
+            "artifacts/index.json",
             "failures/index.json",
             "failures/clusters.json",
             "checksums.sha256",

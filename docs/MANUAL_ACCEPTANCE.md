@@ -28,7 +28,7 @@
 | 9 | Продолжить прерванный пункт | Retry создаёт новый attemptId; старая попытка остаётся в истории неизменной | NOT_RUN |
 | 10 | Отключить зарядку во время попытки (при requireCharging) | Попытка завершается INVALID с причиной POWER_CONSTRAINT, сессия PAUSED; вердикта «модель несовместима» нет | NOT_RUN |
 | 11 | Нет thermal sensor / мало места | Понятный статус условия; отсутствующее значение не подменяется нулём и не выдаётся за измерение модели | NOT_RUN |
-| 12 | Export | Создан настоящий ZIP: manifest.json, report.md (≤ 8 KiB), results.json, events.jsonl, telemetry.csv, failures/<attemptId>.json, checksums.sha256; SYNTHETIC не переименован; `sha256sum -c` проходит на компьютере | PARTIAL — schema-v2 synthetic ZIP, 9 checksums и entry paths проверены; targeted failure ZIP не создавался |
+| 12 | Export | Создан настоящий ZIP: manifest.json, report.md (≤ 8 KiB), results.json, events.jsonl, telemetry.csv, reproduction/<attemptId>.json, artifacts/index.json, failures/<attemptId>.json, checksums.sha256; SYNTHETIC не переименован; `sha256sum -c` проходит на компьютере | NOT_RUN for C10 schema v2 source. Older synthetic ZIP/checksum evidence is historical; metric delta, reproduction entries, targeted failure ZIP, and real artifact payload behavior are unverified. |
 | 13 | Отказать в notifications | Сессия всё равно запускается и завершается; отказ не трактуется как ошибка модели | NOT_RUN |
 | 14 | Отменить create-document picker | Ничего не записано, ошибки нет, состояние экспорта остаётся готовым к повторному сохранению | NOT_RUN |
 | 15 | Обновить приложение с сохранением данных | История и сессии сохраняются; destructive migration не используется, схема Room совместима | NOT_RUN |

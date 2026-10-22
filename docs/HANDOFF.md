@@ -29,6 +29,10 @@ Lab V0 passed: debug assemble, 95 unit tests, Android test APK compile, and 21 c
 Manual Lab V1 synthetic install was blocked by Android `INSTALL_FAILED_USER_RESTRICTED`, so there was no launch or ZIP inspection. Real-model V1, usable paired APK, native crash resilience and model qualification are not claimed. See `docs/CONTINUATION_STATE.json` and `docs/PENDING_VERIFICATION.md` for exact evidence.
 ## Current continuation status (2026-10-22)
 
+### C10 source checkpoint (2026-10-23)
+
+The current exporter has exact-scope/policy metric comparison with explicit unknown values, schema-v2 `comparison.json`, and bounded `reproduction/<attemptId>.json` descriptors alongside targeted failure files. New C10 tests are source-only. `artifacts/index.json` exports bounded metadata, but payload bytes are unavailable: the Lab gateway's `openEvidenceArtifact` is a null-returning stub, so reports disclose the limitation instead of fabricating evidence. Build, automated tests, and phone tests remain NOT_RUN. See the top of `docs/CONTINUATION_STATE.json` for commits/protocol versions and the C10 boundary.
+
 This file is the historical v0 handoff. The active v1 continuation is resolved from the workspace single-file package `HaloModelLab_CODEX_COMPLETE.md`; current C0 findings and the authorized Halo source map are in `docs/TAKEOVER_AUDIT.md` and `docs/HALO_INTEGRATION_MAP.md`. Historical V0 results on 2026-10-22: build PASS, 91/91 unit tests PASS, and 21/21 connected instrumentation tests PASS. A bounded synthetic `demo/success` phone smoke and schema-v2 ZIP checksum check also passed. Real-model acceptance remains NOT_RUN; no current real-model test is claimed. The prior 2026-10-21 results below remain historical reports only.
 
 At the initial takeover, the Lab had no remote configured and Halo was read-only. Those conditions were later superseded: the user authorized the public `slafftrosheen/HaloModelLab` remote and editing `C:\Users\slavd\HaloEco\Halo-main` while preserving its changes. Current source and commit state is in `docs/CONTINUATION_STATE.json`.

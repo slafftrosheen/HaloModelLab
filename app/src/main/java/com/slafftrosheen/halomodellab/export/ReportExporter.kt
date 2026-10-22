@@ -125,9 +125,11 @@ class ReportExporter(
         }
         payload["qualification.json"] = qualificationBytes
         payload["comparison.json"] = comparisonBytes
+        payload["artifacts/index.json"] = RealEvidenceExportJson.artifactIndex(realEvidence)
         payload["failures/index.json"] = RealEvidenceExportJson.failureIndex(detail)
         payload["failures/clusters.json"] = RealEvidenceExportJson.failureClusters(detail)
         buildFailureFiles(detail, omissions).forEach { (name, bytes) -> payload[name] = bytes }
+        buildReproductionFiles(detail, realEvidence, omissions).forEach { (name, bytes) -> payload[name] = bytes }
         if (realEvidence != null) {
             val realPlan = RealEvidenceExportJson.plan(realEvidence, detail.planJson)
             if (realPlan.size > MAX_SECTION_BYTES) {
@@ -481,6 +483,35 @@ class ReportExporter(
         return files
     }
 
+    private fun buildReproductionFiles(
+        detail: SessionDetail,
+        snapshot: RealEvidenceExportSnapshot?,
+        omissions: MutableList<String>,
+    ): Map<String, ByteArray> {
+        val configurations = snapshot?.configurations.orEmpty().associateBy { it.queueItemId }
+        val files = LinkedHashMap<String, ByteArray>()
+        var skipped = 0
+        var index = 0
+        detail.queue.forEach { item ->
+            item.attempts.forEach attemptLoop@{ attempt ->
+                if (files.size >= MAX_REPRODUCTION_FILES) {
+                    skipped += 1
+                    return@attemptLoop
+                }
+                val id = safeAttemptId(attempt.attemptId, index++)
+                files["reproduction/$id.json"] = RealEvidenceExportJson.reproduction(
+                    item = item,
+                    attempt = attempt,
+                    origin = detail.summary.origin,
+                    configuration = configurations[item.queueItemId],
+                    snapshot = snapshot,
+                )
+            }
+        }
+        if (skipped > 0) omissions += "reproduction/: $skipped attempt descriptors omitted after the $MAX_REPRODUCTION_FILES limit."
+        return files
+    }
+
     private fun csv(value: String?): String {
         if (value.isNullOrEmpty()) return ""
         // Neutralize spreadsheet formulas in text fields.
@@ -515,9 +546,24 @@ class ReportExporter(
 
     private fun SessionComparison.toReportSummary(previousSessionId: String): String = when (status) {
         ComparisonStatus.INCOMPARABLE -> "Previous session $previousSessionId was selected, but exact scope/policy checks failed: $reasonCode."
-        ComparisonStatus.COMPATIBLE -> "Compared with $previousSessionId at the exact verified scope: " +
-            "new failures ${newFailures.size}, resolved ${resolvedFailures.size}, persistent ${persistentFailures.size}. " +
-            "These are observed changes, not a regression verdict."
+        ComparisonStatus.COMPATIBLE -> buildString {
+            append("Compared with ").append(previousSessionId).append(" at the exact verified scope: ")
+            append("new failures ").append(newFailures.size).append(", resolved ").append(resolvedFailures.size)
+            append(", persistent ").append(persistentFailures.size).append(". ")
+            val known = metricDeltas.filter { it.delta != null }
+            append("Metric deltas: ").append(known.size).append(" known, ")
+            append(metricDeltas.size - known.size).append(" unknown.")
+            if (known.isNotEmpty()) {
+                append(" Observed metric changes: ")
+                append(known.take(MAX_REPORT_METRIC_DELTAS).joinToString("; ") { metric ->
+                    val name = metric.key.name.filterNot { it.isISOControl() }.take(60).replace("`", "'")
+                    "$name ${metric.delta} ${metric.key.unit.filterNot { it.isISOControl() }.take(20)}"
+                })
+                if (known.size > MAX_REPORT_METRIC_DELTAS) append("; additional values are in comparison.json")
+                append('.')
+            }
+            append(" These are observed changes, not a regression verdict.")
+        }
     }
 
     companion object {
@@ -536,7 +582,9 @@ class ReportExporter(
         private const val MAX_SECTION_BYTES: Int = 4 * 1024 * 1024
         private const val MAX_TELEMETRY_ROWS: Int = 5_000
         private const val MAX_FAILURE_FILES: Int = 200
+        private const val MAX_REPRODUCTION_FILES: Int = 200
         private const val MAX_REMOTE_EVENT_ROWS: Int = 1_000
+        private const val MAX_REPORT_METRIC_DELTAS: Int = 3
         private const val ZIP_WRITE_CHUNK_BYTES: Int = 64 * 1024
 
         private val NON_EXPORTABLE_STATES = setOf(
@@ -566,7 +614,8 @@ class ReportExporter(
                 append(".\n")
             }
             append("Qualification records: ").append(snapshot.qualifications.size).append("; output artifact records: ")
-            append(snapshot.artifacts.size).append(". Artifact metadata is included; model weights are not.\n")
+            append(snapshot.artifacts.size).append(". `artifacts/index.json` contains bounded metadata only; ")
+            append("artifact payload transfer is unavailable and model weights are never included.\n")
         }
     }
 }
