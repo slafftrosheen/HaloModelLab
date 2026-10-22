@@ -10,8 +10,8 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "087a35f421ffefbc94a9dffe104766185e68062b",
-    "currentWorkingTree": "clean after pushing Lab main to public origin",
+    "currentHead": "ca26a2371decae31d07aab0c34136276c874a5a7",
+    "currentWorkingTree": "checkpoint state refreshed after public push; no source changes remain",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
     "pushState": "PUSHED: origin/main matches local main at the current checkpoint"
   },
@@ -29,7 +29,7 @@
     "C0": "SOURCE_AUDIT_WRITTEN; regression source added; V0 source/unit/instrumentation checks PASS; commit cbe39d7; state checkpoint a81302f",
     "C1": "LAB_SOURCE_IMPLEMENTED; generated Room schema v2 committed; validation and migration tests PASS on V0; implementation commit 74f9f55; verification repair commit 015b497",
     "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
-    "C3": "LAB_INVENTORY_PROJECTION_SOURCE_IMPLEMENTED; unit tests PASS; live inventory/artifact leases/runtime admission BLOCKED_HALO_WRITE_ACCESS; commit fe97a05",
+    "C3": "LAB_INVENTORY_PROJECTION_IMPLEMENTED; explicit opt-in Halo inventory refresh connected in source; runtime compatibility NOT_RUN",
     "C4": "HALO_AND_LAB_SOURCE_IN_PROGRESS: signed opt-in AIDL, journal, file/resource leases, private worker and existing LiteRT CPU adapter source added; Lab explicit read-only inventory refresh connected; real plan/session runner and remote event import remain unwired; build/tests/e2e NOT_RUN",
     "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; unit tests PASS; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe",
     "C6": "CONTRACT_ONLY except Halo fixed fast-smoke/1/short-ready CPU fixture; no Lab capability-selected plan UI/session engine wiring",
@@ -62,9 +62,10 @@
     "automatedTests": "PASS: 91/91 unit tests; 21/21 connected instrumentation tests on Android 16/API 36",
     "phoneTests": "PARTIAL_PASS: installed/launched app, completed demo/success as SYNTHETIC, exported schema-v2 ZIP and verified 9 checksums; real-model V1 NOT_RUN",
     "allowedThisTurn": [
-      "authorized V0 Gradle build and automated tests",
-      "authorized V1 phone instrumentation and bounded synthetic smoke",
-      "source inspection and git diff --check"
+      "source inspection",
+      "JSON/XML parsing",
+      "protocol hash checks",
+      "git diff --check"
     ],
     "thisContinuation": {
       "noGradleOrADB": true,
@@ -90,7 +91,7 @@
     "apkSha256": "0adf72aba5c9dcb79c81fd1b63d283b471163bdf32a54f84fecf154bd378bb97",
     "roomSchemaV2Sha256": "3b269021e3647ccd15487c5f04d8e8477d7b61cdbaca1911487e542710f154c1",
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
-    "realModelPhoneAcceptance": "NOT_RUN; BLOCKED_HALO_WRITE_ACCESS"
+    "realModelPhoneAcceptance": "NOT_RUN; real Lab plan/session/event-import path is incomplete; no build or phone verification in this continuation"
   },
   "next": "Continue C4 Lab integration: persist and start only the fixed fast-smoke CPU plan; connect the real runner to Halo leases, worker supervision, replay importer and recovery before scheduling another remote attempt. Then continue C6-C10 integration and update the bounded checkpoint. Do not run Gradle, automated tests, ADB or phone benchmarks.",
   "versions": {
