@@ -63,7 +63,7 @@ class QualificationPolicyTest {
     @Test
     fun performanceRejectionNeedsThreeTrustedComparableSamples() {
         val policy = POLICY.copy(performanceThresholds = listOf(PerformanceThreshold("latency", "ms", 100.0)))
-        val one = observation("attempt-1", "worker-1", CheckAssertion.PASS, FailureDomain.UNKNOWN)
+        val one = observation("attempt-1", "worker-1", CheckAssertion.PASS, FailureDomain.MODEL)
             .copy(metricName = "latency", metricUnit = "ms", metricValue = 150.0, metricTrusted = true)
         val two = one.copy(attemptId = "attempt-2", workerInstanceId = "worker-2")
         assertFalse(QualificationEvaluator.evaluate(SCOPE, policy, listOf(one, two), scopeIdentityVerifiedForQualification = true).mayHideExactScope)

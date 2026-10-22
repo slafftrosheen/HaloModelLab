@@ -81,7 +81,7 @@ class RoomSessionRepository(
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeOpenSession(): Flow<SessionDetail?> =
         database.labDao()
-            .observeOpenSession(SessionStates.TERMINAL_NAMES)
+            .observeOpenSession(SessionStates.OPEN_NAMES)
             .flatMapLatest { session ->
                 if (session == null) flowOf(null) else observeSession(session.id)
             }

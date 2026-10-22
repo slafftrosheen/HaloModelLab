@@ -257,7 +257,6 @@ data class ExecutionScope(
             effectiveBackend != null &&
                 effectiveBackend != RealBackend.UNSPECIFIED &&
                 effectiveBackend != RealBackend.AUTO
-}
 
     companion object {
         const val MAX_OPTION_LENGTH = 128
@@ -350,9 +349,9 @@ data class RealRunPlan(
 ) {
     init {
         require(isUuid(sessionId))
-        require(isBoundedIdentifier(profileId, MAX_CASE_IDENTIFIER_LENGTH))
-        require(isBoundedIdentifier(suiteId, MAX_CASE_IDENTIFIER_LENGTH))
-        require(isBoundedIdentifier(suiteVersion, MAX_CASE_IDENTIFIER_LENGTH))
+        require(isBoundedIdentifier(profileId, RealCasePlan.MAX_CASE_IDENTIFIER_LENGTH))
+        require(isBoundedIdentifier(suiteId, RealCasePlan.MAX_CASE_IDENTIFIER_LENGTH))
+        require(isBoundedIdentifier(suiteVersion, RealCasePlan.MAX_CASE_IDENTIFIER_LENGTH))
         require(origin == EvidenceOrigin.DEVICE_MEASUREMENT)
         require(planSchemaVersion == RealContractVersions.PLAN_SCHEMA)
         require(exportSchemaVersion > 0 && qualificationPolicyVersion > 0)
@@ -488,7 +487,6 @@ data class StopReceipt(
     val safeToReleaseExecutionLease: Boolean
         get() = disposition == StopDisposition.CLEANUP_CONFIRMED ||
             disposition == StopDisposition.WORKER_DEATH_CONFIRMED
-}
 }
 
 private const val MAX_UNKNOWN_VALUE_LENGTH = 128

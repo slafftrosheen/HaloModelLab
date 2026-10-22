@@ -108,7 +108,7 @@ class RealPlanValidationTest {
             capabilitySnapshot = null,
             cases = listOf(
                 RealCasePlan(
-                    queueItemId = "queue-item-1",
+                    queueItemId = "00000000-0000-0000-0000-000000000002",
                     providerId = "local-provider",
                     modelId = "model-1",
                     artifactGenerationId = "generation-1",
@@ -171,8 +171,11 @@ class RealPlanValidationTest {
         suiteId = "text-smoke",
         suiteVersion = "1",
         fixtureManifestSha256 = HASH_C,
+        qualificationPolicyVersion = 1,
         qualificationPolicySha256 = HASH_D,
         measurementMode = "STANDARD",
+        language = null,
+        voiceId = null,
         sourceIdentitiesVerified = true,
     )
 

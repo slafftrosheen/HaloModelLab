@@ -167,8 +167,8 @@ class SessionRepositoryTest {
     }
 
     @Test
-    fun secondAttemptUsesANewAttemptId() = runTest {
-        val sessionId = createSession()
+    fun plannedRepeatUsesANewAttemptId() = runTest {
+        val sessionId = createSession(repeats = 2)
         repository.claimSession(sessionId, "owner-1")
 
         val first = repository.beginAttempt(sessionId, "owner-1") as BeginAttempt.Ready
@@ -176,7 +176,8 @@ class SessionRepositoryTest {
         val second = repository.beginAttempt(sessionId, "owner-1") as BeginAttempt.Ready
 
         assertNotEquals(first.request.attemptId, second.request.attemptId)
-        assertEquals(2, second.attemptNumber)
+        assertNotEquals(first.queueItemId, second.queueItemId)
+        assertEquals(1, second.attemptNumber)
     }
 
     @Test

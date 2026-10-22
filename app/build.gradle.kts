@@ -18,6 +18,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // MigrationTestHelper reads exported Room schemas from the instrumentation APK assets.
+    sourceSets.getByName("androidTest").assets.directories.add("$projectDir/schemas")
+
     buildTypes {
         release {
             // No signing config is requested or committed. Debug keys only, by the platform.
@@ -46,6 +49,17 @@ ksp {
     // Room schema export. The JSON files appear on the first successful build and must be
     // committed; see app/schemas/README.md.
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+// Room 2.8.5 migration bundles use kotlinx.serialization 1.8.1. Keep the target and test
+// runtime configurations aligned where MigrationTestHelper deserializes generated schemas.
+configurations.configureEach {
+    if (name.endsWith("RuntimeClasspath")) {
+        resolutionStrategy.force(
+            "org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1",
+            "org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1",
+        )
+    }
 }
 
 // HML-L1 has no network, analytics, inference or export dependencies.

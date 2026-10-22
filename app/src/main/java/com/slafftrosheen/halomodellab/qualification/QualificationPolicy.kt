@@ -5,6 +5,10 @@ import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.FailureDomain
 import com.slafftrosheen.halomodellab.domain.ResultValidity
 
+private val SHA256 = Regex("[0-9a-f]{64}")
+private val SAFE_CODE = Regex("[A-Za-z0-9._:-]{1,96}")
+private val SAFE_ID = Regex("[A-Za-z0-9._:-]{1,160}")
+
 enum class CheckAssertion { PASS, FAIL, UNKNOWN }
 enum class QualificationStatus {
     UNTESTED,
@@ -199,7 +203,4 @@ object QualificationEvaluator {
         FailureDomain.ADAPTER, FailureDomain.RUNTIME, FailureDomain.DEVICE,
         FailureDomain.ENVIRONMENT, FailureDomain.HARNESS, FailureDomain.UNKNOWN,
     )
-    private val SHA256 = Regex("[0-9a-f]{64}")
-    private val SAFE_CODE = Regex("[A-Za-z0-9._:-]{1,96}")
-    private val SAFE_ID = Regex("[A-Za-z0-9._:-]{1,160}")
 }

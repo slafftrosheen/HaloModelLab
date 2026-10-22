@@ -111,11 +111,11 @@ abstract class LabDao {
     @Query("SELECT * FROM sessions WHERE id = :sessionId")
     abstract suspend fun sessionById(sessionId: String): SessionEntity?
 
-    @Query("SELECT * FROM sessions WHERE state NOT IN (:terminalStates) ORDER BY createdAtWallTimeMs DESC LIMIT 1")
-    abstract suspend fun findOpenSession(terminalStates: List<String>): SessionEntity?
+    @Query("SELECT * FROM sessions WHERE state IN (:states) ORDER BY createdAtWallTimeMs DESC LIMIT 1")
+    abstract suspend fun findOpenSession(states: List<String>): SessionEntity?
 
-    @Query("SELECT * FROM sessions WHERE state NOT IN (:terminalStates) ORDER BY createdAtWallTimeMs DESC LIMIT 1")
-    abstract fun observeOpenSession(terminalStates: List<String>): Flow<SessionEntity?>
+    @Query("SELECT * FROM sessions WHERE state IN (:states) ORDER BY createdAtWallTimeMs DESC LIMIT 1")
+    abstract fun observeOpenSession(states: List<String>): Flow<SessionEntity?>
 
     @Query("SELECT * FROM sessions WHERE state IN (:states) ORDER BY createdAtWallTimeMs")
     abstract suspend fun sessionsInStates(states: List<String>): List<SessionEntity>
