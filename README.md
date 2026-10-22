@@ -10,9 +10,10 @@ The resolved continuation handoff and C0 takeover record are tracked in `docs/TA
 локальных benchmark-сессий. В этой версии исполняется **только управляемая симуляция**;
 настоящих моделей, весов, моста Halo и inference здесь нет.
 
-> **Исторический отчёт (21.10.2026):** прежний источник сообщил об успешной сборке и
-> 55/55 unit-тестов для тогдашнего L0–L4 checkout. Это не проверка текущего дерева.
-> Для этой v1 continuation Build / Automated tests / Phone tests: **NOT_RUN**.
+> **V0/V1 verification (22.10.2026):** текущий checkout собран; 91 unit-тест и 21
+> connected instrumentation test прошли. На Samsung SM-G990B2 выполнен только
+> `demo/success` synthetic smoke с ZIP export. Реальный inference, Halo bridge,
+> worker isolation и real-model phone acceptance остаются **NOT_RUN / BLOCKED**.
 
 ## Что можно увидеть после сборки
 
@@ -72,8 +73,8 @@ app/src/main/java/com/slafftrosheen/halomodellab/
   export/     DTO, JsonWriter-сериализация, отчёт, ZIP, share
   runner/     fake engine, координатор, foreground service, условия, уведомления
   ui/         Compose-экраны и ViewModel
-app/src/test/         unit-тесты (55/55 проходят)
-app/src/androidTest/  Room-тесты (компилируются; запуск только на устройстве)
+app/src/test/         unit-тесты (91 проходят на проверенном V0 checkout)
+app/src/androidTest/  Room-тесты (21 прошли на подключённом устройстве)
 docs/                 статус, ожидающие проверки, ручная приёмка, handoff
 ```
 
@@ -82,12 +83,12 @@ docs/                 статус, ожидающие проверки, руч�
 Нужны JDK 17+, Android SDK platform 37 и Gradle wrapper 9.6.0 из репозитория.
 
 ```bash
-./gradlew :app:assembleDebug            # проходит; APK signing debug-ключом
-./gradlew :app:testDebugUnitTest        # проходит; 55 тестов
-./gradlew :app:connectedDebugAndroidTest # НЕ запускался: нужен устройство/emulator
+./gradlew :app:assembleDebug            # PASS; APK signing debug-ключом
+./gradlew :app:testDebugUnitTest        # PASS; 91 tests
+./gradlew :app:connectedDebugAndroidTest # PASS; 21 tests на Android 16 / API 36
 ```
 
-Сборка и unit-тесты выполнимы и зелёны; поведение на устройстве не проверялось.
+Устройство проверило только synthetic app flow и экспорт, не настоящую модель.
 Оставшиеся непроверенные места — в [docs/PENDING_VERIFICATION.md](docs/PENDING_VERIFICATION.md).
 
 ## Документы

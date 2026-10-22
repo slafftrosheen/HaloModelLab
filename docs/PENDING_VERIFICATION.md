@@ -1,12 +1,23 @@
 # Pending verification — current v1 continuation
 
-**Current continuation status (2026-10-22): Build NOT_RUN; automated tests NOT_RUN; phone tests NOT_RUN.** The historical C0 report below records what the prior agent reported on 2026-10-21. It is not a verification result for the current source tree or this continuation.
+**Authorized V0/V1 record (2026-10-22): Build PASS; automated tests PASS; device instrumentation PASS; synthetic manual smoke PASS. Real-model phone acceptance remains NOT_RUN / BLOCKED_HALO_WRITE_ACCESS.**
 
-No Gradle, build, automated test, emulator, ADB, install, or phone benchmark command was run in this continuation. Allowed source-only checks and their results are recorded in `docs/TAKEOVER_AUDIT.md` and `docs/CONTINUATION_STATE.json`.
+V0 used JDK 21, Android SDK 37 and Windows Gradle wrapper 9.6.0. Final commands:
 
-C1 adds Room schema version 2 with a source-defined 1→2 migration. The v2 generated schema is intentionally absent until V0; migration and real-plan persistence instrumentation sources are **NOT_RUN**. C2 protocol/event import, C3 inventory, C5 text profile, C7 budget, C9 policy, and C10 export test sources are all **NOT_RUN**. Export schema v2 has not been built or opened as a ZIP. `protocol/lab-client-contract-v1.json` remains a Lab-local draft, so canonical protocol hash and compatible Halo commit pair are unknown. Binder security, consent enforcement, worker, leases, and server replay durability remain `BLOCKED_HALO_WRITE_ACCESS`.
+```text
+:app:testDebugUnitTest                 PASS (91 tests, 0 failures)
+:app:assembleDebug                     PASS
+:app:assembleDebugAndroidTest          PASS
+:app:connectedDebugAndroidTest         PASS (21 tests, 0 failures)
+```
 
-The prior report must not be used to claim a usable APK, native crash resilience, or real-model success. Device and real-inference acceptance remains open. C1-C10 source verification will remain `NOT_RUN` until a separate V0/V1 authorisation.
+The connected device was a Samsung SM-G990B2 running Android 16 / API 36. The generated Room schema v2 and Room 1→2 migration test passed. The last build produced `app/build/outputs/apk/debug/app-debug.apk` (debug signed); it was installed and launched without clearing app data.
+
+The bounded V1 smoke selected `demo/success`, created and ran a synthetic session, verified that History retained `COMPLETED` with `origin=SYNTHETIC`, exported the ZIP, and checked all 9 `checksums.sha256` records plus safe ZIP entry paths. ZIP schema was 2 and `report.md` explicitly states that real inference is absent. This is evidence for the synthetic Lab path only.
+
+Real model discovery/acquisition, inference, worker/supervisor crash isolation, 30-minute standard run, soak, and Halo production-use isolation remain **NOT_RUN** because the Halo editable target and integration are blocked. No model artifact was downloaded. Do not claim a usable real-model laboratory, native crash resilience, or model qualification from the checks above. The Lab protocol file remains a draft; no compatible Halo commit pair exists.
+
+The first verification passes surfaced compile/test fixture defects, an open-session query mismatch, missing migration schema assets, and a Kotlin serialization runtime mismatch in Room migration tests. Those were repaired before the final passing commands above.
 
 ---
 

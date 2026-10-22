@@ -39,8 +39,8 @@ Date: 2026-10-22 (Europe/Riga)
 - `AppContainer` owns one Room repository and starts process-owner recovery before the session ViewModel enables start. Recovery is startup-only. In the present single-process Lab there is no native worker or independent Halo supervisor; `withTimeout` only bounds the cooperative fake engine.
 - Existing test sources cover four demo outcomes, coordinator pause/stop/timeout/storage/origin behavior, state transitions, Room unique-open-session and terminal-write-once behavior, recovery preservation, and ZIP contents/checksums/redaction. A concurrent session-creation instrumentation regression source was added in this audit.
 - Gaps retained for later batches: Activity recreation/UI button automation, export cancellation during ZIP writing, and full storage-failure injection. These are explicitly `NOT_RUN`; relevant continuation batches must close source gaps or name them precisely.
-- No new correctness blocker was established in the static review of the inherited synthetic flow. The existing implementation is preserved. No claim is made that its APK is usable or that the reviewed flows work at runtime.
+- The V0 run exposed an inherited open-session query mismatch: session creation tested the wrong state set, while the observer used a different set. Both Room paths now use `OPEN_NAMES`; connected tests cover single-open-session admission and the app now observes the saved draft. The synthetic implementation is preserved and repaired. This does not establish real-model behavior or native-crash resilience.
 
 ## Current checkpoint
 
-See `docs/CONTINUATION_STATE.json` for the machine-readable batch, repository, protocol, verification, and blocker state. Source-only checks are allowed; builds, automated tests, emulator/ADB, installs, and phone tests remain `NOT_RUN` for this continuation.
+See `docs/CONTINUATION_STATE.json` for the machine-readable batch, repository, protocol, verification, and blocker state. After separate owner authorization, V0 build/unit/instrumentation checks passed and a bounded synthetic phone smoke/export passed. Real-model phone acceptance remains `NOT_RUN` at `BLOCKED_HALO_WRITE_ACCESS`.

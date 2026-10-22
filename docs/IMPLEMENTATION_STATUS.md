@@ -1,31 +1,42 @@
 # Implementation status — Halo Model Lab
 
-Последнее обновление: 22 октября 2026. Историческая запись ниже отражает отчёты прошлой работы. В этой continuation сборки и тесты не запускались; актуальный статус — см. раздел «Продолжение v1».
+Последнее обновление: 22 октября 2026. Исторические отчёты ниже относятся к прежним этапам; актуальные V0/V1 результаты зафиксированы в разделах ниже и в `docs/PENDING_VERIFICATION.md`.
 
 ## Продолжение v1 — 2026-10-22
 
+## V0/V1 — авторизованная проверка — 2026-10-22
+
+- Владелец отдельно разрешил V0/V1. Lab checkout оставался на `main`, исходный HEAD — `aad3e7fdc04827ad83fb4181746a44705e36d05d`; перед проверкой рабочее дерево было чистым. Halo остаётся отдельным dirty checkout, только для чтения.
+- Исправлены ошибки компиляции в `RealBenchmarkContracts.kt` и доступности валидаторов `QualificationPolicy.kt`; исправлены невалидные/неполные фикстуры тестов. Room `findOpenSession` и `observeOpenSession` теперь выбирают состояния из `OPEN_NAMES`, что восстановило запрет второй сессии и отображение созданного черновика.
+- Room 1→2 schema включена в instrumentation assets; schema v2 создана настоящей KSP-сборкой: `app/schemas/com.slafftrosheen.halomodellab.data.LabDatabase/2.json` (SHA-256 `3b269021e3647ccd15487c5f04d8e8477d7b61cdbaca1911487e542710f154c1`). Для `MigrationTestHelper` версии kotlinx.serialization выровнены до 1.8.1 в runtime configurations.
+- V0 PASS: `:app:testDebugUnitTest` — 91 тест, 0 failures; `:app:assembleDebug` — PASS; `:app:assembleDebugAndroidTest` — PASS; `:app:connectedDebugAndroidTest` — 21 тест, 0 failures на Samsung SM-G990B2, Android 16 / API 36. Использованы JDK 21 и Android SDK 37.
+- V1 synthetic smoke PASS: debug app установлена и открыта; `demo/success` сохранился и завершился как `SYNTHETIC`; экспортирован ZIP schema 2 (5,676 bytes), 9 checksum-записей проверены, абсолютных/`..` entry path не обнаружено. Архив явно говорит, что inference отсутствует. Не запускались реальные модели или долгие soak/fault-injection сценарии.
+- APK SHA-256: `0adf72aba5c9dcb79c81fd1b63d283b471163bdf32a54f84fecf154bd378bb97`; source-fix commit: `015b497`.
+- Реальная V1 приёмка остаётся `BLOCKED_HALO_WRITE_ACCESS`: нет авторизованного Halo editable target, моста, worker/supervisor, lease и реального adapter flow. Сборка не подтверждает native-crash resilience или real-model qualification. Установленная debug app содержит один synthetic smoke session; данные не очищались.
+- Первые V0 прогоны выявили и устранили compile errors, two unit fixture errors, open-session SQL regression, missing schema assets и Room migration serialization runtime mismatch. Итоговые результаты выше относятся к последнему зелёному прогону.
+
 - **Stage transition:** this v1 continuation supersedes only the starter's simulation-only scope limit and stop-after-one-starter-batch instruction. Signing/privacy, repository authority, and verification restrictions continue to apply.
-- **C2 Lab-side contracts and replay importer implemented.** Added bounded typed bridge request/response contracts, explicit unknown-state decoding, protocol negotiation, typed event payloads, artifact lease and inventory DTOs, and a Room transaction that verifies payload hashes, rejects run identity conflicts/gaps, deduplicates committed events, stores attempt correlation, and advances only a contiguous cursor. Added unit and instrumentation test sources; they are **NOT_RUN**.
-- C2 importer follow-up now requires the source session to be a persisted `DEVICE_MEASUREMENT` real-bridge plan and attempt events to reference an attempt in that same session. The instrumentation source uses a real plan and includes a synthetic-origin rejection case. **NOT_RUN**.
+- **C2 Lab-side contracts and replay importer implemented.** Added bounded typed bridge request/response contracts, explicit unknown-state decoding, protocol negotiation, typed event payloads, artifact lease and inventory DTOs, and a Room transaction that verifies payload hashes, rejects run identity conflicts/gaps, deduplicates committed events, stores attempt correlation, and advances only a contiguous cursor. Unit and instrumentation tests PASS in V0.
+- C2 importer follow-up requires the source session to be a persisted `DEVICE_MEASUREMENT` real-bridge plan and attempt events to reference an attempt in that same session. Instrumentation uses a real plan and includes a synthetic-origin rejection case; PASS in V0.
 - **C2 integration remains blocked at the authority boundary.** No Binder adapter, authenticated Halo service, consent store, manifest package binding, or canonical shared wire schema is claimed. The Lab protocol file remains a draft. `BLOCKED_HALO_WRITE_ACCESS` is recorded because the Halo checkout was not supplied as an authorized editable target.
-- **C3 Lab inventory projection implemented as source.** Added bounded paging, explicit empty/unavailable results, duplicate-identity and pagination-cycle rejection, open-string role/backend decoding, and a verified-manifest precondition for lease eligibility. The repository remains an adapter contract; it is not connected to live Halo inventory, leases, or runtime admission. Tests are **NOT_RUN**.
+- **C3 Lab inventory projection implemented as source.** Added bounded paging, explicit empty/unavailable results, duplicate-identity and pagination-cycle rejection, open-string role/backend decoding, and a verified-manifest precondition for lease eligibility. Unit tests PASS. The repository remains an adapter contract; it is not connected to live Halo inventory, leases, or runtime admission.
 - **C4 blocked:** real worker, supervisor, native adapter, resource admission, and stop confirmation require Halo write access. No real executor is present in Lab.
-- **C5 Lab text probe contracts implemented.** Versioned FAST, CHAT, THINK, ACTION and warm-series fixture descriptions now have canonical fixture hashes and bounded prompts/assertions. Every profile remains `CONTRACT_ONLY`; C4 adapter execution, streaming measurements, validator execution and tool-call fixture dispatch are not wired. Test sources are **NOT_RUN**.
+- **C5 Lab text probe contracts implemented.** Versioned FAST, CHAT, THINK, ACTION and warm-series fixture descriptions now have canonical fixture hashes and bounded prompts/assertions. Unit tests PASS. Every profile remains `CONTRACT_ONLY`; C4 adapter execution, streaming measurements, validator execution and tool-call fixture dispatch are not wired.
 - **C6 blocked by C4 and unverified Halo capability surfaces.** No STT/TTS/embedding/vision/VAD suite is advertised as runnable; Lab does not infer those capabilities from model names.
-- **C9 pure qualification policy source implemented.** The evaluator keeps exact scopes and policies, excludes non-device/invalid evidence, requires two matching structural failures from different workers or three trusted comparable performance samples before hiding an exact scope, and marks changed identity stale. No UI filter, Room projection wiring, model-family exclusion, or Halo routing change is present. Added test sources are **NOT_RUN**.
-- **C7 Lab-side budget policy source implemented.** Added bounded quick/standard/soak defaults, stage/session caps, attempt deadline clipping, boot-aware conservative tail accounting and a three-fault circuit-breaker value object. It is not wired to a real runner/supervisor. Tests are **NOT_RUN**.
-- **C10 exporter source extended to schema v2.** Its Room export snapshot includes real-plan/configuration rows and imported remote event facts; ZIP output adds coverage, qualification, comparison, failure index and conditional real-plan/event files. Files are checksummed, bounded, truncation is explicit, ZIP writes check cancellation and compressed size, and synthetic origin stays explicit. No real terminal reconciliation, inference output capture or app UI connection flow is implemented.
+- **C9 pure qualification policy source implemented.** The evaluator keeps exact scopes and policies, excludes non-device/invalid evidence, requires two matching structural failures from different workers or three trusted comparable performance samples before hiding an exact scope, and marks changed identity stale. Unit tests PASS. No UI filter, Room projection wiring, model-family exclusion, or Halo routing change is present.
+- **C7 Lab-side budget policy source implemented.** Added bounded quick/standard/soak defaults, stage/session caps, attempt deadline clipping, boot-aware conservative tail accounting and a three-fault circuit-breaker value object. Unit tests PASS. It is not wired to a real runner/supervisor.
+- **C10 exporter source extended to schema v2.** Its Room export snapshot includes real-plan/configuration rows and imported remote event facts; ZIP output adds coverage, qualification, comparison, failure index and conditional real-plan/event files. Unit tests PASS; the synthetic device ZIP was opened and its checksums verified. Files are checksummed, bounded, truncation is explicit, ZIP writes check cancellation and compressed size, and synthetic origin stays explicit. No real terminal reconciliation, inference output capture or app UI connection flow is implemented.
 - **C8 blocked:** acquisition must call Halo's existing owners; Lab has no downloader, model cache, or Halo endpoint.
-- **C0: аудит исходников завершён; текущая проверка только статическая.** Основа L0–L4 присутствует в исходниках, но её runtime/verification состояние не переутверждается. См. `docs/TAKEOVER_AUDIT.md`.
-- **C1: Lab-side real-plan contracts and durable schema source implemented.** Added distinct plan/export/policy/protocol versions, canonical artifact and plan identity, exact role mapping, bounded budgets/configuration, strict unknown-value parsing, and draft profile identities. Added Room v1→v2 migration and plan/model/configuration/remote-event/output/qualification/acquisition tables; real plans are persisted with `DEVICE_MEASUREMENT` origin and explicit unavailable-artifact reasons. The generated schema v2 is intentionally pending V0.
+- **C0: аудит исходников завершён; V0 source/unit/instrumentation checks PASS.** Основа L0–L4 присутствует в исходниках; ограниченный synthetic phone smoke тоже пройден, но не является real-model verification. См. `docs/TAKEOVER_AUDIT.md`.
+- **C1: Lab-side real-plan contracts and durable schema implemented.** Added distinct plan/export/policy/protocol versions, canonical artifact and plan identity, exact role mapping, bounded budgets/configuration, strict unknown-value parsing, and draft profile identities. Added Room v1→v2 migration and plan/model/configuration/remote-event/output/qualification/acquisition tables; real plans are persisted with `DEVICE_MEASUREMENT` origin and explicit unavailable-artifact reasons. Generated schema v2 and migration test PASS in V0.
 - **C1 protocol remains a draft.** `protocol/lab-client-contract-v1.json` is Lab-owned client metadata only. It is not a Halo canonical protocol and has no compatibility hash/commit pair. No Halo writes or live bridge behavior are claimed.
 - Lab находится на `main`, базовый commit `9b09e78`; takeover начат с чистого дерева. Локальные commit разрешены, remote не настроен и не создавался, push не разрешён.
 - Handoff разрешён как `HaloModelLab_CODEX_COMPLETE.md` в workspace; отдельные `docs/hml-codex` и attached continuation folder не обнаружены. `HaloModelLab_Agent_Pack/SPEC.md` сохранён неизменённым в `baseline/STARTER_SPEC.md`.
 - Halo checkout прочитан только для интеграционной карты: HEAD `2d7b650faa3ade3c00f504f13bf9f91495d6b73d`, worktree уже был dirty. Editable Halo target не предоставлен: реальная bridge/worker/lease интеграция остановлена на `BLOCKED_HALO_WRITE_ACCESS`.
 - Версия клиента пока `1`; canonical Halo protocol version, compatible commit pair, and protocol hash остаются `null` до согласованного canonical source на стороне Halo.
 - Добавлен source regression для параллельного создания сессий. Existing source tests already cover repeated Start at repository boundary, terminal result immutability, process recovery, storage failure, origin mismatch, and four demo scenarios. Activity recreation and in-progress ZIP cancellation remain source gaps assigned to later batches.
-- Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN**. Historical results from 2026-10-21 below are not current verification for this continuation.
-- Next: checkpoint C10 and record the overall `BLOCKED_HALO_WRITE_ACCESS` stop boundary. V0/V1 remain unauthorized. No Gradle, test, emulator, ADB, install, or phone benchmark commands.
+- Historical L0–L4 verification results below are not current v1 evidence. Current V0/V1 results are recorded at the top of this file.
+- Next: stop real-model work at `BLOCKED_HALO_WRITE_ACCESS`. V0 and the bounded synthetic phone smoke are complete; real-model V1 remains unverified because the authorized Halo target and integration are absent.
 
 ## Итог
 
@@ -54,17 +65,17 @@ Device tests: NOT_RUN
 
 | Область | Исходники | Тестовые исходники | Сборка | Тесты | Устройство |
 |---|---|---|---|---|---|
-| Domain, план, состояние | есть | `SessionStateMachineTest`, `QualificationGuardTest` | PASSED | PASSED | NOT_RUN |
-| Room-схема, DAO, репозиторий | есть | `SessionRepositoryTest` (androidTest) | PASSED | NOT_RUN (компилируется) | NOT_RUN |
-| Recovery после потери процесса | есть | `SessionRepositoryTest` | PASSED | NOT_RUN (компилируется) | NOT_RUN |
-| Каталог и demo-сценарии | есть | — | PASSED | — | NOT_RUN |
-| Demo engine | есть | `FakeBenchmarkEngineTest` | PASSED | PASSED | NOT_RUN |
-| Coordinator: pause/stop/budget/условия | есть | `SessionCoordinatorTest` | PASSED | PASSED | NOT_RUN |
-| Foreground service и уведомление | есть | — | PASSED | — | NOT_RUN |
-| История и детали | есть | — | PASSED | — | NOT_RUN |
-| ZIP-экспорт и отчёт | есть | `ReportFormatterTest`, `ReportExporterTest` | PASSED | PASSED | NOT_RUN |
+| Domain, план, состояние | есть | `SessionStateMachineTest`, `QualificationGuardTest` | PASS | PASS | NOT_RUN |
+| Room-схема, DAO, репозиторий | есть | `SessionRepositoryTest`, `RealPlanMigrationTest` | PASS | PASS (connected) | PASS (instrumentation) |
+| Recovery после потери процесса | есть | `SessionRepositoryTest` | PASS | PASS (connected) | NOT_RUN (force-stop path) |
+| Каталог и demo-сценарии | есть | `InstalledCatalogProjectionTest` | PASS | PASS | PARTIAL (`demo/success`) |
+| Demo engine | есть | `FakeBenchmarkEngineTest` | PASS | PASS | PARTIAL (`demo/success`, synthetic) |
+| Coordinator: pause/stop/budget/условия | есть | `SessionCoordinatorTest` | PASS | PASS | NOT_RUN (manual pause/stop) |
+| Foreground service и уведомление | есть | — | PASS | — | PARTIAL (start + notification prompt) |
+| История и детали | есть | — | PASS | — | PARTIAL (completed synthetic session observed) |
+| ZIP-экспорт и отчёт | есть | `ReportFormatterTest`, `ReportExporterTest`, `RealEvidenceExportJsonTest` | PASS | PASS | PARTIAL (schema-v2 synthetic ZIP, checksums verified) |
 | Share/save через FileProvider | есть | — | PASSED | — | NOT_RUN |
-| Ручная приёмка (15 сценариев) | есть | — | — | — | NOT_RUN |
+| Ручная приёмка (15 сценариев) | есть | — | — | — | PARTIAL (см. `docs/MANUAL_ACCEPTANCE.md`) |
 
 ## Что связано в исходниках
 
