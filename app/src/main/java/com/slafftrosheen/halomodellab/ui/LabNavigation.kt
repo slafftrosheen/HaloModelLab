@@ -113,6 +113,7 @@ fun LabApp(container: AppContainer) {
                     onOpenSession = { sessionId ->
                         navController.navigate(LabRoutes.sessionDetails(sessionId))
                     },
+                    onOpenCatalog = { navController.navigateToTab(LabRoutes.CATALOG) },
                 )
             }
             composable(

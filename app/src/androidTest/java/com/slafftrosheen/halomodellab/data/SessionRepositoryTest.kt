@@ -27,6 +27,9 @@ import com.slafftrosheen.halomodellab.runner.LabClock
 import com.slafftrosheen.halomodellab.qualification.QualificationDecision
 import com.slafftrosheen.halomodellab.qualification.QualificationRepository
 import com.slafftrosheen.halomodellab.qualification.QualificationStatus
+import com.slafftrosheen.halomodellab.qualification.QualificationObservation
+import com.slafftrosheen.halomodellab.qualification.QualificationPolicy
+import com.slafftrosheen.halomodellab.qualification.CheckAssertion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -126,6 +129,36 @@ class SessionRepositoryTest {
 
         val invalidHide = decision.copy(mayHideExactScope = true)
         assertFalse(qualifications.persistProjection(deviceId, invalidHide))
+    }
+
+    @Test
+    fun exactScopeObservationsAggregateAcrossDeviceSessionsBeforeExclusion() = runTest {
+        val qualifications = QualificationRepository(database, clock)
+        val scopeDigest = "a".repeat(64)
+        val policy = QualificationPolicy("b".repeat(64), setOf("fixed-smoke-1"))
+        val firstSession = realPlan().copy(
+            sessionId = "00000000-0000-0000-0000-000000000041",
+            cases = realPlan().cases.map { it.copy(queueItemId = "00000000-0000-0000-0000-000000000043") },
+        )
+        val firstId = (repository.createRealSession(firstSession) as CreateSessionResult.Created).sessionId
+        val first = qualifications.recordObservation(firstId, modelFailure(
+            "11111111-2222-4333-8444-555555555551", scopeDigest, policy.policyDigestSha256, "worker-1",
+        ), policy)
+        assertEquals(QualificationStatus.PARTIAL, first?.status)
+        repository.cancelSession(firstId, "TEST_DONE")
+
+        val secondSession = realPlan().copy(
+            sessionId = "00000000-0000-0000-0000-000000000042",
+            cases = realPlan().cases.map { it.copy(queueItemId = "00000000-0000-0000-0000-000000000044") },
+        )
+        val secondId = (repository.createRealSession(secondSession) as CreateSessionResult.Created).sessionId
+        val second = qualifications.recordObservation(secondId, modelFailure(
+            "11111111-2222-4333-8444-555555555552", scopeDigest, policy.policyDigestSha256, "worker-2",
+        ), policy)
+
+        assertEquals(QualificationStatus.REJECTED_FOR_PROFILE, second?.status)
+        assertTrue(second?.mayHideExactScope == true)
+        assertEquals(scopeDigest, database.labDao().qualificationsForSession(secondId, 1).single().scopeDigestSha256)
     }
 
     @Test
@@ -408,6 +441,26 @@ class SessionRepositoryTest {
             confidence = EvidenceConfidence.OBSERVED,
             detail = "Controlled fixture: no real adapter was loaded.",
         ),
+    )
+
+    private fun modelFailure(
+        attemptId: String,
+        scopeDigest: String,
+        policyDigest: String,
+        workerId: String,
+    ) = QualificationObservation(
+        attemptId = attemptId,
+        scopeDigestSha256 = scopeDigest,
+        policyDigestSha256 = policyDigest,
+        checkId = "fixed-smoke-1",
+        origin = EvidenceOrigin.DEVICE_MEASUREMENT,
+        validity = ResultValidity.VALID,
+        outcome = AttemptOutcome.FAILED,
+        workerInstanceId = workerId,
+        fixtureManifestKnown = true,
+        harnessControlsKnown = true,
+        assertion = CheckAssertion.FAIL,
+        failureDomain = FailureDomain.MODEL,
     )
 
     private class FakeClock(

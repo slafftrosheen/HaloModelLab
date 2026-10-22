@@ -76,6 +76,9 @@ abstract class LabDao {
     @Query("SELECT * FROM qualifications ORDER BY updatedAtWallTimeMs DESC, id LIMIT :limit")
     abstract fun observeQualificationHistory(limit: Int): Flow<List<QualificationEntity>>
 
+    @Query("SELECT * FROM qualifications WHERE scopeDigestSha256 = :scopeDigest AND policyDigestSha256 = :policyDigest ORDER BY updatedAtWallTimeMs DESC LIMIT :limit")
+    abstract suspend fun qualificationsForExactScope(scopeDigest: String, policyDigest: String, limit: Int): List<QualificationEntity>
+
     @Query("SELECT * FROM remote_events WHERE serverEpoch = :serverEpoch AND remoteRunId = :remoteRunId AND remoteSequence = :sequence")
     abstract suspend fun remoteEvent(serverEpoch: String, remoteRunId: String, sequence: Long): RemoteEventEntity?
 

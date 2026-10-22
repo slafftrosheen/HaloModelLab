@@ -150,6 +150,14 @@
     <string name="history_empty_all_title">Сессий нет</string>
     <string name="history_empty_all_body">В базе нет сохранённых сессий. Это не результат проверки моделей.</string>
     <string name="history_empty_filtered">По выбранному фильтру сессий нет.</string>
+    <string name="history_show_excluded">Показать исключённые</string>
+    <string name="history_excluded_title">Исключённые точные конфигурации</string>
+    <string name="history_excluded_empty">Нет конфигураций, исключённых по подтверждённым данным.</string>
+    <string name="history_excluded_scope_title">Исключена точная конфигурация</string>
+    <string name="history_excluded_scope_identity">Область %1$s… · политика %2$s…</string>
+    <string name="history_excluded_scope_body">Данные сохранены. Просмотрите свидетельства или вручную выберите конфигурацию для повторной проверки.</string>
+    <string name="history_excluded_review">Проверить данные</string>
+    <string name="history_excluded_retest">Выбрать для повтора</string>
 
     <!-- Детали сессии -->
     <string name="details_title">Сессия</string>

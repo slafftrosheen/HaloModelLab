@@ -17,6 +17,9 @@ import com.slafftrosheen.halomodellab.bridge.SubmitCaseRequest
 import com.slafftrosheen.halomodellab.data.RemoteEventImporter
 import com.slafftrosheen.halomodellab.data.RemoteEventPageResult
 import com.slafftrosheen.halomodellab.data.RemoteRunBindingResult
+import com.slafftrosheen.halomodellab.qualification.QualificationObservationMapper
+import com.slafftrosheen.halomodellab.qualification.QualificationPolicy
+import com.slafftrosheen.halomodellab.qualification.QualificationRepository
 import com.slafftrosheen.halomodellab.domain.AttemptOutcome
 import com.slafftrosheen.halomodellab.domain.AttemptResult
 import com.slafftrosheen.halomodellab.domain.BenchmarkEngine
@@ -49,6 +52,7 @@ class HaloRemoteBenchmarkEngine(
     private val gateway: HaloLabGateway,
     private val importer: RemoteEventImporter,
     private val contexts: RealExecutionContextSource,
+    private val qualifications: QualificationRepository,
     private val clientProcessInstanceId: String,
     private val clientSourceId: String,
     private val clientSchemaSha256: String,
@@ -268,7 +272,7 @@ class HaloRemoteBenchmarkEngine(
                 (observedPreview == null || completed.outputTruncated != false)
             ) return unknown("OUTPUT_EVIDENCE_MISSING", "Halo reported success without a complete bounded output preview.")
             val outputMismatch = completed.outcome == AttemptOutcome.PASSED && observedPreview != expectedText
-            AttemptResult(
+            val result = AttemptResult(
                 outcome = if (outputMismatch) AttemptOutcome.FAILED else completed.outcome ?: AttemptOutcome.FAILED,
                 validity = completed.validity ?: ResultValidity.UNKNOWN,
                 origin = origin,
@@ -283,6 +287,29 @@ class HaloRemoteBenchmarkEngine(
                 },
                 metrics = terminalMetrics(completed),
             )
+            val observation = QualificationObservationMapper.fromTerminal(
+                event = completed,
+                casePlan = context.casePlan,
+                scope = savedScope,
+                expectedText = expectedText,
+            )
+            if (observation != null && savedScope.mayReuseExactDeviceEvidence()) {
+                try {
+                    qualifications.recordObservation(
+                        sessionId = request.sessionId,
+                        observation = observation,
+                        policy = QualificationPolicy(
+                            policyDigestSha256 = savedScope.qualificationPolicySha256,
+                            requiredCheckIds = setOf(context.casePlan.caseId),
+                        ),
+                    )
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // A local projection failure does not rewrite the already imported terminal attempt.
+                }
+            }
+            result
         } catch (cancelled: CancellationException) {
             withContext(NonCancellable) {
                 if (remoteSubmissionMayExist || acceptedRemoteId != null) {

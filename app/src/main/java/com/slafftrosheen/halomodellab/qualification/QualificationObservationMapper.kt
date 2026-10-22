@@ -39,15 +39,22 @@ object QualificationObservationMapper {
             casePlan.suiteId == FastSmokePlanFactory.SUITE_ID &&
             casePlan.suiteVersion == FastSmokePlanFactory.SUITE_VERSION &&
             casePlan.caseId == FastSmokePlanFactory.CASE_ID
+        val completeOutput = expectedText != null && event.outputTruncated == false && event.outputPreview != null
+        val outputMatches = completeOutput && event.outputPreview?.trim() == expectedText
+        val fixtureMismatch = fixtureKnown && completeOutput && !outputMatches
         val assertion = when {
-            event.outcome == AttemptOutcome.PASSED && event.validity == ResultValidity.VALID &&
-                expectedText != null && event.outputTruncated == false && event.outputPreview?.trim() == expectedText -> CheckAssertion.PASS
-            event.outcome == AttemptOutcome.FAILED && event.validity == ResultValidity.VALID &&
-                event.failureDomain == FailureDomain.MODEL && fixtureKnown &&
-                expectedText != null && event.outputTruncated == false && event.outputPreview != null -> CheckAssertion.FAIL
+            event.validity == ResultValidity.VALID && event.outcome == AttemptOutcome.PASSED && outputMatches -> CheckAssertion.PASS
+            event.validity == ResultValidity.VALID && fixtureMismatch &&
+                (event.outcome == AttemptOutcome.PASSED ||
+                    (event.outcome == AttemptOutcome.FAILED && event.failureDomain == FailureDomain.MODEL)) -> CheckAssertion.FAIL
             else -> CheckAssertion.UNKNOWN
         }
-        val trustedMetric = verifiedScope != null && event.outcome == AttemptOutcome.PASSED &&
+        val mappedOutcome = if (fixtureMismatch && event.outcome == AttemptOutcome.PASSED) {
+            AttemptOutcome.FAILED
+        } else {
+            event.outcome
+        }
+        val trustedMetric = verifiedScope != null && mappedOutcome == AttemptOutcome.PASSED &&
             event.validity == ResultValidity.VALID && metricName != null && metricValue?.isFinite() == true && metricUnit != null
         return QualificationObservation(
             attemptId = event.attemptId,
@@ -56,12 +63,16 @@ object QualificationObservationMapper {
             checkId = casePlan.caseId,
             origin = EvidenceOrigin.DEVICE_MEASUREMENT,
             validity = event.validity,
-            outcome = event.outcome,
+            outcome = mappedOutcome,
             workerInstanceId = event.workerInstanceId,
             fixtureManifestKnown = fixtureKnown,
             harnessControlsKnown = fixtureKnown && event.validity == ResultValidity.VALID,
             assertion = assertion,
-            failureDomain = event.failureDomain ?: FailureDomain.UNKNOWN,
+            failureDomain = if (fixtureMismatch && event.outcome == AttemptOutcome.PASSED) {
+                FailureDomain.MODEL
+            } else {
+                event.failureDomain ?: FailureDomain.UNKNOWN
+            },
             metricName = metricName.takeIf { trustedMetric },
             metricValue = metricValue.takeIf { trustedMetric },
             metricUnit = metricUnit.takeIf { trustedMetric },

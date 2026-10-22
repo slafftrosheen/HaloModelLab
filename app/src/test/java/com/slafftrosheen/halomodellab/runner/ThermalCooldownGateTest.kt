@@ -24,4 +24,27 @@ class ThermalCooldownGateTest {
         assertEquals(ThermalGateDecision.CoolingDown(60_000L), gate.sample(ThermalLevel.LIGHT, 41_000L))
         assertEquals(ThermalGateDecision.Ready, gate.sample(ThermalLevel.NONE, 101_000L))
     }
+
+    @Test fun cooldownCheckpointSurvivesGateRecreationAndWritesOnlyOnTransitions() {
+        val store = CountingStore()
+        val first = ThermalCooldownGate(store = store)
+        first.sample(ThermalLevel.SEVERE, 10_000L)
+        first.sample(ThermalLevel.SEVERE, 11_000L)
+        assertEquals(1, store.writeCount)
+
+        val resumed = ThermalCooldownGate(store = store)
+        assertEquals(ThermalGateDecision.CoolingDown(50_000L), resumed.sample(ThermalLevel.LIGHT, 20_000L))
+        assertEquals(ThermalGateDecision.Ready, resumed.sample(ThermalLevel.NONE, 80_000L))
+        assertEquals(3, store.writeCount)
+    }
+
+    private class CountingStore : ThermalCooldownStore {
+        var checkpoint = ThermalCooldownCheckpoint(false, null)
+        var writeCount = 0
+        override fun read(): ThermalCooldownCheckpoint = checkpoint
+        override fun write(checkpoint: ThermalCooldownCheckpoint) {
+            this.checkpoint = checkpoint
+            writeCount++
+        }
+    }
 }

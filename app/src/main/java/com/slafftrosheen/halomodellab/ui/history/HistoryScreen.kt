@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +44,7 @@ import com.slafftrosheen.halomodellab.data.QualificationEntity
 fun HistoryRoute(
     container: AppContainer,
     onOpenSession: (String) -> Unit,
+    onOpenCatalog: () -> Unit,
 ) {
     val viewModel: HistoryViewModel = viewModel(
         factory = HistoryViewModel.factory(container.sessionRepository, container.qualificationRepository),
@@ -53,6 +56,7 @@ fun HistoryRoute(
         onFilterChange = viewModel::setFilter,
         onShowExcludedChange = viewModel::setShowExcluded,
         onOpenSession = onOpenSession,
+        onOpenCatalog = onOpenCatalog,
     )
 }
 
@@ -63,6 +67,7 @@ fun HistoryScreen(
     onFilterChange: (HistoryFilter) -> Unit,
     onShowExcludedChange: (Boolean) -> Unit,
     onOpenSession: (String) -> Unit,
+    onOpenCatalog: () -> Unit,
 ) {
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.history_title)) }) },
@@ -102,29 +107,43 @@ fun HistoryScreen(
                 FilterChip(
                     selected = state.showExcluded,
                     onClick = { onShowExcludedChange(!state.showExcluded) },
-                    label = { Text("Show excluded") },
+                    label = { Text(stringResource(R.string.history_show_excluded)) },
                 )
             }
 
-            if (state.showExcluded) {
-                if (state.excludedScopes.isEmpty()) {
-                    Text("No exact configuration scopes are currently excluded.", Modifier.padding(horizontal = 16.dp),
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                } else {
-                    state.excludedScopes.forEach { exclusion ->
-                        ExcludedScopeItem(exclusion) { onOpenSession(exclusion.sessionId) }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (state.showExcluded) {
+                    item(key = "excluded-header") {
+                        Text(stringResource(R.string.history_excluded_title), style = MaterialTheme.typography.titleMedium)
+                    }
+                    if (state.excludedScopes.isEmpty()) {
+                        item(key = "excluded-empty") {
+                            Text(
+                                stringResource(R.string.history_excluded_empty),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    } else {
+                        items(
+                            items = state.excludedScopes,
+                            key = { "${it.scopeDigestSha256}:${it.policyDigestSha256}" },
+                        ) { exclusion ->
+                            ExcludedScopeItem(
+                                exclusion = exclusion,
+                                onReviewEvidence = { onOpenSession(exclusion.sessionId) },
+                                onRetest = onOpenCatalog,
+                            )
+                        }
                     }
                 }
-            }
-
-            if (state.sessions.isEmpty()) {
-                EmptyHistory(filtered = state.totalCount > 0)
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                if (state.sessions.isEmpty()) {
+                    item(key = "history-empty") { EmptyHistory(filtered = state.totalCount > 0) }
+                } else {
                     items(state.sessions, key = { it.sessionId }) { summary ->
                         HistoryItem(summary = summary, onClick = { onOpenSession(summary.sessionId) })
                     }
@@ -135,15 +154,31 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun ExcludedScopeItem(exclusion: QualificationEntity, onClick: () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(horizontal = 16.dp).clickable(onClick = onClick)) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Excluded exact configuration", style = MaterialTheme.typography.titleSmall,
+private fun ExcludedScopeItem(
+    exclusion: QualificationEntity,
+    onReviewEvidence: () -> Unit,
+    onRetest: () -> Unit,
+) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.history_excluded_scope_title), style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold)
-            Text("Scope ${exclusion.scopeDigestSha256.take(16)}… · policy ${exclusion.policyDigestSha256.take(12)}…",
+            Text(stringResource(
+                R.string.history_excluded_scope_identity,
+                exclusion.scopeDigestSha256.take(16),
+                exclusion.policyDigestSha256.take(12),
+            ),
                 style = MaterialTheme.typography.bodySmall)
-            Text("Evidence is retained. Open the source session to review or plan a deliberate retest.",
+            Text(stringResource(R.string.history_excluded_scope_body),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onReviewEvidence, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.history_excluded_review))
+                }
+                Button(onClick = onRetest, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.history_excluded_retest))
+                }
+            }
         }
     }
 }

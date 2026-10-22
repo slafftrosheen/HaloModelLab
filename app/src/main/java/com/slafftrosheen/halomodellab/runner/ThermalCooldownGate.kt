@@ -17,39 +17,37 @@ class ThermalCooldownGate(
         require(nowElapsedMs >= 0L)
         when (level) {
             ThermalLevel.SEVERE, ThermalLevel.CRITICAL, ThermalLevel.EMERGENCY, ThermalLevel.SHUTDOWN -> {
-                cooldownRequired = true
-                safeSinceElapsedMs = null
-                store.write(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = null))
+                persist(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = null))
                 return ThermalGateDecision.Blocked(ConditionBlockReason.THERMAL_CONSTRAINT)
             }
             ThermalLevel.UNKNOWN -> {
-                safeSinceElapsedMs = null
-                if (cooldownRequired) store.write(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = null))
+                if (cooldownRequired) persist(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = null))
                 return ThermalGateDecision.Blocked(ConditionBlockReason.THERMAL_STATUS_UNKNOWN)
             }
             ThermalLevel.MODERATE -> {
-                safeSinceElapsedMs = null
-                if (cooldownRequired) store.write(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = null))
+                if (cooldownRequired) persist(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = null))
                 return ThermalGateDecision.Blocked(ConditionBlockReason.THERMAL_CONSTRAINT)
             }
             ThermalLevel.NONE, ThermalLevel.LIGHT -> {
                 if (!cooldownRequired) return ThermalGateDecision.Ready
                 val priorSince = safeSinceElapsedMs
                 val since = if (priorSince == null || nowElapsedMs < priorSince) {
-                    nowElapsedMs.also {
-                        safeSinceElapsedMs = it
-                        store.write(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = it))
-                    }
+                    nowElapsedMs.also { persist(ThermalCooldownCheckpoint(required = true, safeSinceElapsedMs = it)) }
                 } else priorSince
                 if (nowElapsedMs - since < cooldownMs) {
                     return ThermalGateDecision.CoolingDown((cooldownMs - (nowElapsedMs - since)).coerceAtLeast(1L))
                 }
-                cooldownRequired = false
-                safeSinceElapsedMs = null
-                store.write(ThermalCooldownCheckpoint(required = false, safeSinceElapsedMs = null))
+                persist(ThermalCooldownCheckpoint(required = false, safeSinceElapsedMs = null))
                 return ThermalGateDecision.Ready
             }
         }
+    }
+
+    private fun persist(checkpoint: ThermalCooldownCheckpoint) {
+        if (checkpoint.required == cooldownRequired && checkpoint.safeSinceElapsedMs == safeSinceElapsedMs) return
+        store.write(checkpoint)
+        cooldownRequired = checkpoint.required
+        safeSinceElapsedMs = checkpoint.safeSinceElapsedMs
     }
 
     companion object { const val DEFAULT_COOLDOWN_MS = 60_000L }
@@ -77,10 +75,11 @@ class AndroidThermalCooldownStore(context: Context) : ThermalCooldownStore {
         return ThermalCooldownCheckpoint(required, since)
     }
     override fun write(checkpoint: ThermalCooldownCheckpoint) {
-        preferences.edit().putBoolean(KEY_REQUIRED, checkpoint.required).apply {
+        val editor = preferences.edit().putBoolean(KEY_REQUIRED, checkpoint.required).apply {
             if (checkpoint.safeSinceElapsedMs == null) remove(KEY_SAFE_SINCE)
             else putLong(KEY_SAFE_SINCE, checkpoint.safeSinceElapsedMs)
-        }.apply()
+        }
+        check(editor.commit()) { "THERMAL_COOLDOWN_PERSIST_FAILED" }
     }
 
     private companion object {

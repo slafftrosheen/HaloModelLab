@@ -284,6 +284,39 @@ class SessionCoordinatorTest {
     }
 
     @Test
+    fun lowStorageAndUnknownStoragePauseBeforeAllocation() = runTest {
+        val lowRepository = FakeSessionRepository().also { it.createSession(plan(DemoCatalog.SUCCESS)) }
+        val low = coordinator(lowRepository, FakeConditions(ConditionSnapshot(
+            charging = true, thermalLevel = ThermalLevel.NONE,
+            freeStorageBytes = RealRunBudget.DEFAULT_DISK_RESERVE_BYTES - 1L,
+            evidenceStoredBytes = 0L,
+        )), testScheduler).runSession(lowRepository.sessionId)
+        assertEquals(CoordinatorResult.Paused("INSUFFICIENT_STORAGE"), low)
+        assertTrue(lowRepository.attempts.isEmpty())
+
+        val unknownRepository = FakeSessionRepository().also { it.createSession(plan(DemoCatalog.SUCCESS)) }
+        val unknown = coordinator(unknownRepository, FakeConditions(ConditionSnapshot(
+            charging = true, thermalLevel = ThermalLevel.NONE,
+            freeStorageBytes = null, evidenceStoredBytes = 0L,
+        )), testScheduler).runSession(unknownRepository.sessionId)
+        assertEquals(CoordinatorResult.Paused("STORAGE_STATUS_UNKNOWN"), unknown)
+        assertTrue(unknownRepository.attempts.isEmpty())
+    }
+
+    @Test
+    fun evidenceQuotaPausesWithoutStartingAnAttempt() = runTest {
+        val repository = FakeSessionRepository().also { it.createSession(plan(DemoCatalog.SUCCESS)) }
+        val result = coordinator(repository, FakeConditions(ConditionSnapshot(
+            charging = true, thermalLevel = ThermalLevel.NONE,
+            freeStorageBytes = 1_000_000_000L,
+            evidenceStoredBytes = AndroidDeviceConditions.MAX_EVIDENCE_BYTES_V1,
+        )), testScheduler).runSession(repository.sessionId)
+
+        assertEquals(CoordinatorResult.Paused("EVIDENCE_QUOTA_EXCEEDED"), result)
+        assertTrue(repository.attempts.isEmpty())
+    }
+
+    @Test
     fun budgetExhaustionSkipsTheRestAndCompletesTheQueue() = runTest {
         val repository = FakeSessionRepository()
         repository.createSession(plan(DemoCatalog.SUCCESS, DemoCatalog.SUCCESS))

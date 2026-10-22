@@ -69,6 +69,7 @@ class AppContainer(context: Context) {
         gateway = haloGateway,
         importer = remoteEventImporter,
         contexts = PersistedRealExecutionContextSource(sessionRepository),
+        qualifications = qualificationRepository,
         clientProcessInstanceId = processInstanceId,
         clientSourceId = UNVERIFIED_SOURCE_ID,
         clientSchemaSha256 = LAB_CLIENT_SCHEMA_SHA256,

@@ -46,9 +46,10 @@ class HistoryViewModel(
             sessions = sessions.filter { matches(it, selectedFilter) },
             totalCount = sessions.size,
             showExcluded = showExcluded,
-            excludedScopes = if (showExcluded) qualifications.filter {
-                it.status == QualificationStatus.REJECTED_FOR_PROFILE.name
-            } else emptyList(),
+            excludedScopes = if (showExcluded) qualifications
+                .filter { it.status == QualificationStatus.REJECTED_FOR_PROFILE.name }
+                .distinctBy { "${it.scopeDigestSha256}:${it.policyDigestSha256}" }
+            else emptyList(),
         )
     }.stateIn(
         scope = viewModelScope,

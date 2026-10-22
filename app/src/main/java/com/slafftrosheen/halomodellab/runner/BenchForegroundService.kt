@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.slafftrosheen.halomodellab.AppContainer
@@ -49,7 +50,10 @@ class BenchForegroundService : Service() {
             engine = FakeBenchmarkEngine(),
             conditions = AndroidDeviceConditions(this),
             processInstanceId = container.processInstanceId,
+            minimumFreeBytes = RealRunBudget.DEFAULT_DISK_RESERVE_BYTES,
+            maximumEvidenceBytes = AndroidDeviceConditions.MAX_EVIDENCE_BYTES_V1,
             additionalEngines = listOf(container.haloRemoteBenchmarkEngine),
+            elapsedRealtimeMs = { SystemClock.elapsedRealtime() },
             thermalCooldown = ThermalCooldownGate(store = AndroidThermalCooldownStore(this)),
         )
     }

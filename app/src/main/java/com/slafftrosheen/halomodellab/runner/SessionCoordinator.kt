@@ -740,7 +740,7 @@ class SessionCoordinator(
                 TestStage.EXECUTE -> budgets.executeMs
                 TestStage.UNLOAD -> budgets.unloadMs
             } ?: return null
-            return stage.takeIf { nowElapsedMs >= started && nowElapsedMs - started > limit }
+            return stage.takeIf { nowElapsedMs >= started && nowElapsedMs - started >= limit }
         }
     }
 
