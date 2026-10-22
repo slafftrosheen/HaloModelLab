@@ -6,15 +6,15 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "b20f9e1",
+    "lastImplementationCommit": "4aa497d",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "a5d17a0",
-    "currentWorkingTree": "C7 safety gates (event-based stage watchdog, persistent thermal gate, disk/evidence quotas) and C9 safe terminal mapper plus Show excluded review UI committed; Build, automated tests and phone tests NOT_RUN",
+    "currentHead": "4aa497dfd4dac14eeaaf4ecdda4fc06f7cb6ecb8",
+    "currentWorkingTree": "C7 per-stage deadlines, explicit storage gates and durable thermal cooldown source-wired; C9 terminal mapping, exact-scope bounded aggregation and scrollable exclusion review with evidence/retest actions source-wired; Build, automated tests and phone tests NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: Lab commits b20f9e1 and a5d17a0 are on authorized origin/main",
-    "sourceImplementationHead": "b20f9e1",
+    "pushState": "PUSHED: Lab source commit 4aa497dfd4dac14eeaaf4ecdda4fc06f7cb6ecb8 is on authorized origin/main; documentation checkpoint pending",
+    "sourceImplementationHead": "4aa497d",
     "verificationCheckpointCommit": "a5d17a0"
   },
   "handoff": {
@@ -35,17 +35,17 @@
     "C4": "SOURCE_INTEGRATED_WITH_REPAIR: fixed stale arithmetic fixture ID that rejected the current FAST smoke request; bridge and worker now share the protocol fixture constant; Halo C4/C7 source local commits 7a8994e and 53ef62d; runtime compatibility/build/phone tests NOT_RUN",
     "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
     "C6": "PARTIAL_SOURCE_IMPLEMENTED: capability registry and catalog coverage UI identify Halo owner APIs and exact Lab blockers for CHAT/THINK/ACTION/VISION/STT/TTS/EMBEDDING/VAD; only fixed FAST smoke has source execution; multimodal test sources and execution remain open",
-    "C7": "PARTIAL_SOURCE_IMPLEMENTED: Lab event-based stage watchdog, persistent monotonic thermal cooldown gate, 256 MiB free-space reserve and 64 MiB Lab-owned database/WAL/SHM/export quota; Halo still lacks separately timed load/execute/unload events; tests NOT_RUN",
+    "C7": "SOURCE_IMPLEMENTED_UNVERIFIED: immutable stage budgets enforced at exact boundaries by Lab watchdog and isolated Halo worker process; Halo supervisor waits for worker death/cleanup before lease release; persistent thermal cooldown uses synchronous transition checkpoints; 256 MiB free-space reserve and 64 MiB Lab-only evidence cap explicitly wired; source tests added, NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
-    "C9": "PARTIAL_SOURCE_IMPLEMENTED: safe terminal observation mapper, exact-scope unknown handling, and History Show excluded projection view added; cross-session aggregation/recomputation and current catalog filter remain open; tests NOT_RUN",
+    "C9": "SOURCE_IMPLEMENTED_UNVERIFIED: replayed terminal identity/output maps to known or unknown assertions; complete fixture mismatches become model failures; bounded observations recompute across independent exact-scope sessions; History excluded list is scrollable/deduplicated and offers evidence review and intentional catalog retest; catalog auto-filter remains gated because current scope identity is unverified; tests NOT_RUN",
     "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
-    "head": "53ef62d5626832f2b9b59d00a1807eed6d36def9",
-    "worktree": "authorized managed worktree local main commit 53ef62d; ahead 6/behind 33 vs local origin/main ref; not pushed; original Halo-main user branch and dirty change untouched",
+    "head": "8bee5863",
+    "worktree": "authorized managed worktree local main commit 8bee5863; ahead 8/behind 33 vs local origin/main ref; not pushed; original dirty Halo-main checkout untouched",
     "writeAuthorized": true,
-    "status": "C4_C7_SOURCE_COMMITTED; fixture identity and persisted stage-budget deadline repairs added; local/unpushed; runtime/build compatibility NOT_RUN"
+    "status": "C4_C7_SOURCE_COMMITTED; fixture, persisted total and per-stage budgets, isolated worker watchdog exact-boundary timeout and supervisor cleanup confirmation source added; local/unpushed; runtime/build compatibility NOT_RUN"
   },
   "protocol": {
     "clientVersion": 1,
@@ -54,15 +54,15 @@
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
     "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab b20f9e1 / Halo 53ef62d5626832f2b9b59d00a1807eed6d36def9; shared protocol v1.0 files byte-identical; Lab stage watchdog code remains source-only and Halo runtime replay lacks distinct load/unload milestones",
+    "compatibleCommitPair": "Lab 4aa497d / Halo 8bee5863; protocol v1.0 files remain byte-identical; additive request stageBudgets and per-stage event source wiring; runtime compatibility NOT_RUN",
     "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
     "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commit pair recorded; runtime compatibility NOT_RUN",
     "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
-    "build": "NOT_RUN for current C5-C10 source head; earlier Lab V0 PASS is historical; Halo's prior compile failed on unrelated sources and latest Halo changes are uncompiled",
-    "automatedTests": "NOT_RUN for current C5-C10 source head; earlier Lab unit/instrumentation PASS results are historical only; Halo deadline test sources NOT_RUN",
-    "phoneTests": "NOT_RUN for current source head; prior manual Lab install blocked INSTALL_FAILED_USER_RESTRICTED; synthetic V1 and real-model V1 NOT_RUN",
+    "build": "NOT_RUN for current C5-C10 source head; earlier Lab V0 PASS is historical; Halo prior compile failed on unrelated sources and latest Halo source is uncompiled",
+    "automatedTests": "NOT_RUN for current C5-C10 source head; earlier Lab tests are historical only; new Lab and Halo C7/C9 test sources NOT_RUN",
+    "phoneTests": "NOT_RUN for current source head; previous install was blocked; synthetic V1 and real-model V1 NOT_RUN",
     "allowedThisTurn": [
       "source inspection",
       "JSON/XML parsing",
@@ -75,22 +75,22 @@
       "labUnitTests": "NOT_RUN",
       "androidTestApkCompile": "NOT_RUN after schema 3 source edit",
       "connectedInstrumentation": "NOT_RUN",
-      "haloCompile": "NOT_RUN after C7 deadline source changes; prior compile failed on unrelated existing errors",
+      "haloCompile": "NOT_RUN after Halo per-stage deadline source",
       "labApkSha256": "41759c1cad8c92f307487d7e33fdf1be8fc85edd3ba1182e36119bafc32be2a0",
       "labManualInstall": "BLOCKED: INSTALL_FAILED_USER_RESTRICTED",
       "syntheticV1": "NOT_RUN: app install blocked",
       "realModelV1": "NOT_RUN: paired Halo app unavailable",
-      "sourceDiffCheck": "PASS",
+      "sourceDiffCheck": "PASS after C7/C9 source changes",
       "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; exact bytes in Lab and Halo",
-      "jsonXmlParsing": "PASS",
+      "jsonXmlParsing": "PASS for current state JSON and strings XML",
       "phoneTests": "NOT_RUN during coding"
     }
   },
   "sourceChecks": {
     "jsonParse": "PASS",
-    "xmlParse": "PASS",
+    "xmlParse": "PASS for current strings XML",
     "baselineHashMatch": "PASS",
-    "gitDiffCheck": "PASS",
+    "gitDiffCheck": "PASS for current source changes",
     "roomSchemaV2GeneratedByKsp": "PASS; schema v3 generation NOT_RUN",
     "protocolExactByteMatch": "PASS: Lab and Halo protocol v1.0 files are byte-identical"
   },
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Complete C7 by adding separately persisted Halo LOAD/EXECUTE/UNLOAD stage milestones and adding separately timed Halo load/execute/unload markers; then wire C9 observation aggregation and projection recomputation across sessions and exact-scope catalog filtering only when verified execution identity exists. Keep all verification NOT_RUN during coding.",
+  "next": "C7 requested per-stage enforcement, thermal cooldown and Lab evidence quota wiring are source-complete; session-wide run-controller integration remains open. C9 terminal qualification mapping, bounded exact-scope aggregation and History exclusion/retest review are source-wired. Keep catalog auto-exclusion gated until source/effective scope identity verifies. C10 and later batches remain in progress. Do not run Gradle/builds/tests/device verification while coding.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
