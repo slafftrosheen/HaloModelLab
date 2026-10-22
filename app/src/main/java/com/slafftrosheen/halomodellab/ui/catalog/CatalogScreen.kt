@@ -37,6 +37,8 @@ import com.slafftrosheen.halomodellab.catalog.CatalogMode
 import com.slafftrosheen.halomodellab.catalog.CatalogState
 import com.slafftrosheen.halomodellab.catalog.DemoCatalog
 import com.slafftrosheen.halomodellab.catalog.DemoScenario
+import com.slafftrosheen.halomodellab.profiles.CapabilityCoverageRegistry
+import com.slafftrosheen.halomodellab.profiles.CapabilityCoverageStatus
 import com.slafftrosheen.halomodellab.ui.demoScenarioDescriptionRes
 import com.slafftrosheen.halomodellab.ui.demoScenarioTitleRes
 
@@ -222,6 +224,27 @@ private fun RealCatalogSection(
         }
     }
 
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.catalog_capability_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.catalog_capability_body), style = MaterialTheme.typography.bodySmall)
+            CapabilityCoverageRegistry.all().forEach { coverage ->
+                val status = when (coverage.status) {
+                    CapabilityCoverageStatus.SOURCE_IMPLEMENTED -> stringResource(R.string.catalog_capability_ready)
+                    CapabilityCoverageStatus.CONTRACT_ONLY -> stringResource(R.string.catalog_capability_contract_only)
+                    CapabilityCoverageStatus.UNSUPPORTED -> stringResource(R.string.catalog_capability_unavailable)
+                }
+                val limitation = coverage.limitationCode?.let(::capabilityLimitationText)
+                Text(
+                    text = if (limitation == null) "${coverage.role?.name ?: "VAD"}: $status"
+                    else "${coverage.role?.name ?: "VAD"}: $status — $limitation",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+
     Text(
         text = stringResource(R.string.catalog_real_note),
         style = MaterialTheme.typography.bodySmall,
@@ -249,6 +272,18 @@ private fun realCatalogStatusText(
         R.string.catalog_real_unavailable,
         reason ?: "UNKNOWN",
     )
+}
+
+@Composable
+private fun capabilityLimitationText(code: String): String = when (code) {
+    "HALO_BRIDGE_FIXED_FAST_CPU_ONLY" -> stringResource(R.string.catalog_capability_reason_text_only)
+    "HALO_BRIDGE_HAS_NO_TOOL_CALL_REQUEST" -> stringResource(R.string.catalog_capability_reason_tool)
+    "NO_LAB_IMAGE_REQUEST_OR_FIXTURE_LEASE" -> stringResource(R.string.catalog_capability_reason_vision)
+    "NO_LAB_AUDIO_REQUEST_OR_PACK_LEASE" -> stringResource(R.string.catalog_capability_reason_stt)
+    "NO_LAB_PCM_REQUEST_OR_VOICE_PACK_LEASE" -> stringResource(R.string.catalog_capability_reason_tts)
+    "NO_LAB_VECTOR_EXECUTION_OR_METRIC_CONTRACT" -> stringResource(R.string.catalog_capability_reason_embedding)
+    "NO_LAB_VAD_SEGMENT_PATH" -> stringResource(R.string.catalog_capability_reason_vad)
+    else -> stringResource(R.string.catalog_capability_reason_unknown)
 }
 
 @Composable
