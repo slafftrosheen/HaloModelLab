@@ -1,5 +1,9 @@
 # Handoff to Codex — Halo Model Lab v1
 
+## Latest bounded checkpoint — 2026-10-22
+
+Lab `main` has C7 source commit `95894b2` and C9/C10 source commit `b33eb1e`; docs checkpoint/push pending. C7 adds boot-aware conservative active-time recovery and Room schema 3 but is not connected to the separate native supervisor. C9 tightens exact evidence rules and adds safe retest planners, but persistence-to-catalogue exclusions remain unwired. C10 corrects origin/runtime report language and exports bounded failure clusters; compatible-session comparison and complete UI flow remain open. For this source revision, Build / Automated tests / Phone tests are **NOT_RUN**. Continue from `docs/CONTINUATION_STATE.json`; do not run verification while coding.
+
 ## Current C4/C8 checkpoint — 2026-10-22
 
 Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb` and docs checkpoint `e9eabe2a06387ce39078546a6c9621855231dad8` are pushed to authorized `origin/main`; Halo authorized managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d` (not pushed). The original dirty Halo checkout remains preserved. The shared protocol bytes match at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.

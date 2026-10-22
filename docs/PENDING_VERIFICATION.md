@@ -1,5 +1,12 @@
 # Pending verification — current v1 continuation
 
+## Current source head after C7/C9/C10 edits
+
+- Lab source commits `95894b2` and `b33eb1e` are not yet covered by build or automated tests. Current Build / Automated tests / Phone tests are **NOT_RUN**. Write-only C7/C9/C10 test sources are present.
+- Room schema 3 and its additive 2→3 migration need generation/validation on the separately authorized V0 pass. Protocol bytes match between Lab and the Halo managed worktree (SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`).
+- Current Halo source compile previously failed on unrelated app errors. Halo branch still diverges from its local `origin/main` ref (4 ahead / 33 behind); no rebase or push has occurred.
+- Manual Lab install previously returned `INSTALL_FAILED_USER_RESTRICTED`. No bypass was attempted; current APK usability, V1 synthetic export, paired Halo connection, real inference, cleanup-before-next-allocation, native crash resilience and real qualification remain unverified.
+
 ## C4/C8 checkpoint — 2026-10-22
 
 - Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb` and docs checkpoint `e9eabe2a06387ce39078546a6c9621855231dad8` are pushed to authorized `origin/main`; Halo managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d`. Exact protocol bytes match (SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`); client schema SHA-256 is `d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231`.

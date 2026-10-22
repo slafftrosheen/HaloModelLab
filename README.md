@@ -2,24 +2,25 @@
 
 ## Continuation stage
 
-This checkout has advanced from the starter's simulation-only phase into the v1 real-model-lab continuation. This transition replaces only the starter's L0–L4 scope limit and stop-after-one-starter-batch rule. The original privacy, signing, repository authority, and no-build/no-test/no-device-verification restrictions remain in force. The synthetic engine stays explicitly synthetic. An editable Halo checkout is now authorized; the bridge/worker source integration is underway and remains unverified.
+This checkout has advanced from the starter's simulation-only phase into the v1 real-model-lab continuation. This transition replaces only the starter's L0–L4 scope limit and stop-after-one-starter-batch rule. The original privacy, signing, repository authority, and verification restrictions remain in force. The synthetic engine stays explicitly synthetic. Lab source includes an opt-in Halo bridge and a fixed FAST/CPU smoke path, but the paired application has not passed current verification. Acquisition is unsupported; Lab has no downloader, internet permission, or weight cache.
 
 The resolved continuation handoff and C0 takeover record are tracked in `docs/TAKEOVER_AUDIT.md` and `docs/CONTINUATION_STATE.json`. See `docs/IMPLEMENTATION_STATUS.md` and `docs/PENDING_VERIFICATION.md` for current source and verification status.
 
-Изолированный Android-эксперимент: четыре экрана для планирования, запуска и разбора
-локальных benchmark-сессий. В этой версии исполняется **только управляемая симуляция**;
-настоящих моделей, весов, моста Halo и inference здесь нет.
+Изолированная Android-лаборатория для планирования и разбора сессий. Synthetic-сценарии
+остаются отдельными от Lab-owned real plans, а реальные запуски доступны только через
+опт-ин Halo bridge и фиксированный FAST/CPU smoke contract. Запущенный Halo inference,
+пригодный APK и устойчивость к native crash этим исходником пока не подтверждены.
 
-> **V0/V1 verification (22.10.2026):** текущий checkout собран; 91 unit-тест и 21
-> connected instrumentation test прошли. На Samsung SM-G990B2 выполнен только
-> `demo/success` synthetic smoke с ZIP export. Реальный inference, Halo bridge,
-> worker isolation и real-model phone acceptance остаются **NOT_RUN / BLOCKED**.
+> **Историческая проверка предыдущей ревизии (22.10.2026):** прошли 91 unit-тест,
+> 21 connected instrumentation test и synthetic `demo/success` smoke. Эти результаты
+> не проверяли более поздние C5–C10 изменения. Для текущего source head Build,
+> Automated tests и Phone tests: **NOT_RUN**.
 
 ## Что можно увидеть после сборки
 
 | Экран | Назначение |
 |---|---|
-| Каталог | Честно разделён на real (недоступен) и demo; выбор demo-сценариев |
+| Каталог | Разделён на demo и opt-in real inventory; есть только фиксированный FAST/CPU plan; acquisition unsupported |
 | Сессия | План (повторы, таймаут, бюджет, зарядка), Start/Pause/Stop, прогресс очереди |
 | История | Сессии из Room, фильтры all/completed/interrupted/synthetic |
 | Детали | Очередь, попытки, события, телеметрия, экспорт ZIP и share/save |
