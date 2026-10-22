@@ -2,12 +2,44 @@ package com.slafftrosheen.halomodellab.export
 
 import com.slafftrosheen.halomodellab.data.RealEvidenceExportSnapshot
 import com.slafftrosheen.halomodellab.data.RemoteEventEntity
+import com.slafftrosheen.halomodellab.bridge.BridgeEventKind
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.squareup.moshi.JsonWriter
+import com.squareup.moshi.JsonReader
 import okio.Buffer
+import java.security.MessageDigest
 
 /** Serializes Lab-owned evidence only; event payloads remain strings for safe bounded parsing. */
 internal object RealEvidenceExportJson {
+    /** Returns a runtime only when every terminal event is hash-valid and agrees. */
+    fun consistentTerminalRuntimeVersion(snapshot: RealEvidenceExportSnapshot?): String? {
+        val events = snapshot?.events.orEmpty()
+        if (events.any { sha256(it.payloadJson.toByteArray(Charsets.UTF_8)) != it.payloadHashSha256 }) return null
+        val parsedEvents = events.mapNotNull { event ->
+            runCatching {
+                val reader = JsonReader.of(Buffer().writeUtf8(event.payloadJson))
+                reader.isLenient = false
+                reader.beginObject()
+                var kind: String? = null
+                var runtime: String? = null
+                while (reader.hasNext()) {
+                    when (reader.nextName()) {
+                        "kind" -> kind = reader.nextString()
+                        "runtimeVersion" -> if (reader.peek() == JsonReader.Token.STRING) runtime = reader.nextString() else reader.skipValue()
+                        else -> reader.skipValue()
+                    }
+                }
+                reader.endObject()
+                require(reader.peek() == JsonReader.Token.END_DOCUMENT)
+                kind to runtime
+            }.getOrNull()
+        }
+        if (parsedEvents.size != events.size) return null
+        val terminalFacts = parsedEvents.filter { it.first == BridgeEventKind.ATTEMPT_TERMINAL.name }.map { it.second }
+        if (terminalFacts.isEmpty() || terminalFacts.any { it.isNullOrBlank() }) return null
+        return terminalFacts.filterNotNull().distinct().singleOrNull()
+    }
+
     fun plan(snapshot: RealEvidenceExportSnapshot, canonicalPlanJson: String): ByteArray = build {
         beginObject()
         name("schemaVersion").value(1)
@@ -211,6 +243,10 @@ internal object RealEvidenceExportJson {
         writer.close()
         return buffer.readUtf8()
     }
+
+    private fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256")
+        .digest(bytes)
+        .joinToString("") { "%02x".format(it) }
 
     private const val MAX_FAILURE_INDEX_ROWS = 200
     private val UUID_PATTERN = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")

@@ -154,7 +154,7 @@ class ReportExporter(
                     }
                     EvidenceOrigin.IMPORTED_UNVERIFIED -> "IMPORTED_UNVERIFIED"
                 },
-                inferenceRuntime = null,
+                inferenceRuntime = RealEvidenceExportJson.consistentTerminalRuntimeVersion(realEvidence),
             ),
             plan = PlanDto(
                 profileId = detail.summary.profileId,
