@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 /**
  * The single source of truth.
  *
- * Version 2, exported schema, no destructive migration. Journal mode is WAL: exports read a
+ * Version 3, exported schema, no destructive migration. Journal mode is WAL: exports read a
  * consistent snapshot through queries and never copy the live database file.
  */
 @Database(
@@ -30,7 +30,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         QualificationEntity::class,
         AcquisitionProjectionEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class LabDatabase : RoomDatabase() {
@@ -42,7 +42,7 @@ abstract class LabDatabase : RoomDatabase() {
 
         fun build(context: Context): LabDatabase =
             Room.databaseBuilder(context.applicationContext, LabDatabase::class.java, FILE_NAME)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                 .build()
 
@@ -111,6 +111,12 @@ abstract class LabDatabase : RoomDatabase() {
                     `reasonCode` TEXT, `updatedAtWallTimeMs` INTEGER NOT NULL,
                     PRIMARY KEY(`providerId`, `modelId`)
                 )""".trimIndent())
+            }
+        }
+
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `sessions` ADD COLUMN `activeStartedBootId` TEXT")
             }
         }
     }

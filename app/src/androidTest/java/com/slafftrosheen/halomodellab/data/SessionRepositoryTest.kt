@@ -229,6 +229,23 @@ class SessionRepositoryTest {
     }
 
     @Test
+    fun recoveryAcrossBootsChargesUnknownTailAndDoesNotRestoreTheSessionBudget() = runTest {
+        val sessionId = createSession()
+        repository.claimSession(sessionId, "owner-1")
+        repository.beginAttempt(sessionId, "owner-1")
+
+        clock.boot = "boot-2"
+        clock.elapsed = 5L
+        repository.recoverInterruptedOwner("owner-2")
+
+        assertEquals(60_000L, database.labDao().sessionById(sessionId)?.persistedActiveMs)
+        val itemId = detail(sessionId).queue.single().queueItemId
+        assertTrue(repository.retryItem(itemId))
+        repository.claimSession(sessionId, "owner-2")
+        assertEquals("SESSION_BUDGET_EXHAUSTED", (repository.beginAttempt(sessionId, "owner-2") as BeginAttempt.Blocked).reason)
+    }
+
+    @Test
     fun recoveryDoesNotRewriteACompletedSession() = runTest {
         val sessionId = createSession()
         repository.claimSession(sessionId, "owner-1")
@@ -367,7 +384,9 @@ class SessionRepositoryTest {
         var wall: Long = 1_000_000L,
         var elapsed: Long = 10_000L,
     ) : LabClock {
+        var boot: String = "boot-1"
         override fun wallTimeMs(): Long = wall
         override fun elapsedRealtimeMs(): Long = elapsed
+        override fun bootId(): String = boot
     }
 }

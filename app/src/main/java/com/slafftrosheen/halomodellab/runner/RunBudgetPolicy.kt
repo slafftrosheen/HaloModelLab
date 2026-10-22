@@ -18,6 +18,7 @@ data class RealRunBudget(
         require(sessionBudgetMs in MIN_SESSION_BUDGET_MS..MAX_SESSION_BUDGET_MS)
         require(repetitions in 1..MAX_REPETITIONS)
         require(plannedItems in 1..MAX_QUEUE_ITEMS)
+        require(plannedItems.toLong() * repetitions.toLong() <= MAX_QUEUE_ITEMS.toLong())
         require(diskReserveBytes >= DEFAULT_DISK_RESERVE_BYTES)
         require(rawEvidenceBudgetBytes in 0L..MAX_RAW_EVIDENCE_BUDGET_BYTES)
         if (preset == RunPreset.SOAK) require(sessionBudgetMs >= SOAK_MINIMUM_MS)
@@ -62,14 +63,20 @@ data class ActiveBudgetCheckpoint(
     val lastElapsedRealtimeMs: Long,
     val chargedActiveMs: Long,
     val remainingAttemptBudgetMs: Long,
+    val measuredActiveMs: Long = chargedActiveMs,
+    val conservativelyChargedMs: Long = 0L,
 ) {
     init {
         require(bootId.isNotBlank())
         require(lastElapsedRealtimeMs >= 0L && chargedActiveMs >= 0L && remainingAttemptBudgetMs >= 0L)
+        require(measuredActiveMs >= 0L && conservativelyChargedMs >= 0L)
+        require(chargedActiveMs == Math.addExact(measuredActiveMs, conservativelyChargedMs))
     }
 }
 
 object ActiveBudgetAccounting {
+    const val UNKNOWN_BOOT_ID = "unknown"
+
     /** Cross-boot monotonic samples are incomparable and never subtracted. */
     fun checkpoint(
         previous: ActiveBudgetCheckpoint,
@@ -78,12 +85,18 @@ object ActiveBudgetAccounting {
         observedActiveDeltaMs: Long?,
     ): ActiveBudgetCheckpoint {
         require(bootId.isNotBlank() && elapsedRealtimeMs >= 0L)
-        val sameBoot = previous.bootId == bootId && elapsedRealtimeMs >= previous.lastElapsedRealtimeMs
-        val knownDelta = if (sameBoot) observedActiveDeltaMs?.coerceAtLeast(0L) ?: 0L else 0L
+        val sameBoot = previous.bootId != UNKNOWN_BOOT_ID && bootId != UNKNOWN_BOOT_ID &&
+            previous.bootId == bootId && elapsedRealtimeMs >= previous.lastElapsedRealtimeMs
+        val charge = if (sameBoot) {
+            minOf(observedActiveDeltaMs?.coerceAtLeast(0L) ?: 0L, previous.remainingAttemptBudgetMs)
+        } else previous.remainingAttemptBudgetMs
         return previous.copy(
             bootId = bootId,
-            lastElapsedRealtimeMs = elapsedRealtimeMs,
-            chargedActiveMs = Math.addExact(previous.chargedActiveMs, knownDelta),
+            lastElapsedRealtimeMs = if (sameBoot) maxOf(previous.lastElapsedRealtimeMs, elapsedRealtimeMs) else elapsedRealtimeMs,
+            chargedActiveMs = Math.addExact(previous.chargedActiveMs, charge),
+            remainingAttemptBudgetMs = previous.remainingAttemptBudgetMs - charge,
+            measuredActiveMs = Math.addExact(previous.measuredActiveMs, if (sameBoot) charge else 0L),
+            conservativelyChargedMs = Math.addExact(previous.conservativelyChargedMs, if (sameBoot) 0L else charge),
         )
     }
 
@@ -94,6 +107,7 @@ object ActiveBudgetAccounting {
         return previous.copy(
             chargedActiveMs = Math.addExact(previous.chargedActiveMs, charge),
             remainingAttemptBudgetMs = previous.remainingAttemptBudgetMs - charge,
+            conservativelyChargedMs = Math.addExact(previous.conservativelyChargedMs, charge),
         )
     }
 }

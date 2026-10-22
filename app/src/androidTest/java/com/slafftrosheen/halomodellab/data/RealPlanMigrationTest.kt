@@ -37,9 +37,10 @@ class RealPlanMigrationTest {
 
         helper.runMigrationsAndValidate(
             TEST_DATABASE,
-            2,
+            3,
             true,
             LabDatabase.MIGRATION_1_2,
+            LabDatabase.MIGRATION_2_3,
         ).use { database ->
             database.query("SELECT origin, engineId FROM sessions WHERE id = 'legacy-session'").use { cursor ->
                 assertTrue(cursor.moveToFirst())
@@ -48,6 +49,11 @@ class RealPlanMigrationTest {
             }
             database.query("SELECT name FROM sqlite_master WHERE type='table' AND name='remote_events'").use { cursor ->
                 assertTrue(cursor.moveToFirst())
+            }
+            database.query("PRAGMA table_info(sessions)").use { cursor ->
+                var foundBootColumn = false
+                while (cursor.moveToNext()) if (cursor.getString(1) == "activeStartedBootId") foundBootColumn = true
+                assertTrue(foundBootColumn)
             }
         }
     }

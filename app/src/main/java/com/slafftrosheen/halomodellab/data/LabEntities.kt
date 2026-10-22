@@ -29,6 +29,7 @@ data class SessionEntity(
     val finishedWallTimeMs: Long?,
     val persistedActiveMs: Long,
     val activeStartedElapsedMs: Long?,
+    val activeStartedBootId: String?,
     val lastSeq: Long,
     val failureCode: String?,
     val failureDomain: String?,

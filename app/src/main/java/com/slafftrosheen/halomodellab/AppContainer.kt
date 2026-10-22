@@ -43,7 +43,7 @@ class AppContainer(context: Context) {
 
     val processInstanceId: String = UUID.randomUUID().toString()
 
-    val clock: LabClock = SystemLabClock()
+    val clock: LabClock = SystemLabClock(context.applicationContext)
 
     val catalogRepository: CatalogRepository = CatalogRepository()
 

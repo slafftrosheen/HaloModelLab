@@ -208,23 +208,24 @@ abstract class LabDao {
     @Query("UPDATE sessions SET state = :newState WHERE id = :sessionId AND state IN (:expectedStates)")
     abstract suspend fun updateSessionStateFrom(sessionId: String, expectedStates: List<String>, newState: String): Int
 
-    @Query("UPDATE sessions SET startedWallTimeMs = :wallTimeMs, activeStartedElapsedMs = :elapsedMs WHERE id = :sessionId AND startedWallTimeMs IS NULL")
-    abstract suspend fun markSessionStarted(sessionId: String, wallTimeMs: Long, elapsedMs: Long): Int
+    @Query("UPDATE sessions SET startedWallTimeMs = :wallTimeMs, activeStartedElapsedMs = :elapsedMs, activeStartedBootId = :bootId WHERE id = :sessionId AND startedWallTimeMs IS NULL")
+    abstract suspend fun markSessionStarted(sessionId: String, wallTimeMs: Long, elapsedMs: Long, bootId: String): Int
 
-    @Query("UPDATE sessions SET activeStartedElapsedMs = :elapsedMs WHERE id = :sessionId AND activeStartedElapsedMs IS NULL")
-    abstract suspend fun ensureActiveStarted(sessionId: String, elapsedMs: Long): Int
+    @Query("UPDATE sessions SET activeStartedElapsedMs = :elapsedMs, activeStartedBootId = :bootId WHERE id = :sessionId AND activeStartedElapsedMs IS NULL")
+    abstract suspend fun ensureActiveStarted(sessionId: String, elapsedMs: Long, bootId: String): Int
 
-    @Query("UPDATE sessions SET persistedActiveMs = :activeMs, activeStartedElapsedMs = :startedElapsedMs WHERE id = :sessionId")
+    @Query("UPDATE sessions SET persistedActiveMs = :activeMs, activeStartedElapsedMs = :startedElapsedMs, activeStartedBootId = :bootId WHERE id = :sessionId")
     abstract suspend fun updateActiveAccounting(
         sessionId: String,
         activeMs: Long,
         startedElapsedMs: Long?,
+        bootId: String?,
     ): Int
 
     @Query("UPDATE sessions SET ownerInstanceId = :ownerInstanceId WHERE id = :sessionId")
     abstract suspend fun updateOwner(sessionId: String, ownerInstanceId: String?): Int
 
-    @Query("UPDATE sessions SET finishedWallTimeMs = :wallTimeMs, persistedActiveMs = :activeMs, activeStartedElapsedMs = NULL, ownerInstanceId = NULL WHERE id = :sessionId")
+    @Query("UPDATE sessions SET finishedWallTimeMs = :wallTimeMs, persistedActiveMs = :activeMs, activeStartedElapsedMs = NULL, activeStartedBootId = NULL, ownerInstanceId = NULL WHERE id = :sessionId")
     abstract suspend fun markSessionFinished(sessionId: String, wallTimeMs: Long, activeMs: Long): Int
 
     @Query("UPDATE sessions SET failureCode = :code, failureDomain = :domain, failureDetail = :detail WHERE id = :sessionId")

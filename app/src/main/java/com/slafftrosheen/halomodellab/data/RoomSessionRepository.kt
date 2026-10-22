@@ -215,6 +215,7 @@ class RoomSessionRepository(
                     finishedWallTimeMs = null,
                     persistedActiveMs = 0L,
                     activeStartedElapsedMs = null,
+                    activeStartedBootId = null,
                     lastSeq = 0L,
                     failureCode = null,
                     failureDomain = null,
@@ -280,6 +281,7 @@ class RoomSessionRepository(
                     finishedWallTimeMs = null,
                     persistedActiveMs = 0L,
                     activeStartedElapsedMs = null,
+                    activeStartedBootId = null,
                     lastSeq = 0L,
                     failureCode = null,
                     failureDomain = null,
@@ -396,8 +398,8 @@ class RoomSessionRepository(
 
                 val nowElapsed = clock.elapsedRealtimeMs()
                 dao.updateOwner(sessionId, ownerInstanceId)
-                dao.markSessionStarted(sessionId, clock.wallTimeMs(), nowElapsed)
-                dao.ensureActiveStarted(sessionId, nowElapsed)
+                dao.markSessionStarted(sessionId, clock.wallTimeMs(), nowElapsed, clock.bootId())
+                dao.ensureActiveStarted(sessionId, nowElapsed, clock.bootId())
 
                 appendEvent(
                     sessionId = sessionId,
@@ -483,8 +485,8 @@ class RoomSessionRepository(
                         elapsedMs = null,
                     ),
                 )
-                dao.ensureActiveStarted(sessionId, nowElapsed)
-                dao.markSessionStarted(sessionId, clock.wallTimeMs(), nowElapsed)
+                dao.ensureActiveStarted(sessionId, nowElapsed, clock.bootId())
+                dao.markSessionStarted(sessionId, clock.wallTimeMs(), nowElapsed, clock.bootId())
 
                 appendEvent(
                     sessionId = sessionId,
@@ -658,7 +660,7 @@ class RoomSessionRepository(
                 if (next == SessionState.COMPLETED) {
                     dao.markSessionFinished(sessionId, clock.wallTimeMs(), active)
                 } else {
-                    dao.updateActiveAccounting(sessionId, active, null)
+                    dao.updateActiveAccounting(sessionId, active, null, null)
                     dao.updateOwner(sessionId, null)
                 }
                 dao.releaseRunnerSlot(sessionId)
@@ -958,6 +960,7 @@ class RoomSessionRepository(
                             sessionId = session.id,
                             activeMs = activeMs(session, nowElapsed),
                             startedElapsedMs = null,
+                            bootId = null,
                         )
                         dao.updateOwner(session.id, null)
                         dao.releaseRunnerSlot(session.id)
@@ -1071,8 +1074,14 @@ class RoomSessionRepository(
 
     private fun activeMs(session: SessionEntity, nowElapsedMs: Long): Long {
         val started = session.activeStartedElapsedMs ?: return session.persistedActiveMs
+        val startedBootId = session.activeStartedBootId
+        val currentBootId = clock.bootId()
+        if (startedBootId.isNullOrBlank() || startedBootId == LabClock.UNKNOWN_BOOT_ID ||
+            currentBootId == LabClock.UNKNOWN_BOOT_ID || startedBootId != currentBootId || nowElapsedMs < started
+        ) return session.budgetMs
         val delta = (nowElapsedMs - started).coerceAtLeast(0L)
-        return session.persistedActiveMs + delta
+        if (session.persistedActiveMs >= session.budgetMs) return session.budgetMs
+        return session.persistedActiveMs + minOf(delta, session.budgetMs - session.persistedActiveMs)
     }
 
     private fun toSummary(row: SessionSummaryRow): SessionSummary = SessionSummary(
