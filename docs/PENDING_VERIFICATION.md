@@ -2,7 +2,7 @@
 
 ## C4/C8 checkpoint — 2026-10-22
 
-- Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb`; Halo managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d`. Exact protocol bytes match (SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`); client schema SHA-256 is `d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231`.
+- Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb` and docs checkpoint `e9eabe2a06387ce39078546a6c9621855231dad8` are pushed to authorized `origin/main`; Halo managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d`. Exact protocol bytes match (SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`); client schema SHA-256 is `d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231`.
 - Lab V0 PASS: debug assemble; 95 unit tests, 0 failures; Android test APK compile; 21 connected instrumentation tests, 0 failures on Xiaomi `23124RA7EO`, Android 15 / API 35. Debug APK hash: `41759c1cad8c92f307487d7e33fdf1be8fc85edd3ba1182e36119bafc32be2a0`.
 - Halo app compile FAIL: `:app:compileDebugKotlin` reports unrelated preexisting errors in `FileVideoSemanticIndexStore`, `WorkspaceSemanticService`, `ManualDependencyGraph`, `HaloScreen`, onboarding, notebook and `OnDeviceModelsScreen`. No errors were reported from the changed C4 bridge/worker sources on the latest compile.
 - Lab install attempt was blocked by Android `INSTALL_FAILED_USER_RESTRICTED`; the app was not installed or launched. Manual synthetic V1 and ZIP inspection are NOT_RUN. The Halo app also lacks a successful build, so paired app/real-model V1 is NOT_RUN.

@@ -2,7 +2,7 @@
 
 ## Current C4/C8 checkpoint — 2026-10-22
 
-Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb`; Halo authorized managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d` (not pushed). The original dirty Halo checkout remains preserved. The shared protocol bytes match at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.
+Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb` and docs checkpoint `e9eabe2a06387ce39078546a6c9621855231dad8` are pushed to authorized `origin/main`; Halo authorized managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d` (not pushed). The original dirty Halo checkout remains preserved. The shared protocol bytes match at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.
 
 Lab V0 passed: debug assemble, 95 unit tests, Android test APK compile, and 21 connected instrumentation tests on Xiaomi `23124RA7EO` (Android 15 / API 35). Halo app compile still fails on unrelated app sources; the changed C4 service/worker sources had no errors in the latest compile. C8 is explicitly unsupported (`HALO_ACQUISITION_NOT_IMPLEMENTED`) with no Lab download path, internet permission or weight cache.
 
