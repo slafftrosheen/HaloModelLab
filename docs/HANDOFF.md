@@ -1,3 +1,9 @@
+## Latest bounded checkpoint — 2026-10-23
+
+- Lab `main` is pushed through source commit `738ff79` and docs checkpoint `3993ca2`; branch clean and synced. Halo managed-worktree `main` remains pushed through merge `5a4047fe`, clean and synced. The original dirty Halo checkout is preserved.
+- Protocol v1.0 files remain byte-identical at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`. Runtime compatibility remains unverified. Build, automated tests, and phone tests remain **NOT_RUN**.
+- C10 report includes coverage and exact-scope exclusion summaries while preserving unknown status values. Opaque artifact bytes remain unavailable because Halo has no output-artifact registry or bounded AIDL read operation; model file descriptors are never evidence exports.
+
 ## C7/C9 continuation checkpoint — 2026-10-23
 
 - Lab commit `4aa497d` completes the requested C7 source gates: saved LOAD/EXECUTE/UNLOAD budgets trip at the limit in the Lab event watchdog and Halo's isolated worker watchdog; the supervisor retains leases until cleanup or worker death is confirmed. Thermal checkpoints persist synchronously on state changes and require 60 continuous safe seconds after severe status. The service explicitly wires a 256 MiB free-space reserve and a 64 MiB quota over Lab database/WAL/SHM and report exports; Halo model storage is excluded. This is source evidence only; native crash resilience is not verified.

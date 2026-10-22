@@ -11,9 +11,9 @@
     "remoteConfigured": true,
     "pushAuthorized": true,
     "currentHead": "738ff79",
-    "currentWorkingTree": "C10 source follow-up 738ff79 committed locally; documentation checkpoint pending; Build, automated tests, phone tests NOT_RUN",
+    "currentWorkingTree": "Lab source head 738ff79; docs checkpoint 3993ca2 plus latest handoff checkpoint; branch clean and synced after push; Halo managed main 5a4047fe clean and synced; Build, automated tests, phone tests NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSH AUTHORIZED; C10 follow-up 738ff79 and documentation checkpoint are being prepared for existing origin/main; no force push",
+    "pushState": "PUSHED: Lab source 738ff79 and current C10 documentation checkpoints on authorized slafftrosheen/HaloModelLab main; Halo merge 5a4047fe remains pushed; branches synced",
     "sourceImplementationHead": "738ff79",
     "verificationCheckpointCommit": "a5d17a0"
   },
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "C10 report now surfaces coverage and persisted exact-scope exclusions while preserving unknown statuses; Lab source commit 738ff79. Opaque artifact transfer remains blocked on a versioned authorized bounded AIDL API. Remaining protocol-bound work is blocked; Build, Automated tests, Phone tests, runtime compatibility, and real inference remain NOT_RUN.",
+  "next": "C10 report now surfaces coverage and persisted exact-scope exclusions while preserving unknown statuses; Lab source commit 738ff79 and docs checkpoint 3993ca2 are pushed. Opaque artifact transfer has no current output-artifact registry or bounded AIDL read method; model files remain excluded. Build, Automated tests, Phone tests, runtime compatibility, and real inference remain NOT_RUN.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
