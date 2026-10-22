@@ -506,6 +506,15 @@ class RoomSessionRepository(
                     role = ModelRole.valueOf(item.role),
                     requestedBackend = ComputeBackend.valueOf(item.requestedBackend),
                     scenarioId = item.scenarioId,
+                    stageBudgets = runCatching {
+                        val stages = org.json.JSONObject(session.planJson).optJSONObject("stageBudgets")
+                            ?: return@runCatching null
+                        com.slafftrosheen.halomodellab.domain.StageBudgets(
+                            loadMs = stages.getLong("loadMs"),
+                            executeMs = stages.getLong("executeMs"),
+                            unloadMs = stages.getLong("unloadMs"),
+                        )
+                    }.getOrNull(),
                 )
 
                 BeginAttempt.Ready(

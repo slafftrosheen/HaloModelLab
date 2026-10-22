@@ -36,6 +36,7 @@ import com.slafftrosheen.halomodellab.domain.SessionSummary
 import com.slafftrosheen.halomodellab.ui.formatWallTime
 import com.slafftrosheen.halomodellab.ui.originLabelRes
 import com.slafftrosheen.halomodellab.ui.sessionStateLabelRes
+import com.slafftrosheen.halomodellab.data.QualificationEntity
 
 @Composable
 fun HistoryRoute(
@@ -43,13 +44,14 @@ fun HistoryRoute(
     onOpenSession: (String) -> Unit,
 ) {
     val viewModel: HistoryViewModel = viewModel(
-        factory = HistoryViewModel.factory(container.sessionRepository),
+        factory = HistoryViewModel.factory(container.sessionRepository, container.qualificationRepository),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     HistoryScreen(
         state = state,
         onFilterChange = viewModel::setFilter,
+        onShowExcludedChange = viewModel::setShowExcluded,
         onOpenSession = onOpenSession,
     )
 }
@@ -59,6 +61,7 @@ fun HistoryRoute(
 fun HistoryScreen(
     state: HistoryUiState,
     onFilterChange: (HistoryFilter) -> Unit,
+    onShowExcludedChange: (Boolean) -> Unit,
     onOpenSession: (String) -> Unit,
 ) {
     Scaffold(
@@ -96,6 +99,22 @@ fun HistoryScreen(
                     onClick = { onFilterChange(HistoryFilter.SYNTHETIC) },
                     label = { Text(stringResource(R.string.history_filter_synthetic)) },
                 )
+                FilterChip(
+                    selected = state.showExcluded,
+                    onClick = { onShowExcludedChange(!state.showExcluded) },
+                    label = { Text("Show excluded") },
+                )
+            }
+
+            if (state.showExcluded) {
+                if (state.excludedScopes.isEmpty()) {
+                    Text("No exact configuration scopes are currently excluded.", Modifier.padding(horizontal = 16.dp),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    state.excludedScopes.forEach { exclusion ->
+                        ExcludedScopeItem(exclusion) { onOpenSession(exclusion.sessionId) }
+                    }
+                }
             }
 
             if (state.sessions.isEmpty()) {
@@ -111,6 +130,20 @@ fun HistoryScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ExcludedScopeItem(exclusion: QualificationEntity, onClick: () -> Unit) {
+    Card(Modifier.fillMaxWidth().padding(horizontal = 16.dp).clickable(onClick = onClick)) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Excluded exact configuration", style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold)
+            Text("Scope ${exclusion.scopeDigestSha256.take(16)}… · policy ${exclusion.policyDigestSha256.take(12)}…",
+                style = MaterialTheme.typography.bodySmall)
+            Text("Evidence is retained. Open the source session to review or plan a deliberate retest.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

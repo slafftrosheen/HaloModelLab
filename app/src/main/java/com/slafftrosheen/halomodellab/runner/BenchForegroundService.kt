@@ -50,6 +50,7 @@ class BenchForegroundService : Service() {
             conditions = AndroidDeviceConditions(this),
             processInstanceId = container.processInstanceId,
             additionalEngines = listOf(container.haloRemoteBenchmarkEngine),
+            thermalCooldown = ThermalCooldownGate(store = AndroidThermalCooldownStore(this)),
         )
     }
 

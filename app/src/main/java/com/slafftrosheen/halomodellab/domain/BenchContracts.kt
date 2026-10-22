@@ -66,6 +66,7 @@ data class BenchmarkRequest(
     val role: ModelRole,
     val requestedBackend: ComputeBackend,
     val scenarioId: String? = null,
+    val stageBudgets: StageBudgets? = null,
 ) {
     init {
         require(sessionId.isNotBlank() && attemptId.isNotBlank())

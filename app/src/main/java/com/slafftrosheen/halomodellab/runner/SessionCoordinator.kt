@@ -14,6 +14,7 @@ import com.slafftrosheen.halomodellab.domain.ResultValidity
 import com.slafftrosheen.halomodellab.domain.SessionState
 import com.slafftrosheen.halomodellab.domain.TestStage
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -54,8 +55,11 @@ class SessionCoordinator(
     private val processInstanceId: String,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val conditionPollMs: Long = DEFAULT_CONDITION_POLL_MS,
-    private val minimumFreeBytes: Long = AndroidDeviceConditions.MINIMUM_FREE_BYTES_V0,
+    private val minimumFreeBytes: Long = DEFAULT_DISK_RESERVE_BYTES,
+    private val maximumEvidenceBytes: Long = DEFAULT_EVIDENCE_QUOTA_BYTES,
     additionalEngines: List<BenchmarkEngine> = emptyList(),
+    private val elapsedRealtimeMs: () -> Long = { System.nanoTime() / 1_000_000L },
+    private val thermalCooldown: ThermalCooldownGate = ThermalCooldownGate(),
 ) {
 
     private val enginesById: Map<String, BenchmarkEngine> =
@@ -318,7 +322,8 @@ class SessionCoordinator(
     ): AttemptRun {
         val request = begun.request
         val sink = RecordingSink(
-            AttemptEventSink { stage, code ->
+            elapsedRealtimeMs = elapsedRealtimeMs,
+            delegate = AttemptEventSink { stage, code ->
                 repository.recordStage(request.attemptId, stage, code)
             },
         )
@@ -372,12 +377,18 @@ class SessionCoordinator(
                 }
             }
 
-            EngineExecution.TimedOut -> finishAttemptOrStorage(
+            is EngineExecution.TimedOut -> finishAttemptOrStorage(
                 attemptId = request.attemptId,
                 result = AttemptResult(
                     outcome = AttemptOutcome.TIMED_OUT,
-                    validity = ResultValidity.VALID,
+                    validity = if (execution.stage == null) ResultValidity.VALID else ResultValidity.UNKNOWN,
                     origin = request.origin,
+                    failure = execution.stage?.let { stage -> FailureInfo(
+                        code = "${stage.name}_STAGE_BUDGET_EXCEEDED",
+                        domain = FailureDomain.ENVIRONMENT,
+                        confidence = EvidenceConfidence.OBSERVED,
+                        detail = "The ${stage.name.lowercase()} stage exceeded its saved time budget; model suitability is unknown.",
+                    ) },
                 ),
             ) ?: AttemptRun.Continue()
 
@@ -390,7 +401,11 @@ class SessionCoordinator(
                 val domain = when (conditionStop) {
                     ConditionBlockReason.POWER_CONSTRAINT,
                     ConditionBlockReason.THERMAL_CONSTRAINT,
+                    ConditionBlockReason.THERMAL_STATUS_UNKNOWN,
                     ConditionBlockReason.INSUFFICIENT_STORAGE,
+                    ConditionBlockReason.STORAGE_STATUS_UNKNOWN,
+                    ConditionBlockReason.EVIDENCE_QUOTA_EXCEEDED,
+                    ConditionBlockReason.EVIDENCE_SIZE_UNKNOWN,
                     -> FailureDomain.ENVIRONMENT
 
                     null -> FailureDomain.HARNESS
@@ -440,6 +455,7 @@ class SessionCoordinator(
         request: BenchmarkRequest,
         sink: RecordingSink,
     ): EngineExecution {
+        val stageTimeout = AtomicReference<TestStage?>(null)
         val deferred = engineScope.async {
             if (selectedEngine.managesOwnDeadline) {
                 selectedEngine.execute(request, sink)
@@ -450,18 +466,27 @@ class SessionCoordinator(
             }
         }
         attemptJob = deferred
+        val stageWatchdog = request.stageBudgets?.let { budgets -> engineScope.launch {
+            while (isActive) {
+                delay(STAGE_WATCHDOG_POLL_MS)
+                val expired = sink.expiredStage(budgets, elapsedRealtimeMs()) ?: continue
+                stageTimeout.compareAndSet(null, expired)
+                deferred.cancel(CancellationException("${expired.name}_STAGE_BUDGET_EXCEEDED"))
+                return@launch
+            }
+        } }
 
         return try {
             EngineExecution.Finished(deferred.await())
         } catch (timeout: TimeoutCancellationException) {
-            EngineExecution.TimedOut
+            EngineExecution.TimedOut()
         } catch (cancelled: CancellationException) {
             // The engine runs in its own scope so requestStop can cancel it from another
             // thread. If the host job is cancelled instead, cancel the engine explicitly:
             // otherwise an orphan attempt would keep writing after the service is gone.
             deferred.cancel()
             if (!currentCoroutineContext().isActive) throw cancelled
-            EngineExecution.Cancelled
+            stageTimeout.get()?.let(EngineExecution::TimedOut) ?: EngineExecution.Cancelled
         } catch (failure: Exception) {
             if (sink.storageFailure != null) {
                 EngineExecution.StorageFailure(failure)
@@ -469,6 +494,7 @@ class SessionCoordinator(
                 EngineExecution.EngineFailure(failure)
             }
         } finally {
+            stageWatchdog?.cancel()
             attemptJob = null
         }
     }
@@ -477,9 +503,15 @@ class SessionCoordinator(
         while (isActive) {
             delay(conditionPollMs)
             val snapshot = conditions.snapshot()
+            val thermalDecision = thermalCooldown.sample(snapshot.thermalLevel, elapsedRealtimeMs())
             val reason = when {
                 requireCharging && snapshot.charging == false -> ConditionBlockReason.POWER_CONSTRAINT
-                snapshot.thermalLevel.isBlocking -> ConditionBlockReason.THERMAL_CONSTRAINT
+                thermalDecision is ThermalGateDecision.Blocked -> thermalDecision.reason
+                thermalDecision is ThermalGateDecision.CoolingDown -> ConditionBlockReason.THERMAL_CONSTRAINT
+                snapshot.freeStorageBytes == null -> ConditionBlockReason.STORAGE_STATUS_UNKNOWN
+                snapshot.freeStorageBytes < minimumFreeBytes -> ConditionBlockReason.INSUFFICIENT_STORAGE
+                snapshot.evidenceStoredBytes == null -> ConditionBlockReason.EVIDENCE_SIZE_UNKNOWN
+                snapshot.evidenceStoredBytes >= maximumEvidenceBytes -> ConditionBlockReason.EVIDENCE_QUOTA_EXCEEDED
                 else -> null
             }
             if (reason != null) {
@@ -508,6 +540,16 @@ class SessionCoordinator(
         repository.recordTelemetry(
             sessionId = sessionId,
             attemptId = request.attemptId,
+            name = "lab_evidence_storage",
+            value = snapshot.evidenceStoredBytes?.toDouble(),
+            unit = "bytes",
+            scope = TELEMETRY_SCOPE_DEVICE,
+            origin = request.origin,
+            unavailableReason = if (snapshot.evidenceStoredBytes == null) "LAB_EVIDENCE_SIZE_UNKNOWN" else null,
+        )
+        repository.recordTelemetry(
+            sessionId = sessionId,
+            attemptId = request.attemptId,
             name = "charging",
             value = snapshot.charging?.let { if (it) 1.0 else 0.0 },
             unit = "boolean",
@@ -522,13 +564,20 @@ class SessionCoordinator(
         if (requireCharging && snapshot.charging == false) {
             return ConditionBlockReason.POWER_CONSTRAINT
         }
-        // v0 has no manual confirmation flow, so MODERATE is treated as blocking.
-        if (snapshot.thermalLevel.isModerateOrWorse) {
-            return ConditionBlockReason.THERMAL_CONSTRAINT
+        when (val thermal = thermalCooldown.sample(snapshot.thermalLevel, elapsedRealtimeMs())) {
+            is ThermalGateDecision.Blocked -> return thermal.reason
+            is ThermalGateDecision.CoolingDown -> return ConditionBlockReason.THERMAL_CONSTRAINT
+            ThermalGateDecision.Ready -> Unit
         }
         val freeStorage = snapshot.freeStorageBytes
-        if (freeStorage != null && freeStorage < minimumFreeBytes) {
+        if (freeStorage == null) return ConditionBlockReason.STORAGE_STATUS_UNKNOWN
+        if (freeStorage < minimumFreeBytes) {
             return ConditionBlockReason.INSUFFICIENT_STORAGE
+        }
+        val evidenceBytes = snapshot.evidenceStoredBytes
+        if (evidenceBytes == null) return ConditionBlockReason.EVIDENCE_SIZE_UNKNOWN
+        if (evidenceBytes >= maximumEvidenceBytes) {
+            return ConditionBlockReason.EVIDENCE_QUOTA_EXCEEDED
         }
         return null
     }
@@ -639,7 +688,7 @@ class SessionCoordinator(
 
     private sealed interface EngineExecution {
         data class Finished(val result: AttemptResult) : EngineExecution
-        data object TimedOut : EngineExecution
+        data class TimedOut(val stage: TestStage? = null) : EngineExecution
         data object Cancelled : EngineExecution
         data class StorageFailure(val cause: Exception) : EngineExecution
         data class EngineFailure(val cause: Exception) : EngineExecution
@@ -658,6 +707,7 @@ class SessionCoordinator(
     }
 
     private class RecordingSink(
+        private val elapsedRealtimeMs: () -> Long,
         private val delegate: AttemptEventSink,
     ) : AttemptEventSink {
 
@@ -665,9 +715,14 @@ class SessionCoordinator(
         var storageFailure: Exception? = null
             private set
 
+        @Volatile private var activeStage: TestStage? = null
+        @Volatile private var activeStageStartedElapsedMs: Long? = null
+
         override suspend fun record(stage: TestStage, code: String) {
             try {
                 delegate.record(stage, code)
+                activeStage = stage
+                activeStageStartedElapsedMs = elapsedRealtimeMs()
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (failure: Exception) {
@@ -675,11 +730,26 @@ class SessionCoordinator(
                 throw failure
             }
         }
+
+        fun expiredStage(budgets: com.slafftrosheen.halomodellab.domain.StageBudgets, nowElapsedMs: Long): TestStage? {
+            val stage = activeStage ?: return null
+            val started = activeStageStartedElapsedMs ?: return null
+            val limit = when (stage) {
+                TestStage.PREFLIGHT -> null
+                TestStage.LOAD -> budgets.loadMs
+                TestStage.EXECUTE -> budgets.executeMs
+                TestStage.UNLOAD -> budgets.unloadMs
+            } ?: return null
+            return stage.takeIf { nowElapsedMs >= started && nowElapsedMs - started > limit }
+        }
     }
 
     private companion object {
         const val DEFAULT_CONDITION_POLL_MS = 1_000L
         const val WAKE_LOCK_GRACE_MS = 10_000L
+        const val DEFAULT_DISK_RESERVE_BYTES = RealRunBudget.DEFAULT_DISK_RESERVE_BYTES
+        const val DEFAULT_EVIDENCE_QUOTA_BYTES = AndroidDeviceConditions.MAX_EVIDENCE_BYTES_V1
+        const val STAGE_WATCHDOG_POLL_MS = 100L
         const val TELEMETRY_SCOPE_DEVICE = "device"
         const val MAX_DETAIL_CHARS = 512
     }

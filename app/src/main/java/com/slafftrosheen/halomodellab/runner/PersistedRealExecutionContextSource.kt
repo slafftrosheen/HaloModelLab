@@ -77,7 +77,7 @@ class PersistedRealExecutionContextSource(
                 unloadMs = stageRow.getLong("unloadMs"),
             )
         }.getOrNull() ?: return null
-        if (stageBudgets.maximumAttemptMs != request.caseTimeoutMs ||
+        if (request.stageBudgets != stageBudgets || stageBudgets.maximumAttemptMs != request.caseTimeoutMs ||
             manifest.canonicalSha256() != scope.artifactManifestSha256 ||
             scope.role != case.role || scope.requestedBackend != case.requestedBackend
         ) return null

@@ -11,9 +11,9 @@
     "remoteConfigured": true,
     "pushAuthorized": true,
     "currentHead": "cd161bf7490669e57b4ad8af7ae325ac8d2b4e98",
-    "currentWorkingTree": "C4 Halo bridge now uses the same fixed FAST smoke fixture ID as Lab and worker; C7 sends persisted bounded stage budgets and Halo persists the total deadline for worker/recovery; verification not run",
+    "currentWorkingTree": "C7 Lab stage event watchdog, disk reserve/evidence quota, thermal cooldown, and C9 safe mapping/history inspection source changes; source tests added; verification NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "AUTHORIZED; Lab source commit db23840 and docs checkpoint 784dd4f pushed; clean and in sync; Halo source commit 7a8994e remains local and unpushed",
+    "pushState": "Lab source changes are locally committed and pushed only after static checks; Halo source remains local/unpushed",
     "sourceImplementationHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
     "verificationCheckpointCommit": "cd161bf7490669e57b4ad8af7ae325ac8d2b4e98"
   },
@@ -35,9 +35,9 @@
     "C4": "SOURCE_INTEGRATED_WITH_REPAIR: fixed stale arithmetic fixture ID that rejected the current FAST smoke request; bridge and worker now share the protocol fixture constant; Halo C4/C7 source local commits 7a8994e and 53ef62d; runtime compatibility/build/phone tests NOT_RUN",
     "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
     "C6": "PARTIAL_SOURCE_IMPLEMENTED: capability registry and catalog coverage UI identify Halo owner APIs and exact Lab blockers for CHAT/THINK/ACTION/VISION/STT/TTS/EMBEDDING/VAD; only fixed FAST smoke has source execution; multimodal test sources and execution remain open",
-    "C7": "PARTIAL_SOURCE_IMPLEMENTED: boot-aware active-time persistence, conservative cross-boot budget recovery, 10,000 queue expansion cap, schema 2->3, and resume-safe persisted-history circuit breaker that pauses after three harness faults without valid control success; Lab now sends validated stage budgets and authorized Halo persists and applies their bounded total deadline through recovery; per-stage enforcement, thermal hysteresis, storage caps, full run-controller and native-supervisor integration remain open; Lab commits 95894b2, 07e9dd4, 8b8ef45, db23840; Halo commit 7a8994e; tests NOT_RUN",
+    "C7": "PARTIAL_SOURCE_IMPLEMENTED: replay-event stage watchdog and saved stage budgets added in Lab; Halo currently does not emit separately timed LOAD/UNLOAD milestones, so per-stage coverage is incomplete; coordinator enforces 256 MiB free-space reserve and 64 MiB Lab-owned DB/WAL/SHM/export quota; thermal UNKNOWN/MODERATE blocks and severe requires 60 seconds continuous NONE/LIGHT cooldown; cooldown checkpoint persists in Lab-private preferences with reboot reset safety; tests NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
-    "C9": "PARTIAL_SOURCE_IMPLEMENTED: timeout and single-failure exclusion rules corrected; exact scope matcher, deliberate retest planner and bounded Room projection store added; observation mapping, Show excluded and catalogue filter wiring remain open; tests NOT_RUN",
+    "C9": "PARTIAL_SOURCE_IMPLEMENTED: terminal replay observation mapper preserves unknown scope/assertion unless verified, and History has Show excluded for persisted exact-scope projections; cross-session observation aggregation, automatic projection recomputation, and current catalog filtering remain open; no unknown identity can hide a model",
     "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
   },
   "halo": {
@@ -71,19 +71,19 @@
       "authorized V0/V1 commands"
     ],
     "thisContinuation": {
-      "labBuild": "NOT_RUN after C5-C10 source edits",
-      "labUnitTests": "NOT_RUN after C5-C10 source edits",
+      "labBuild": "NOT_RUN",
+      "labUnitTests": "NOT_RUN",
       "androidTestApkCompile": "NOT_RUN after schema 3 source edit",
-      "connectedInstrumentation": "NOT_RUN after C5-C10 source edits",
+      "connectedInstrumentation": "NOT_RUN",
       "haloCompile": "NOT_RUN after C7 deadline source changes; prior compile failed on unrelated existing errors",
       "labApkSha256": "41759c1cad8c92f307487d7e33fdf1be8fc85edd3ba1182e36119bafc32be2a0",
       "labManualInstall": "BLOCKED: INSTALL_FAILED_USER_RESTRICTED",
       "syntheticV1": "NOT_RUN: app install blocked",
       "realModelV1": "NOT_RUN: paired Halo app unavailable",
-      "sourceDiffCheck": "PASS for current Lab and Halo source changes",
+      "sourceDiffCheck": "PASS",
       "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; exact bytes in Lab and Halo",
       "jsonXmlParsing": "PASS",
-      "phoneTests": "NOT_RUN during coding; no new install or inference"
+      "phoneTests": "NOT_RUN during coding"
     }
   },
   "sourceChecks": {
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Continue C7 per-stage, thermal cooldown and storage guard work, then C9 qualification mapping/exclusions only where effective configuration and source identity are genuinely known. Halo worktree remains local and diverged; do not push/rebase it. Protocol is v1.0 with the same exact schema bytes; the additive stageBudgets request field and fixture alignment are unverified at runtime. Keep multimodal paths and acquisition unsupported; no real-model acceptance claim before permitted verification.",
+  "next": "Complete C7 by adding separately persisted Halo LOAD/EXECUTE/UNLOAD stage milestones and adding separately timed Halo load/execute/unload markers; then wire C9 observation aggregation and projection recomputation across sessions and exact-scope catalog filtering only when verified execution identity exists. Keep all verification NOT_RUN during coding.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,

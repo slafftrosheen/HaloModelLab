@@ -1,3 +1,11 @@
+## C7/C9 continuation checkpoint — 2026-10-22
+
+- Lab source now passes saved stage budgets into `BenchmarkRequest`; the coordinator watches committed stage events and records over-budget timeouts as environment evidence with unknown model validity. Halo's current replay emits an execute-stage marker around an adapter call that combines load and generation, and normal completion does not yet provide independently timed load and unload markers. Exact per-stage coverage still requires those Halo worker markers; Lab cancellation itself is not native hard cancellation.
+- Admission now enforces a 256 MiB free-space reserve and pauses when Lab-owned database/WAL/SHM plus report-cache evidence reaches 64 MiB. It measures only Lab files; it never examines Halo model storage. Unknown file-size measurements remain null with a reason.
+- The coordinator blocks unknown/moderate thermal readings and requires 60 seconds of continuous NONE/LIGHT readings after severe thermal status. The cooldown checkpoint is stored in Lab-private preferences with elapsed-realtime reset handling after reboot.
+- C9 adds a replayed-terminal observation mapper that returns unknown scope/assertion unless the plan and terminal identity are verified, plus `Show excluded` in History for persisted exact-scope projections. It does not yet automatically gather observations across sessions, recompute projections, or filter the current catalog. No current model is excluded based on unknown identity.
+- Added source tests for thermal hysteresis and unknown-scope mapping. **Build: NOT_RUN; Automated tests: NOT_RUN; Phone tests: NOT_RUN.** Static `git diff --check`, continuation JSON parsing, and exact protocol v1.0 byte/hash comparison passed. No Gradle, tests, ADB, install, emulator, or benchmark command was run.
+- Lab branch `main`; current source is being committed locally and push remains authorized. Halo worktree remains at `53ef62d5626832f2b9b59d00a1807eed6d36def9`, 6 ahead / 33 behind its recorded `origin/main`, not pushed or rebased. Protocol v1.0 files remain byte-identical at `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.
 # Handoff to Codex — Halo Model Lab v1
 
 ## Latest bounded checkpoint — 2026-10-22

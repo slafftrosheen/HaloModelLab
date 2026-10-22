@@ -250,6 +250,7 @@ class SessionCoordinatorTest {
                 charging = false,
                 thermalLevel = ThermalLevel.NONE,
                 freeStorageBytes = 1_000_000_000L,
+                evidenceStoredBytes = 0L,
             ),
         )
         val coordinator = coordinator(repository, conditions, testScheduler)
@@ -271,6 +272,7 @@ class SessionCoordinatorTest {
                 charging = true,
                 thermalLevel = ThermalLevel.SEVERE,
                 freeStorageBytes = 1_000_000_000L,
+                evidenceStoredBytes = 0L,
             ),
         )
         val coordinator = coordinator(repository, conditions, testScheduler)
@@ -401,6 +403,7 @@ class SessionCoordinatorTest {
             charging = true,
             thermalLevel = ThermalLevel.NONE,
             freeStorageBytes = 1_000_000_000L,
+            evidenceStoredBytes = 0L,
         ),
     ) : DeviceConditions {
         override fun snapshot(): ConditionSnapshot = value

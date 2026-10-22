@@ -29,12 +29,17 @@ data class ConditionSnapshot(
     val charging: Boolean?,
     val thermalLevel: ThermalLevel,
     val freeStorageBytes: Long?,
+    val evidenceStoredBytes: Long? = null,
 )
 
 enum class ConditionBlockReason {
     POWER_CONSTRAINT,
     THERMAL_CONSTRAINT,
+    THERMAL_STATUS_UNKNOWN,
     INSUFFICIENT_STORAGE,
+    STORAGE_STATUS_UNKNOWN,
+    EVIDENCE_QUOTA_EXCEEDED,
+    EVIDENCE_SIZE_UNKNOWN,
 }
 
 /** Released in a finally block; the lock never outlives the attempt. */
@@ -66,6 +71,7 @@ class AndroidDeviceConditions(
         charging = readCharging(),
         thermalLevel = readThermalLevel(),
         freeStorageBytes = readFreeStorageBytes(),
+        evidenceStoredBytes = readEvidenceBytes(),
     )
 
     override fun acquireAttemptWakeLock(timeoutMs: Long): WakeLockHandle {
@@ -117,8 +123,19 @@ class AndroidDeviceConditions(
         null
     }
 
+    /** Counts only Lab-owned database journals and report cache; Halo model storage is excluded. */
+    private fun readEvidenceBytes(): Long? = try {
+        val database = appContext.getDatabasePath(com.slafftrosheen.halomodellab.data.LabDatabase.FILE_NAME)
+        val files = listOf(database, java.io.File(database.path + "-wal"), java.io.File(database.path + "-shm")) +
+            java.io.File(appContext.cacheDir, "exports").listFiles().orEmpty()
+        files.sumOf { if (it.isFile) it.length().coerceAtLeast(0L) else 0L }
+    } catch (failure: Exception) {
+        null
+    }
+
     companion object {
         /** Project reserve, not a hardware guarantee. */
         const val MINIMUM_FREE_BYTES_V0: Long = 128L * 1024L * 1024L
+        const val MAX_EVIDENCE_BYTES_V1: Long = 64L * 1024L * 1024L
     }
 }

@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.slafftrosheen.halomodellab.data.SessionRepository
+import com.slafftrosheen.halomodellab.data.QualificationEntity
+import com.slafftrosheen.halomodellab.qualification.QualificationRepository
+import com.slafftrosheen.halomodellab.qualification.QualificationStatus
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.HistoryFilter
 import com.slafftrosheen.halomodellab.domain.SessionState
@@ -20,22 +23,32 @@ data class HistoryUiState(
     val filter: HistoryFilter = HistoryFilter.ALL,
     val sessions: List<SessionSummary> = emptyList(),
     val totalCount: Int = 0,
+    val showExcluded: Boolean = false,
+    val excludedScopes: List<QualificationEntity> = emptyList(),
 )
 
 class HistoryViewModel(
     repository: SessionRepository,
+    qualificationRepository: QualificationRepository,
 ) : ViewModel() {
 
     private val filter = MutableStateFlow(HistoryFilter.ALL)
+    private val showExcluded = MutableStateFlow(false)
 
     val state: StateFlow<HistoryUiState> = combine(
         repository.observeHistory(),
         filter,
-    ) { sessions, selectedFilter ->
+        qualificationRepository.observeHistory(),
+        showExcluded,
+    ) { sessions, selectedFilter, qualifications, showExcluded ->
         HistoryUiState(
             filter = selectedFilter,
             sessions = sessions.filter { matches(it, selectedFilter) },
             totalCount = sessions.size,
+            showExcluded = showExcluded,
+            excludedScopes = if (showExcluded) qualifications.filter {
+                it.status == QualificationStatus.REJECTED_FOR_PROFILE.name
+            } else emptyList(),
         )
     }.stateIn(
         scope = viewModelScope,
@@ -47,6 +60,8 @@ class HistoryViewModel(
         filter.value = value
     }
 
+    fun setShowExcluded(value: Boolean) { showExcluded.value = value }
+
     private fun matches(summary: SessionSummary, filter: HistoryFilter): Boolean = when (filter) {
         HistoryFilter.ALL -> true
         HistoryFilter.COMPLETED -> summary.state == SessionState.COMPLETED
@@ -55,8 +70,8 @@ class HistoryViewModel(
     }
 
     companion object {
-        fun factory(repository: SessionRepository): ViewModelProvider.Factory = viewModelFactory {
-            initializer { HistoryViewModel(repository) }
+        fun factory(repository: SessionRepository, qualificationRepository: QualificationRepository): ViewModelProvider.Factory = viewModelFactory {
+            initializer { HistoryViewModel(repository, qualificationRepository) }
         }
     }
 }
