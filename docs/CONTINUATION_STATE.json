@@ -10,8 +10,10 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "031e80201096a34b66664b65411c126edf62e4e3",
-    "currentWorkingTree": "clean after pushing Lab main to public origin"
+    "currentHead": "087a35f421ffefbc94a9dffe104766185e68062b",
+    "currentWorkingTree": "clean after pushing Lab main to public origin",
+    "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
+    "pushState": "PUSHED: origin/main matches local main at the current checkpoint"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
