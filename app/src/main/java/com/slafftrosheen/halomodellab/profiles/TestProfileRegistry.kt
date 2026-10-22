@@ -16,8 +16,8 @@ data class TestProfileDescriptor(
 }
 
 /**
- * Stable suite identities for plans and reports. Contract-only text definitions exist, but
- * no suite is runnable until the real adapter and fixture execution path is connected.
+ * Stable suite identities for plans and reports. Only the fixed FAST smoke has an end-to-end
+ * real execution path; the remaining role profiles stay visible as contracts, not runnable cases.
  */
 object TestProfileRegistry {
     private val profiles = listOf(
@@ -25,10 +25,10 @@ object TestProfileRegistry {
         TestProfileDescriptor("text-smoke", "1", "profile_text_smoke", ProfileAvailability.CONTRACT_ONLY, "FIXTURES_NOT_IMPLEMENTED"),
         TestProfileDescriptor("text-standard", "1", "profile_text_standard", ProfileAvailability.CONTRACT_ONLY, "FIXTURES_NOT_IMPLEMENTED"),
         TestProfileDescriptor("warm-series", "1", "profile_warm_series", ProfileAvailability.CONTRACT_ONLY, "WARM_SERIES_NOT_IMPLEMENTED"),
-        TestProfileDescriptor("fast-smoke", "1", "profile_fast_smoke", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
+        TestProfileDescriptor("fast-smoke", "1", "profile_fast_smoke", ProfileAvailability.SOURCE_IMPLEMENTED, null),
         TestProfileDescriptor("chat-standard", "1", "profile_chat_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
         TestProfileDescriptor("think-standard", "1", "profile_think_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
-        TestProfileDescriptor("action-standard", "1", "profile_action_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
+        TestProfileDescriptor("action-standard", "2", "profile_action_standard", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
         TestProfileDescriptor("fast-warm-series", "1", "profile_fast_warm_series", ProfileAvailability.CONTRACT_ONLY, "HALO_TEXT_ADAPTER_NOT_CONNECTED"),
     )
 

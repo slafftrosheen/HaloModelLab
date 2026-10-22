@@ -3,8 +3,20 @@ package com.slafftrosheen.halomodellab.profiles
 import com.slafftrosheen.halomodellab.domain.ModelRole
 import java.security.MessageDigest
 
-enum class TextProbeMode { COLD_PROCESS, WARM_SERIES }
+enum class TextProbeMode { PREFLIGHT, SMOKE, COLD_PROCESS, WARM_SERIES }
 enum class TextAssertionKind { EXACT_TEXT, JSON_FIELD, FIXTURE_TOOL_CALL, NO_TOOL_CALL, CONTINUE_AFTER_TOOL_RESULT }
+
+data class FixtureToolCallContract(
+    val name: String,
+    val argumentsJson: String,
+) {
+    init {
+        require(name.matches(Regex("[A-Za-z][A-Za-z0-9_.-]{0,63}")))
+        require(argumentsJson.isNotBlank() && argumentsJson.length <= MAX_ARGUMENTS_CHARS)
+    }
+
+    companion object { const val MAX_ARGUMENTS_CHARS = 2_048 }
+}
 
 data class TextProbeCase(
     val caseId: String,
@@ -13,12 +25,23 @@ data class TextProbeCase(
     val expectedValue: String,
     val maximumOutputTokens: Int,
     val languageTag: String = "en",
+    val expectedToolCall: FixtureToolCallContract? = null,
+    val precedingFixtureToolResult: String? = null,
 ) {
     init {
         require(SAFE_ID.matches(caseId))
         require(prompt.isNotBlank() && prompt.length <= MAX_PROMPT_CHARS)
-        require((if (assertion == TextAssertionKind.NO_TOOL_CALL) expectedValue.isEmpty() else expectedValue.isNotBlank()) &&
-            expectedValue.length <= MAX_EXPECTED_CHARS)
+        require(expectedValue.length <= MAX_EXPECTED_CHARS)
+        require(
+            when (assertion) {
+                TextAssertionKind.NO_TOOL_CALL -> expectedValue.isEmpty() && expectedToolCall == null
+                TextAssertionKind.FIXTURE_TOOL_CALL -> expectedValue.isEmpty() && expectedToolCall != null
+                else -> expectedValue.isNotBlank() && expectedToolCall == null
+            },
+        )
+        require(precedingFixtureToolResult == null ||
+            (assertion == TextAssertionKind.CONTINUE_AFTER_TOOL_RESULT && precedingFixtureToolResult.length <= MAX_EXPECTED_CHARS))
+        require(assertion != TextAssertionKind.CONTINUE_AFTER_TOOL_RESULT || !precedingFixtureToolResult.isNullOrBlank())
         require(maximumOutputTokens in 1..MAX_OUTPUT_TOKENS)
         require(LANGUAGE_TAG.matches(languageTag))
     }
@@ -64,13 +87,19 @@ data class TextSuiteContract(
             append(",\"assertion\":").append(json(probe.assertion.name))
             append(",\"expectedValue\":").append(json(probe.expectedValue))
             append(",\"maximumOutputTokens\":").append(probe.maximumOutputTokens)
+            probe.expectedToolCall?.let { call ->
+                append(",\"expectedToolCall\":{\"name\":${json(call.name)},\"argumentsJson\":${json(call.argumentsJson)}}")
+            }
+            probe.precedingFixtureToolResult?.let { append(",\"precedingFixtureToolResult\":").append(json(it)) }
             append(",\"languageTag\":").append(json(probe.languageTag)).append('}')
         }
         append("]}")
     }
 
-    /** No profile becomes runnable until C4 provides a capability-selected Halo adapter. */
-    val runnable: Boolean get() = false
+    /** Only the single fixed FAST smoke currently has an end-to-end C4 executor. */
+    val runnable: Boolean get() = suiteId == "fast-smoke" && suiteVersion == "1" &&
+        role == ModelRole.FAST && mode == TextProbeMode.COLD_PROCESS &&
+        cases == listOf(TextProbeCase("short-ready", "Reply with exactly READY.", TextAssertionKind.EXACT_TEXT, "READY", 8))
 
     companion object {
         const val MAX_CASES = 32
@@ -97,10 +126,13 @@ object TextProfileRegistry {
             listOf(TextProbeCase("arithmetic-17-25", "What is 17 plus 25? Reply with the number only.", TextAssertionKind.EXACT_TEXT, "42", 8)),
         ),
         TextSuiteContract(
-            "action-standard", "1", ModelRole.ACTION, TextProbeMode.COLD_PROCESS,
+            "action-standard", "2", ModelRole.ACTION, TextProbeMode.COLD_PROCESS,
             listOf(
-                TextProbeCase("fixture-lookup", "Use lookup_fixture for item-1, then report its label.", TextAssertionKind.FIXTURE_TOOL_CALL, "lookup_fixture({\"id\":\"item-1\"})", 64),
-                TextProbeCase("fixture-continuation", "The fixture returned label=amber. Reply with that label only.", TextAssertionKind.CONTINUE_AFTER_TOOL_RESULT, "amber", 16),
+                TextProbeCase("fixture-lookup", "Use lookup_fixture for item-1, then report its label.", TextAssertionKind.FIXTURE_TOOL_CALL, "", 64,
+                    expectedToolCall = FixtureToolCallContract("lookup_fixture", "{\"id\":\"item-1\"}")),
+                TextProbeCase("fixture-continuation", "Given the fixture result above, reply with the label only.",
+                    TextAssertionKind.CONTINUE_AFTER_TOOL_RESULT, "amber", 16,
+                    precedingFixtureToolResult = "lookup_fixture({\"id\":\"item-1\"}) -> {\"label\":\"amber\"}"),
             ),
         ),
         TextSuiteContract(

@@ -11,7 +11,7 @@
     "remoteConfigured": true,
     "pushAuthorized": true,
     "currentHead": "e9eabe2a06387ce39078546a6c9621855231dad8",
-    "currentWorkingTree": "C4 source implementation and verification checkpoint pushed to authorized Lab main; final status refresh in progress",
+    "currentWorkingTree": "C5 validator sources and bounded tests added; source commit pending",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
     "pushState": "PUSHED: Lab main includes source commit 1f328c9e16463751df1946a2b01e69a95d19f1eb and verification checkpoint e9eabe2a06387ce39078546a6c9621855231dad8",
     "sourceImplementationHead": "1f328c9e16463751df1946a2b01e69a95d19f1eb",
@@ -33,7 +33,7 @@
     "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
     "C3": "LAB_INVENTORY_PROJECTION_IMPLEMENTED; explicit opt-in Halo inventory refresh connected in source; runtime compatibility NOT_RUN",
     "C4": "SOURCE_INTEGRATED; Lab and Halo C4 source commits recorded; Lab V0/unit/instrumentation PASS; Halo app compile blocked by unrelated errors; phone app install restricted; real-model acceptance NOT_RUN",
-    "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; unit tests PASS; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe",
+    "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
     "C6": "CONTRACT_ONLY except Halo fixed fast-smoke/1/short-ready CPU fixture; no Lab capability-selected plan UI/session engine wiring",
     "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; unit tests PASS; not connected to a real runner/supervisor; commit 8dcafbe",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "C4/C8 source is implemented and checkpointed. Lab V0 passes. Halo app compile is blocked by unrelated existing source errors; the phone restricted Lab installation. Do not claim paired app usability, real inference or native crash resilience. Next: resolve the install restriction with the device owner, then reattempt the authorized Lab synthetic V1; separately repair Halo app compile blockers only if they are in the user-authorized scope.",
+  "next": "Continue C6 capability-by-capability against Halo owner APIs and keep unsupported Lab paths explicit. Complete remaining unblocked C7/C9/C10 source batches; run final authorized verification only after coding is complete.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 2,
