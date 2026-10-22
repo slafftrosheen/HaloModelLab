@@ -20,6 +20,13 @@ object ReportFormatter {
         generatedAtIso: String,
         omissions: List<String>,
         comparisonSummary: String = "No previous session selected; comparison was not requested.",
+    ): String = bound(formatContent(detail, generatedAtIso, omissions, comparisonSummary))
+
+    internal fun formatContent(
+        detail: SessionDetail,
+        generatedAtIso: String,
+        omissions: List<String>,
+        comparisonSummary: String = "No previous session selected; comparison was not requested.",
     ): String {
         val attempts = detail.queue.flatMap { item -> item.attempts.map { item to it } }
         val countsByOutcome = attempts.groupingBy { it.second.outcome }.eachCount()
@@ -135,7 +142,7 @@ object ReportFormatter {
             appendLine("- checksums.sha256 — контрольные суммы payload-файлов.")
         }
 
-        return truncateToUtf8Bytes(text, MAX_REPORT_BYTES)
+        return text
     }
 
     private fun outcomeLine(counts: Map<AttemptOutcome?, Int>): String {
@@ -153,11 +160,12 @@ object ReportFormatter {
         }
     }
 
-    internal fun bound(text: String): String = truncateToUtf8Bytes(text, MAX_REPORT_BYTES)
+    internal fun bound(text: String, maxBytes: Int = MAX_REPORT_BYTES): String =
+        truncateToUtf8Bytes(text, maxBytes)
 
     private fun truncateToUtf8Bytes(text: String, maxBytes: Int): String {
         if (text.toByteArray(Charsets.UTF_8).size <= maxBytes) return text
-        val marker = "\n\n[report truncated: 8 KiB limit]\n"
+        val marker = "\n\n[report truncated to fit the export byte limit]\n"
         val budget = maxBytes - marker.toByteArray(Charsets.UTF_8).size
         var low = 0
         var high = text.length

@@ -159,11 +159,15 @@ class ReportExporter(
             }
             realEvidence.truncatedSections.forEach { omissions += "$it was limited while reading the Room snapshot." }
         }
-        payload["report.md"] = ReportFormatter
-            .format(detail, generatedAt, omissions, comparisonSummary)
-            .let { base -> appendRealEvidenceSummary(base, realEvidence, outputPreviews.size) }
-            .let { ReportFormatter.bound(it) }
-            .toByteArray(Charsets.UTF_8)
+        val reportBody = ReportFormatter.formatContent(detail, generatedAt, omissions, comparisonSummary)
+        val report = if (realEvidence == null) {
+            ReportFormatter.bound(reportBody)
+        } else {
+            ReportFormatter.bound(reportBody, ReportFormatter.MAX_REPORT_BYTES - REAL_SUMMARY_RESERVE_BYTES)
+                .let { base -> appendRealEvidenceSummary(base, detail, realEvidence, outputPreviews.size) }
+                .let { ReportFormatter.bound(it) }
+        }
+        payload["report.md"] = report.toByteArray(Charsets.UTF_8)
 
         val payloadBytes = payload.values.sumOf { it.size.toLong() }
         if (payloadBytes > MAX_ARCHIVE_BYTES) {
@@ -603,6 +607,7 @@ class ReportExporter(
         private const val MAX_ARTIFACT_FILES: Int = 200
         private const val MAX_REMOTE_EVENT_ROWS: Int = 1_000
         private const val MAX_REPORT_METRIC_DELTAS: Int = 3
+        private const val REAL_SUMMARY_RESERVE_BYTES: Int = 3 * 1024
         private const val ZIP_WRITE_CHUNK_BYTES: Int = 64 * 1024
 
         private val NON_EXPORTABLE_STATES = setOf(
@@ -618,6 +623,7 @@ class ReportExporter(
 
     private fun appendRealEvidenceSummary(
         base: String,
+        detail: SessionDetail,
         snapshot: RealEvidenceExportSnapshot?,
         outputPreviewCount: Int,
     ): String {
@@ -628,6 +634,13 @@ class ReportExporter(
             append("\n\n## Real-run reproduction data\n\n")
             append("The archive contains `real-plan.json` and `remote-events.jsonl` from the Lab Room snapshot. ")
             append("Their presence records a plan or imported remote facts; it does not establish that native inference completed.\n")
+            val plannedItems = detail.queue.size
+            val resolvedItems = detail.queue.count { it.state.name == "DONE" || it.state.name == "SKIPPED" }
+            val attempts = detail.queue.sumOf { it.attempts.size }
+            append("Coverage: ").append(resolvedItems).append("/").append(plannedItems)
+                .append(" queue items resolved; ").append(attempts).append(" local attempts; ")
+                .append(snapshot.events.size).append(" imported remote events; see coverage.json for the status and reason.\n")
+            append(qualificationSummary(snapshot))
             if (binding?.serverEpoch == null || binding.remoteRunId == null) {
                 append("Remote execution binding: unavailable (`REMOTE_RUN_NOT_ACCEPTED`).\n")
             } else {
@@ -641,4 +654,33 @@ class ReportExporter(
             append("Model weights are never included; opaque artifact transfer is unavailable.\n")
         }
     }
+
 }
+
+internal fun qualificationSummary(snapshot: RealEvidenceExportSnapshot): String = buildString {
+    val knownStatuses = setOf(
+        "UNTESTED", "PARTIAL", "QUALIFIED", "REJECTED_FOR_PROFILE", "INCONCLUSIVE", "STALE",
+        "UNSUPPORTED_CONFIGURATION",
+    )
+    val counts = snapshot.qualifications.groupingBy { row ->
+        row.status.takeIf { it in knownStatuses } ?: "UNKNOWN_STATUS"
+    }.eachCount().toSortedMap()
+    val excluded = snapshot.qualifications.filter { it.status == "REJECTED_FOR_PROFILE" }
+    append("Exact-scope exclusions: ").append(excluded.size)
+        .append(" (REJECTED_FOR_PROFILE only; unknown statuses are not exclusions).\n")
+    excluded.take(10).forEach { row ->
+        append("- scope ").append(row.scopeDigestSha256.safeReportToken(16))
+            .append(" / policy ").append(row.policyDigestSha256.safeReportToken(12))
+            .append("; retained session ").append(row.sessionId.safeReportToken(48)).append(".\n")
+    }
+    if (excluded.size > 10) {
+        append("- ").append(excluded.size - 10)
+            .append(" additional exact-scope exclusions are listed in qualification.json.\n")
+    }
+    append("Qualification status counts: ")
+        .append(counts.entries.joinToString { (status, count) -> "$status=$count" }.ifEmpty { "none" })
+        .append("; full evidence and reasons are in qualification.json.\n")
+}
+
+private fun String.safeReportToken(maxLength: Int): String =
+    filter { it.isLetterOrDigit() || it == '-' || it == '_' }.take(maxLength).ifEmpty { "unknown" }
