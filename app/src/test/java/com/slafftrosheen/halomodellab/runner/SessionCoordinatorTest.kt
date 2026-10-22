@@ -8,6 +8,9 @@ import com.slafftrosheen.halomodellab.domain.BenchmarkEngine
 import com.slafftrosheen.halomodellab.domain.BenchmarkRequest
 import com.slafftrosheen.halomodellab.domain.ComputeBackend
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
+import com.slafftrosheen.halomodellab.domain.EvidenceConfidence
+import com.slafftrosheen.halomodellab.domain.FailureDomain
+import com.slafftrosheen.halomodellab.domain.FailureInfo
 import com.slafftrosheen.halomodellab.domain.ModelRole
 import com.slafftrosheen.halomodellab.domain.PlannedItem
 import com.slafftrosheen.halomodellab.domain.QueueItemState
@@ -91,6 +94,45 @@ class SessionCoordinatorTest {
         assertEquals(CoordinatorResult.Completed, result)
         assertEquals(AttemptOutcome.TIMED_OUT, repository.attempts.single().outcome)
         assertEquals(ResultValidity.VALID, repository.attempts.single().validity)
+    }
+
+    @Test
+    fun threeConsecutiveHarnessFailuresPauseBeforeAnotherAllocationAndSurviveResume() = runTest {
+        val repository = FakeSessionRepository()
+        repository.createSession(
+            plan(DemoCatalog.SUCCESS, DemoCatalog.SUCCESS, DemoCatalog.SUCCESS, DemoCatalog.SUCCESS),
+        )
+        val faultyEngine = object : BenchmarkEngine {
+            override val engineId = DemoCatalog.DEMO_ENGINE_ID
+            override val origin = EvidenceOrigin.SYNTHETIC
+            override suspend fun execute(request: BenchmarkRequest, events: AttemptEventSink) =
+                AttemptResult(
+                    outcome = AttemptOutcome.FAILED,
+                    validity = ResultValidity.INVALID,
+                    origin = origin,
+                    failure = FailureInfo(
+                        code = "HARNESS_CONTROL_FAILURE",
+                        domain = FailureDomain.HARNESS,
+                        confidence = EvidenceConfidence.OBSERVED,
+                        detail = "controlled harness fault",
+                    ),
+                )
+        }
+        val firstCoordinator = coordinator(repository, FakeConditions(), testScheduler, faultyEngine)
+
+        assertEquals(
+            CoordinatorResult.Paused("REPEATED_HARNESS_FAILURES"),
+            firstCoordinator.runSession(repository.sessionId),
+        )
+        assertEquals(3, repository.attempts.size)
+        assertEquals(QueueItemState.PENDING, repository.itemStates().last())
+
+        val resumedCoordinator = coordinator(repository, FakeConditions(), testScheduler, faultyEngine)
+        assertEquals(
+            CoordinatorResult.Paused("REPEATED_HARNESS_FAILURES"),
+            resumedCoordinator.runSession(repository.sessionId),
+        )
+        assertEquals("resume must not allocate another attempt", 3, repository.attempts.size)
     }
 
     @Test

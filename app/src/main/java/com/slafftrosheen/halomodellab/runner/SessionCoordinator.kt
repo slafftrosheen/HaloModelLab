@@ -167,6 +167,26 @@ class SessionCoordinator(
             return CoordinatorResult.Rejected("SESSION_NOT_STARTABLE")
         }
 
+        // Rebuild the guard from committed attempt rows so process/session resume cannot
+        // silently reset a consecutive harness-failure streak.
+        var harnessBreaker = HarnessFaultCircuitBreaker()
+        detail.queue.asSequence()
+            .flatMap { it.attempts.asSequence() }
+            .filter { it.outcome != null }
+            .forEach { attempt ->
+                harnessBreaker = if (attempt.outcome == AttemptOutcome.FAILED &&
+                    attempt.failure?.domain == FailureDomain.HARNESS
+                ) harnessBreaker.recordHarnessFault() else HarnessFaultCircuitBreaker()
+            }
+
+        if (harnessBreaker.shouldPauseForReview) {
+            return pauseSession(
+                sessionId = sessionId,
+                eventCode = "CIRCUIT_BREAKER_PAUSE_AFTER_${HarnessFaultCircuitBreaker.FAULTS_BEFORE_PAUSE}_HARNESS_FAILURES",
+                reason = "REPEATED_HARNESS_FAILURES",
+            )
+        }
+
         while (true) {
             stopReason?.let { reason -> return stopSession(sessionId, reason) }
 
@@ -239,7 +259,20 @@ class SessionCoordinator(
                     }
 
                     when (attemptRun) {
-                        AttemptRun.Continue -> Unit
+                        is AttemptRun.Continue -> {
+                            harnessBreaker = if (attemptRun.harnessFault) {
+                                harnessBreaker.recordHarnessFault()
+                            } else {
+                                HarnessFaultCircuitBreaker()
+                            }
+                            if (harnessBreaker.shouldPauseForReview) {
+                                return pauseSession(
+                                    sessionId = sessionId,
+                                    eventCode = "CIRCUIT_BREAKER_PAUSE_AFTER_${HarnessFaultCircuitBreaker.FAULTS_BEFORE_PAUSE}_HARNESS_FAILURES",
+                                    reason = "REPEATED_HARNESS_FAILURES",
+                                )
+                            }
+                        }
                         is AttemptRun.StorageFailure -> return failInfrastructure(
                             sessionId = sessionId,
                             code = "STORAGE_FAILURE",
@@ -326,7 +359,10 @@ class SessionCoordinator(
                         "Engine reported ${result.origin} for a ${request.origin} request.",
                     )
                 } else {
-                    finishAttemptOrStorage(request.attemptId, result) ?: AttemptRun.Continue
+                    finishAttemptOrStorage(request.attemptId, result) ?: AttemptRun.Continue(
+                        harnessFault = result.outcome == AttemptOutcome.FAILED &&
+                            result.failure?.domain == FailureDomain.HARNESS,
+                    )
                 }
             }
 
@@ -337,7 +373,7 @@ class SessionCoordinator(
                     validity = ResultValidity.VALID,
                     origin = request.origin,
                 ),
-            ) ?: AttemptRun.Continue
+            ) ?: AttemptRun.Continue()
 
             EngineExecution.Cancelled -> {
                 val reasonCode = when {
@@ -388,7 +424,7 @@ class SessionCoordinator(
                             .take(MAX_DETAIL_CHARS),
                     ),
                 )
-                finishAttemptOrStorage(request.attemptId, failure) ?: AttemptRun.Continue
+                finishAttemptOrStorage(request.attemptId, failure) ?: AttemptRun.Continue()
             }
         }
     }
@@ -604,7 +640,7 @@ class SessionCoordinator(
     }
 
     private sealed interface AttemptRun {
-        data object Continue : AttemptRun
+        data class Continue(val harnessFault: Boolean = false) : AttemptRun
         data class ConditionStop(val reason: ConditionBlockReason) : AttemptRun
         data class StopRequested(val reason: String) : AttemptRun
         data class OriginMismatch(val detail: String) : AttemptRun
