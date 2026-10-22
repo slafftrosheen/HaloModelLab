@@ -1,24 +1,12 @@
-# Handoff to Codex — Halo Model Lab v0
+# Handoff to Codex — Halo Model Lab v1
 
-## v1 continuation checkpoint — 2026-10-22
+## Current C4/C8 checkpoint — 2026-10-22
 
-The user authorized the Halo checkout at `C:\Users\slavd\HaloEco\Halo-main` for edits while preserving existing work, and authorized creating/pushing the public empty GitHub remote `slafftrosheen/HaloModelLab`. The Lab's original history is pushed to `origin/main`. Halo remains a separate local repository; no Halo changes have been pushed.
+Lab `e348bc7f3661ffd913e61c0b892aff9a83fa4673` is committed on `main` and pushed to the explicitly authorized public repository. Halo counterpart `dfac0b073301003186eec71a53a111d8c74f154e` is committed locally on a managed `main` worktree and not pushed. The user's original Halo checkout and branch were preserved.
 
-Source changes currently in progress in both repos define protocol v1.0, SHA-256 `264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e`. Halo includes opt-in signed AIDL access, file/resource leases, durable attempt events, and an isolated worker for only the fixed CPU `fast-smoke/1/short-ready` test. Lab has an AIDL gateway and a remote engine source, but no real plan UI or persisted execution-context resolver registers that engine with the foreground service. C4 remains partial. C8 acquisition is explicitly unsupported in the catalog because Halo's bridge returns `HALO_ACQUISITION_NOT_IMPLEMENTED`; Lab adds no downloader or model cache.
+C4 source now connects a verified installed local model through a persisted fixed FAST/CPU plan, Lab foreground service, Halo remote engine, replay import/recovery, terminal evidence and bounded report export. Halo terminal journal carries a bounded output preview with exact byte count/hash, truncation and available timing/backend/runtime data. C8 is explicitly unsupported in UI because Halo exposes `HALO_ACQUISITION_NOT_IMPLEMENTED`; Lab has no downloader, network permission or weight cache.
 
-Build / Automated tests / Phone tests are NOT_RUN for this continuation. Keep V0/V1 reports below as historical results only. The user asked for the source implementation without Gradle, builds, automated test runs, ADB, installation, or phone benchmarks.
-
-### Latest C4/C8 checkpoint
-
-`SessionCoordinator` now dispatches to an engine registered for the plan's persisted ID, and
-`HaloRemoteBenchmarkEngine` contains the opt-in handshake, artifact lease, idempotent attempt
-query, replay import-before-acknowledgement, and stop-cleanup wait. A source regression test covers
-engine dispatch. This is still partial: the service does not register the remote engine because
-the Lab cannot yet reconstruct a persisted `ExecutionScope`/submit context after process death;
-terminal event reconciliation and bounded inference output in the ZIP are also missing. Continue
-with C6 fixed-plan/context persistence, then finish C4 registration, recovery and export. C8
-acquisition is explicitly unsupported in the real catalog UI because Halo's bridge returns
-`HALO_ACQUISITION_NOT_IMPLEMENTED`. Do not run builds, tests, ADB, or phone benchmarks.
+Source checks passed: JSON/XML parsing, exact protocol-byte/schema hash agreement (`2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`), and `git diff --check`. Build, Automated tests, and Phone tests are **NOT_RUN** for these source changes. Do not claim a usable APK, native crash resilience or successful real-model tests. Continue from `docs/CONTINUATION_STATE.json`; `docs/PENDING_VERIFICATION.md` records the permitted verification boundary.
 
 ## Current continuation status (2026-10-22)
 

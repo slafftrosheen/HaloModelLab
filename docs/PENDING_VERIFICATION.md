@@ -1,20 +1,15 @@
 # Pending verification — current v1 continuation
 
-**Historical V0/V1 record (2026-10-22): Build PASS; automated tests PASS; device instrumentation PASS; synthetic manual smoke PASS. During the current source continuation, Build, Automated tests, and Phone tests are NOT_RUN. Real-model acceptance remains NOT_RUN pending the separately permitted verification stage.**
+## C4/C8 source checkpoint — 2026-10-22
 
-## Current C4/C8 source checkpoint
+- Lab `e348bc7f3661ffd913e61c0b892aff9a83fa4673` is pushed to public `origin/main`. Halo counterpart `dfac0b073301003186eec71a53a111d8c74f154e` is local only on the managed `main` worktree; Halo was not pushed and the original user checkout was preserved.
+- Source implementation wires a fixed verified-local FAST/CPU plan through persisted execution context, the foreground service, remote execution, replay recovery, immutable local attempt completion, bounded terminal output and ZIP evidence. Halo's journal retains a 512-character preview, its hash and byte count, truncation, timings and runtime/backend identity.
+- C8 acquisition remains explicitly unavailable because Halo's bridge returns `HALO_ACQUISITION_NOT_IMPLEMENTED`; no Lab downloader, model cache or `INTERNET` permission was added.
+- Source checks: JSON/XML parsing **PASS**; protocol exact-byte hash check **PASS** (`2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`); `git diff --check` **PASS**.
+- Build **NOT_RUN**. Automated tests **NOT_RUN** (test sources were added/updated but not executed). Phone tests **NOT_RUN**. Real-model acceptance, usable APK, native crash resilience and qualification remain unverified.
+- Next permitted step: use the separately authorized V0/V1 procedure on this exact commit pair. The phone being connected is not itself evidence that a phone test ran.
 
-- Added engine selection and the `HaloRemoteBenchmarkEngine` source, plus a coordinator dispatch
-  regression test source. `BenchForegroundService` still registers only the synthetic engine
-  because a persisted execution-scope/context resolver has not been implemented.
-- The remote engine imports hashed event pages transactionally before acknowledgement and waits
-  for remote cleanup/death confirmation after cancellation. It does not yet reconcile terminal
-  events into the immutable local attempt or export bounded inference output.
-- Build: **NOT_RUN**. Automated tests: **NOT_RUN** (including the newly added source test).
-  Phone tests: **NOT_RUN**. No Gradle, build, emulator, ADB, install, or benchmark command was
-  run in this continuation. Required next source work: C6 fixed fast-smoke plan/context factory,
-  service registration, terminal recovery mapping, and bounded ZIP evidence path. C8 acquisition
-  is explicitly unsupported because Halo currently exposes no existing acquisition API to Lab.
+## Historical verification records
 
 V0 used JDK 21, Android SDK 37 and Windows Gradle wrapper 9.6.0. Final commands:
 

@@ -1,33 +1,19 @@
 # Implementation status — Halo Model Lab
 
-## Active v1 continuation checkpoint — 2026-10-22 (supersedes older access-status notes below)
+## Active v1 continuation checkpoint — 2026-10-22
 
-### C4/C8 source checkpoint — 2026-10-22
+### C4/C8 — source implementation checkpoint
 
-- `SessionCoordinator` can select an engine by the persisted engine ID while retaining the
-  existing synthetic engine path.
-- `HaloRemoteBenchmarkEngine` source now checks protocol/schema/consent, matches a verified
-  artifact lease to the frozen plan, queries the attempt ID before submission, imports contiguous
-  hashed replay pages before acknowledging them, and waits for confirmed cleanup or worker death
-  after cancellation. It owns the remote deadline; coroutine timeout is not treated as native
-  cancellation.
-- A coordinator engine-selection regression test source was added. It has not been executed.
-- C4 remains **PARTIAL**: the foreground service still registers only the synthetic engine;
-  the repository has no recoverable execution-scope/context resolver, terminal remote evidence
-  is not reconciled into immutable local attempts, and inference output is not included in the
-  real ZIP. C6's fixed-plan/context factory is the next dependency. C8 is **complete as an
-  explicit unsupported capability** in the real catalog UI because Halo's bridge returns
-  `HALO_ACQUISITION_NOT_IMPLEMENTED`; Lab adds no downloader, network permission, or weight cache.
-- Build: **NOT_RUN**. Automated tests: **NOT_RUN**. Phone tests: **NOT_RUN**. Only source
-  inspection and `git diff --check` are allowed during this continuation.
+- Lab commit `e348bc7f3661ffd913e61c0b892aff9a83fa4673` is on `main` and pushed to the authorized public `origin/main`.
+- Halo counterpart commit `dfac0b073301003186eec71a53a111d8c74f154e` is local on the managed `main` worktree only. It is not pushed; the user's original `Halo-main` checkout and branch remain untouched.
+- C4 source now creates only the fixed `fast-smoke/1/short-ready` FAST/CPU plan for a verified installed LiteRT artifact, after explicit local-test consent. The plan stores an immutable execution scope. The foreground service registers the remote engine; the context resolver reconstructs the submit request only from persisted plan data and the active attempt.
+- The remote engine verifies protocol/schema/consent and runtime capability, acquires a matching model lease, queries the same attempt key before submission, imports contiguous hashed replay events before acknowledgement, and recovers an existing remote run before another allocation. It waits for confirmed cleanup or worker death after stop/timeout. Terminal success also requires a complete matching output preview, a reported CPU backend, and the planned runtime version. Reported timings remain nullable with explicit unknown reasons and replay/output evidence is included in the bounded real-run ZIP.
+- Halo journal stores the output preview (up to 512 characters), exact preview byte count/hash, truncation flag, timing fields, effective backend, and runtime version in the canonical terminal event. Source instrumentation coverage was updated for canonical payload hashing.
+- C8 is **complete as explicitly unsupported**: the catalog describes that installed verified models can create the fixed plan while acquisition remains unavailable because Halo returns `HALO_ACQUISITION_NOT_IMPLEMENTED`. Lab has no downloader, `INTERNET` permission, or model-weight cache.
+- Source-only checks: JSON/XML parsing **PASS**; shared Halo protocol bytes and schema hashes **PASS** (`2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`); `git diff --check` **PASS**. Build **NOT_RUN**; Automated tests **NOT_RUN**; Phone tests **NOT_RUN**.
+- This is source integration only. No usable APK, successful real-model run, native crash resilience, or model qualification is claimed. Exact commit pair and follow-up verification are in `docs/CONTINUATION_STATE.json` and `docs/PENDING_VERIFICATION.md`.
 
-- The owner authorized editing `C:\Users\slavd\HaloEco\Halo-main` and preserving its existing changes. Halo bridge/supervisor source is committed locally on `main` as `83c2a67ebb2bfd32aae49e4fbc18c859d574318f`; it has not been pushed and is one commit ahead of its tracked origin. Lab gateway/catalog source is committed as `1c2dadf` with a source checkpoint `031e802`; public `main` is pushed and matches local `main`.
-- Protocol v1.0 source is now present in both repositories. Shared schema SHA-256: `264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e`. Compatible commit pair is pending because the source changes are not committed yet.
-- Halo source now includes signature-protected AIDL, explicit in-Halo consent, a durable remote attempt/event journal, verified inventory projection, exact model-file leases, a private `:modelbench` process, stop/recovery supervision and a fixed CPU `fast-smoke/1/short-ready` fixture through the existing `LiteRtLocalProvider`. Lab source now includes an AIDL client gateway wired to an explicit, read-only catalog refresh. Real plan creation, remote import and execution are still not connected.
-- **C4 is source-in-progress, not accepted.** Real plan creation and the `SessionCoordinator` still use the existing synthetic flow; the Binder gateway is not wired to the remote event importer or a real `BenchmarkEngine`. The catalog can explicitly refresh Halo inventory and display provider/model/generation/state/backend metadata without starting inference. C6 remains contract-only except for the one Halo fixed fixture; C8's end-to-end remote reconciliation/export is not wired. Acquisition remains explicitly unsupported. No feature outside verified local CPU text is advertised by Halo.
-- The fixed fixture hash is `59e0652c15e4dff7dd7bfebd7cd7c04b478ddf8824995f9a610e13b9c90dfa40`. Halo accepts no arbitrary prompt, no model download request, and no non-CPU backend request.
-- Verification during this continuation: **Build NOT_RUN; Automated tests NOT_RUN; Phone tests NOT_RUN**. Source tests were added but not executed. Source inspection, JSON/XML parsing and `git diff --check` are permitted; these do not establish compilation, Binder compatibility, native crash resilience, or real-model qualification.
-- Preserve all earlier V0/V1 verification entries below as historical evidence. The v1 stage transition supersedes only the L0–L4 scope limit and stop-after-one-starter-batch rule; signing/privacy, repository authority and verification restrictions remain.
+The v1 stage transition replaces only the starter L0–L4 scope limit and stop-after-one-starter-batch rule. Signing/privacy, repository authority, and verification restrictions remain in force. Historical V0/V1 results below remain historical and do not verify these newer changes.
 
 Последнее обновление: 22 октября 2026. Исторические отчёты ниже относятся к прежним этапам; актуальные V0/V1 результаты зафиксированы в разделах ниже и в `docs/PENDING_VERIFICATION.md`.
 

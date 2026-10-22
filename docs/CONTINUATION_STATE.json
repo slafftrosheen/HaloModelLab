@@ -6,14 +6,14 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "178f2b6125c80831e42c6e3d39acf919c8fa0b35",
+    "lastImplementationCommit": "e348bc7f3661ffd913e61c0b892aff9a83fa4673",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "178f2b6125c80831e42c6e3d39acf919c8fa0b35",
-    "currentWorkingTree": "C4/C8 implementation and checkpoint docs committed locally; no verification runs permitted",
+    "currentHead": "e348bc7f3661ffd913e61c0b892aff9a83fa4673",
+    "currentWorkingTree": "C4/C8 implementation and bounded checkpoint docs committed; authorized Lab main push completed",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: origin/main matches local main at the current checkpoint"
+    "pushState": "PUSHED: authorized Lab main includes the C4/C8 implementation; source commit e348bc7f3661ffd913e61c0b892aff9a83fa4673"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -30,37 +30,37 @@
     "C1": "LAB_SOURCE_IMPLEMENTED; generated Room schema v2 committed; validation and migration tests PASS on V0; implementation commit 74f9f55; verification repair commit 015b497",
     "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
     "C3": "LAB_INVENTORY_PROJECTION_IMPLEMENTED; explicit opt-in Halo inventory refresh connected in source; runtime compatibility NOT_RUN",
-    "C4": "PARTIAL_SOURCE: Halo bridge/worker exists; Lab coordinator selects engine by persisted engineId and has a Halo remote engine source with protocol/consent/lease checks and cleanup-owned deadline; application registration and persisted execution-context resolver remain unwired; build/tests/e2e NOT_RUN",
+    "C4": "SOURCE_INTEGRATED_UNVERIFIED: fixed verified-local FAST/CPU plan, persisted ExecutionScope/context resolver, foreground service real engine registration, lease/submission/replay/recovery, terminal output hash/fixture/backend/runtime validation and metrics; local attempts retain terminal immutability. Halo journal adds bounded terminal preview/timings. Runtime, build, automated, phone and native-crash acceptance NOT_RUN.",
     "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; unit tests PASS; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe",
     "C6": "CONTRACT_ONLY except Halo fixed fast-smoke/1/short-ready CPU fixture; no Lab capability-selected plan UI/session engine wiring",
     "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; unit tests PASS; not connected to a real runner/supervisor; commit 8dcafbe",
-    "C8": "SOURCE_COMPLETE_UNSUPPORTED: real catalog UI explains Halo-owned acquisition is unavailable because the Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, network permission, or weight cache added. Enable only after a concrete existing Halo acquisition API is exposed and audited",
+    "C8": "SOURCE_COMPLETE_UNSUPPORTED: explicit real-catalog status explains acquisition is unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache.",
     "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; unit tests PASS; exact scope requires verified eligibility; persistence/UI filters NOT_WIRED; commits 2158c36, 4a8cee6",
     "C10": "LAB_EXPORT_SCHEMA_V2_SOURCE_IMPLEMENTED; unit tests PASS; atomic Room export snapshot and bounded reproduction sections; real terminal reconciliation/output capture/UI not wired; commit cfb663b; synthetic device ZIP smoke PASS"
   },
   "halo": {
-    "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main",
-    "head": "83c2a67ebb2bfd32aae49e4fbc18c859d574318f",
-    "worktree": "clean after authorized local source commit; one commit ahead of origin/main; not pushed",
+    "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
+    "head": "dfac0b073301003186eec71a53a111d8c74f154e",
+    "worktree": "local main commit dfac0b073301003186eec71a53a111d8c74f154e; ahead 2/behind 32 vs origin/main; not pushed; original Halo-main user branch untouched",
     "writeAuthorized": true,
-    "status": "SOURCE_IN_PROGRESS_UNVERIFIED_LOCAL_COMMIT"
+    "status": "SOURCE_COMMITTED_UNVERIFIED_NOT_PUSHED"
   },
   "protocol": {
     "clientVersion": 1,
     "clientMinorVersion": 0,
     "roleMappingVersion": 1,
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
-    "labClientDraftSha256": "c068ebc704968d82f2d5a9e8e77df399be9fd31ad8d8304b9ffd74c512af5fd9",
+    "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
     "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab source 178f2b6125c80831e42c6e3d39acf919c8fa0b35 / Halo source 83c2a67ebb2bfd32aae49e4fbc18c859d574318f; schema hash match; runtime compatibility NOT_RUN",
-    "protocolHash": "264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e",
-    "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commits recorded; runtime compatibility NOT_RUN",
-    "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main\\protocol\\halo-lab-bridge-v1.json"
+    "compatibleCommitPair": "Lab e348bc7f3661ffd913e61c0b892aff9a83fa4673 / Halo dfac0b073301003186eec71a53a111d8c74f154e; exact shared protocol file bytes; runtime compatibility NOT_RUN",
+    "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
+    "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commit pair recorded; runtime compatibility NOT_RUN",
+    "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
-    "build": "PASS: :app:assembleDebug and :app:assembleDebugAndroidTest; Gradle 9.6.0, JDK 21, Android SDK 37",
-    "automatedTests": "PASS: 91/91 unit tests; 21/21 connected instrumentation tests on Android 16/API 36",
-    "phoneTests": "PARTIAL_PASS: installed/launched app, completed demo/success as SYNTHETIC, exported schema-v2 ZIP and verified 9 checksums; real-model V1 NOT_RUN",
+    "build": "NOT_RUN for current C4/C8 source changes",
+    "automatedTests": "NOT_RUN for current C4/C8 source changes",
+    "phoneTests": "NOT_RUN for current C4/C8 source changes",
     "allowedThisTurn": [
       "source inspection",
       "JSON/XML parsing",
@@ -72,7 +72,8 @@
       "build": "NOT_RUN",
       "automatedTests": "NOT_RUN",
       "sourceDiffCheck": "PASS",
-      "protocolHashCheck": "PASS: 264f430a5cd7b399f82130347572c72494a6a51f70a48f0eddcf83bc31090c3e",
+      "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; exact bytes in Lab and Halo",
+      "jsonXmlParsing": "PASS",
       "sourceTestsAdded": true,
       "phoneTests": "NOT_RUN"
     }
@@ -82,7 +83,8 @@
     "xmlParse": "PASS",
     "baselineHashMatch": "PASS",
     "gitDiffCheck": "PASS",
-    "roomSchemaV2GeneratedByKsp": "PASS"
+    "roomSchemaV2GeneratedByKsp": "PASS",
+    "protocolExactByteMatch": "PASS: Lab and Halo protocol v1.0 files are byte-identical"
   },
   "verificationEvidence": {
     "device": "Samsung SM-G990B2, Android 16, API 36",
@@ -91,16 +93,16 @@
     "apkSha256": "0adf72aba5c9dcb79c81fd1b63d283b471163bdf32a54f84fecf154bd378bb97",
     "roomSchemaV2Sha256": "3b269021e3647ccd15487c5f04d8e8477d7b61cdbaca1911487e542710f154c1",
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
-    "realModelPhoneAcceptance": "NOT_RUN; real Lab plan/session/event-import path is incomplete; no build or phone verification in this continuation"
+    "realModelPhoneAcceptance": "NOT_RUN; no real-model run, usable APK claim or native crash-resilience claim"
   },
-  "next": "Complete the C6 fixed fast-smoke plan/context factory and persist the execution scope so BenchForegroundService can register HaloRemoteBenchmarkEngine without inventing identity or configuration. Then reconcile terminal remote evidence into immutable local attempts and bounded ZIP reproduction/output sections. C8 remains explicitly unsupported until an existing Halo acquisition API is exposed. Build, automated tests and phone tests remain NOT_RUN; do not run Gradle or ADB.",
+  "next": "C4/C8 source work checkpointed. Before real-model acceptance, run the separately authorized V0/V1 verification against this exact Lab/Halo commit pair; inspect source-test/build failures, then perform only the explicitly authorized phone verification. Do not claim real-model qualification or native crash resilience without corresponding evidence.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 2,
     "roomSchemaV2Generated": true,
     "exportSchema": 2,
     "qualificationPolicy": 1,
-    "clientProtocol": "1.0 CLIENT_DRAFT_ONLY",
-    "canonicalHaloProtocol": null
+    "clientProtocol": "1.0; client schema d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
+    "canonicalHaloProtocol": "1.0; schema 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c"
   }
 }
