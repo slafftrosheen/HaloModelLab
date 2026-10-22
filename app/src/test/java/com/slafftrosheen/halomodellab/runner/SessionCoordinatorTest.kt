@@ -136,6 +136,41 @@ class SessionCoordinatorTest {
     }
 
     @Test
+    fun nonSuccessOutcomesDoNotResetHarnessFaultBreaker() = runTest {
+        val repository = FakeSessionRepository()
+        repository.createSession(
+            plan(DemoCatalog.SUCCESS, DemoCatalog.SUCCESS, DemoCatalog.SUCCESS, DemoCatalog.SUCCESS, DemoCatalog.SUCCESS),
+        )
+        var calls = 0
+        val faultyEngine = object : BenchmarkEngine {
+            override val engineId = DemoCatalog.DEMO_ENGINE_ID
+            override val origin = EvidenceOrigin.SYNTHETIC
+            override suspend fun execute(request: BenchmarkRequest, events: AttemptEventSink): AttemptResult {
+                calls += 1
+                if (calls == 2) return AttemptResult(AttemptOutcome.TIMED_OUT, ResultValidity.UNKNOWN, origin)
+                return AttemptResult(
+                    outcome = AttemptOutcome.FAILED,
+                    validity = ResultValidity.INVALID,
+                    origin = origin,
+                    failure = FailureInfo(
+                        code = "HARNESS_CONTROL_FAILURE",
+                        domain = FailureDomain.HARNESS,
+                        confidence = EvidenceConfidence.OBSERVED,
+                        detail = "controlled harness fault",
+                    ),
+                )
+            }
+        }
+
+        val result = coordinator(repository, FakeConditions(), testScheduler, faultyEngine)
+            .runSession(repository.sessionId)
+
+        assertEquals(CoordinatorResult.Paused("REPEATED_HARNESS_FAILURES"), result)
+        assertEquals("timeout did not reset the streak", 4, repository.attempts.size)
+        assertEquals(QueueItemState.PENDING, repository.itemStates().last())
+    }
+
+    @Test
     fun pauseFinishesTheCurrentAttemptAndStartsNothingElse() = runTest {
         val repository = FakeSessionRepository()
         repository.createSession(plan(DemoCatalog.SUCCESS, DemoCatalog.SUCCESS))

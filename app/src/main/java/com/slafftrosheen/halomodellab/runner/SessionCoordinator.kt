@@ -174,9 +174,13 @@ class SessionCoordinator(
             .flatMap { it.attempts.asSequence() }
             .filter { it.outcome != null }
             .forEach { attempt ->
-                harnessBreaker = if (attempt.outcome == AttemptOutcome.FAILED &&
-                    attempt.failure?.domain == FailureDomain.HARNESS
-                ) harnessBreaker.recordHarnessFault() else HarnessFaultCircuitBreaker()
+                harnessBreaker = when {
+                    attempt.outcome == AttemptOutcome.FAILED && attempt.failure?.domain == FailureDomain.HARNESS ->
+                        harnessBreaker.recordHarnessFault()
+                    attempt.outcome == AttemptOutcome.PASSED && attempt.validity == ResultValidity.VALID ->
+                        harnessBreaker.recordValidControlSuccess()
+                    else -> harnessBreaker
+                }
             }
 
         if (harnessBreaker.shouldPauseForReview) {
@@ -260,10 +264,10 @@ class SessionCoordinator(
 
                     when (attemptRun) {
                         is AttemptRun.Continue -> {
-                            harnessBreaker = if (attemptRun.harnessFault) {
-                                harnessBreaker.recordHarnessFault()
-                            } else {
-                                HarnessFaultCircuitBreaker()
+                            harnessBreaker = when {
+                                attemptRun.harnessFault -> harnessBreaker.recordHarnessFault()
+                                attemptRun.validControlSuccess -> harnessBreaker.recordValidControlSuccess()
+                                else -> harnessBreaker
                             }
                             if (harnessBreaker.shouldPauseForReview) {
                                 return pauseSession(
@@ -362,6 +366,8 @@ class SessionCoordinator(
                     finishAttemptOrStorage(request.attemptId, result) ?: AttemptRun.Continue(
                         harnessFault = result.outcome == AttemptOutcome.FAILED &&
                             result.failure?.domain == FailureDomain.HARNESS,
+                        validControlSuccess = result.outcome == AttemptOutcome.PASSED &&
+                            result.validity == ResultValidity.VALID,
                     )
                 }
             }
@@ -640,7 +646,10 @@ class SessionCoordinator(
     }
 
     private sealed interface AttemptRun {
-        data class Continue(val harnessFault: Boolean = false) : AttemptRun
+        data class Continue(
+            val harnessFault: Boolean = false,
+            val validControlSuccess: Boolean = false,
+        ) : AttemptRun
         data class ConditionStop(val reason: ConditionBlockReason) : AttemptRun
         data class StopRequested(val reason: String) : AttemptRun
         data class OriginMismatch(val detail: String) : AttemptRun
