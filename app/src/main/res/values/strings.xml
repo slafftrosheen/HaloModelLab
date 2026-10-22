@@ -242,4 +242,8 @@
     <string name="export_share_failed">Не удалось открыть системное окно «Поделиться».</string>
     <string name="export_save_done">Архив сохранён.</string>
     <string name="export_save_failed">Запись в выбранное место не удалась; возможно, файл сохранён частично.</string>
+    <string name="comparison_select_label">Сравнить с завершённой real-сессией</string>
+    <string name="comparison_none">Без сравнения</string>
+    <string name="comparison_candidate">%1$s · %2$s</string>
+    <string name="comparison_hint">Сравнение будет отмечено как несопоставимое, если точный execution scope или policy отличаются.</string>
 </resources>

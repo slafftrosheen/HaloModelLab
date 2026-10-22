@@ -31,7 +31,7 @@ class ReportFormatterTest {
         )
 
         assertTrue(report.contains("СИМУЛЯЦИЯ"))
-        assertTrue(report.contains("Сопоставимого baseline нет"))
+        assertTrue(report.contains("comparison.json"))
         assertTrue(report.contains("Bridge/runtime: не использовались"))
         assertTrue(report.contains("Origin: SYNTHETIC"))
         assertTrue(report.contains("Профиль: demo-profile"))

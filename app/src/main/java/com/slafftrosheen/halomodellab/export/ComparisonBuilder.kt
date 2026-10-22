@@ -1,6 +1,9 @@
 package com.slafftrosheen.halomodellab.export
 
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
+import com.slafftrosheen.halomodellab.data.SessionExportSnapshot
+import com.squareup.moshi.JsonReader
+import okio.Buffer
 
 data class FailureSignature(val code: String, val domain: String, val stage: String)
 
@@ -25,6 +28,29 @@ data class SessionComparison(
 
 /** Compares only exact, verified device scopes. It deliberately makes no regression claim. */
 object ComparisonBuilder {
+    fun fromSnapshot(snapshot: SessionExportSnapshot): ComparableRun {
+        val evidence = snapshot.realEvidence
+        val scopeRows = evidence?.configurations.orEmpty()
+        val scopeDigests = scopeRows.map { it.scopeDigestSha256 }
+        val scope = scopeDigests.distinct().singleOrNull()?.takeIf { scopeDigests.isNotEmpty() && SHA256.matches(it.orEmpty()) }
+        val sourceVerified = scopeRows.isNotEmpty() && scopeRows.all { row ->
+        row.executionScopeJson?.let(::hasVerifiedComparableIdentity) == true
+        }
+        val failures = snapshot.detail.queue.flatMap { item ->
+            item.attempts.mapNotNull { attempt -> attempt.failure?.let { failure ->
+                FailureSignature(failure.code, failure.domain.name, attempt.stage.name)
+            } }
+        }.toSet()
+        return ComparableRun(
+            sessionId = snapshot.detail.summary.sessionId,
+            origin = snapshot.detail.summary.origin,
+            scopeDigestSha256 = scope,
+            policyDigestSha256 = evidence?.plan?.qualificationPolicySha256?.takeIf(SHA256::matches),
+            sourceIdentitiesVerified = sourceVerified,
+            failures = failures,
+        )
+    }
+
     fun compare(current: ComparableRun, previous: ComparableRun): SessionComparison {
         val reason = when {
             current.sessionId == previous.sessionId -> "SAME_SESSION"
@@ -45,4 +71,26 @@ object ComparisonBuilder {
             persistentFailures = current.failures intersect previous.failures,
         )
     }
+
+    private fun hasVerifiedComparableIdentity(json: String): Boolean = runCatching {
+        val reader = JsonReader.of(Buffer().writeUtf8(json))
+        reader.isLenient = false
+        reader.beginObject()
+        var verified = false
+        var backend: String? = null
+        var fixture: String? = null
+        while (reader.hasNext()) {
+            when (reader.nextName()) {
+                "sourceIdentitiesVerified" -> verified = reader.nextBoolean()
+                "effectiveBackend" -> backend = if (reader.peek() == JsonReader.Token.STRING) reader.nextString() else { reader.skipValue(); null }
+                "fixtureManifestSha256" -> fixture = if (reader.peek() == JsonReader.Token.STRING) reader.nextString() else { reader.skipValue(); null }
+                else -> reader.skipValue()
+            }
+        }
+        reader.endObject()
+        reader.peek() == JsonReader.Token.END_DOCUMENT && verified &&
+            backend != null && backend != "UNSPECIFIED" && backend != "AUTO" && fixture?.let(SHA256::matches) == true
+    }.getOrDefault(false)
+
+    private val SHA256 = Regex("[0-9a-f]{64}")
 }

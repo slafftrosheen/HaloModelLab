@@ -136,6 +136,16 @@ class ReportExporterTest {
     }
 
     @Test
+    fun selectedMissingPreviousSessionIsRecordedAsUnavailable() = runTest {
+        completedSessionWithFailure()
+        val result = exporter.export(sessionId, "previous-session-missing")
+        assertTrue(result is ExportResult.Success)
+        val comparison = String(entryBytes((result as ExportResult.Success).file, "comparison.json"), Charsets.UTF_8)
+        assertTrue(comparison.contains("PREVIOUS_SESSION_MISSING"))
+        assertTrue(comparison.contains("previous-session-missing"))
+    }
+
+    @Test
     fun checksumsCoverEveryPayloadEntryAndMatchBytes() = runTest {
         completedSessionWithFailure()
 

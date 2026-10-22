@@ -55,7 +55,7 @@ class ReportExporter(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
 
-    suspend fun export(sessionId: String): ExportResult = withContext(ioDispatcher) {
+    suspend fun export(sessionId: String, previousSessionId: String? = null): ExportResult = withContext(ioDispatcher) {
         val snapshot = repository.exportSnapshot(sessionId)
             ?: return@withContext ExportResult.MissingSession(sessionId)
         val detail = snapshot.detail
@@ -65,7 +65,29 @@ class ReportExporter(
         }
 
         try {
-            ExportResult.Success(writeArchive(detail, snapshot.realEvidence))
+            val (comparisonBytes, comparisonSummary) = when {
+                previousSessionId == null -> RealEvidenceExportJson.comparison() to "No previous session selected; comparison was not requested."
+                else -> {
+                    val previous = repository.exportSnapshot(previousSessionId)
+                    when {
+                        previous == null -> RealEvidenceExportJson.comparison(previousSessionId, unavailableReason = "PREVIOUS_SESSION_MISSING") to
+                            "Selected previous session $previousSessionId is missing; comparison is unavailable."
+                        !isExportable(previous.detail.summary.state) -> RealEvidenceExportJson.comparison(
+                            previousSessionId,
+                            unavailableReason = "PREVIOUS_SESSION_NOT_QUIESCENT",
+                        ) to "Selected previous session is still active; comparison is unavailable."
+                        else -> {
+                            val comparison = ComparisonBuilder.compare(
+                                ComparisonBuilder.fromSnapshot(snapshot),
+                                ComparisonBuilder.fromSnapshot(previous),
+                            )
+                            RealEvidenceExportJson.comparison(previousSessionId, comparison) to
+                                comparison.toReportSummary(previousSessionId)
+                        }
+                    }
+                }
+            }
+            ExportResult.Success(writeArchive(detail, snapshot.realEvidence, comparisonBytes, comparisonSummary))
         } catch (cancellation: CancellationException) {
             throw cancellation
         } catch (tooLarge: ArchiveTooLargeException) {
@@ -83,7 +105,12 @@ class ReportExporter(
         }
     }
 
-    private suspend fun writeArchive(detail: SessionDetail, realEvidence: RealEvidenceExportSnapshot?): File {
+    private suspend fun writeArchive(
+        detail: SessionDetail,
+        realEvidence: RealEvidenceExportSnapshot?,
+        comparisonBytes: ByteArray,
+        comparisonSummary: String,
+    ): File {
         val omissions = mutableListOf<String>()
         val generatedAt = iso(clock.wallTimeMs())
 
@@ -97,7 +124,7 @@ class ReportExporter(
             throw ExportSectionTooLargeException("qualification.json is ${qualificationBytes.size} bytes; the section limit is $MAX_SECTION_BYTES.")
         }
         payload["qualification.json"] = qualificationBytes
-        payload["comparison.json"] = RealEvidenceExportJson.comparison()
+        payload["comparison.json"] = comparisonBytes
         payload["failures/index.json"] = RealEvidenceExportJson.failureIndex(detail)
         payload["failures/clusters.json"] = RealEvidenceExportJson.failureClusters(detail)
         buildFailureFiles(detail, omissions).forEach { (name, bytes) -> payload[name] = bytes }
@@ -114,7 +141,7 @@ class ReportExporter(
             realEvidence.truncatedSections.forEach { omissions += "$it was limited while reading the Room snapshot." }
         }
         payload["report.md"] = ReportFormatter
-            .format(detail, generatedAt, omissions)
+            .format(detail, generatedAt, omissions, comparisonSummary)
             .let { base -> appendRealEvidenceSummary(base, realEvidence) }
             .let { ReportFormatter.bound(it) }
             .toByteArray(Charsets.UTF_8)
@@ -485,6 +512,13 @@ class ReportExporter(
 
     private class ArchiveTooLargeException(message: String) : Exception(message)
     private class ExportSectionTooLargeException(message: String) : Exception(message)
+
+    private fun SessionComparison.toReportSummary(previousSessionId: String): String = when (status) {
+        ComparisonStatus.INCOMPARABLE -> "Previous session $previousSessionId was selected, but exact scope/policy checks failed: $reasonCode."
+        ComparisonStatus.COMPATIBLE -> "Compared with $previousSessionId at the exact verified scope: " +
+            "new failures ${newFailures.size}, resolved ${resolvedFailures.size}, persistent ${persistentFailures.size}. " +
+            "These are observed changes, not a regression verdict."
+    }
 
     companion object {
         /** Single source of truth for the UI button and the exporter guard. */

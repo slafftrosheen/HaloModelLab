@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +51,7 @@ import com.slafftrosheen.halomodellab.domain.EventView
 import com.slafftrosheen.halomodellab.domain.FailureInfo
 import com.slafftrosheen.halomodellab.domain.QueueItemView
 import com.slafftrosheen.halomodellab.domain.SessionDetail
+import com.slafftrosheen.halomodellab.domain.SessionSummary
 import com.slafftrosheen.halomodellab.export.ExportShare
 import com.slafftrosheen.halomodellab.export.ReportExporter
 import com.slafftrosheen.halomodellab.ui.attemptOutcomeLabelRes
@@ -72,6 +78,8 @@ fun SessionDetailsRoute(
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
     val exportState by viewModel.exportState.collectAsStateWithLifecycle()
+    val comparisonCandidates by viewModel.comparisonCandidates.collectAsStateWithLifecycle()
+    val selectedComparisonSessionId by viewModel.selectedComparisonSessionId.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -94,6 +102,9 @@ fun SessionDetailsRoute(
     SessionDetailsScreen(
         state = state,
         exportState = exportState,
+        comparisonCandidates = comparisonCandidates,
+        selectedComparisonSessionId = selectedComparisonSessionId,
+        onSelectComparisonSession = viewModel::selectComparisonSession,
         onBack = onBack,
         onExport = viewModel::export,
         onShare = {
@@ -119,8 +130,11 @@ fun SessionDetailsRoute(
 fun SessionDetailsScreen(
     state: SessionDetailsUiState,
     exportState: ExportUiState,
+    comparisonCandidates: List<SessionSummary> = emptyList(),
+    selectedComparisonSessionId: String? = null,
     onBack: () -> Unit,
     onExport: () -> Unit,
+    onSelectComparisonSession: (String?) -> Unit = {},
     onShare: () -> Unit,
     onSave: () -> Unit,
 ) {
@@ -153,6 +167,9 @@ fun SessionDetailsScreen(
             is SessionDetailsUiState.Loaded -> DetailsContent(
                 detail = state.detail,
                 exportState = exportState,
+                comparisonCandidates = comparisonCandidates,
+                selectedComparisonSessionId = selectedComparisonSessionId,
+                onSelectComparisonSession = onSelectComparisonSession,
                 contentPadding = innerPadding,
                 onExport = onExport,
                 onShare = onShare,
@@ -166,8 +183,11 @@ fun SessionDetailsScreen(
 private fun DetailsContent(
     detail: SessionDetail,
     exportState: ExportUiState,
+    comparisonCandidates: List<SessionSummary>,
+    selectedComparisonSessionId: String?,
     contentPadding: PaddingValues,
     onExport: () -> Unit,
+    onSelectComparisonSession: (String?) -> Unit,
     onShare: () -> Unit,
     onSave: () -> Unit,
 ) {
@@ -188,7 +208,10 @@ private fun DetailsContent(
             ExportCard(
                 detail = detail,
                 exportState = exportState,
+                comparisonCandidates = comparisonCandidates,
+                selectedComparisonSessionId = selectedComparisonSessionId,
                 onExport = onExport,
+                onSelectComparisonSession = onSelectComparisonSession,
                 onShare = onShare,
                 onSave = onSave,
             )
@@ -361,7 +384,10 @@ private fun PlanCard(detail: SessionDetail) {
 private fun ExportCard(
     detail: SessionDetail,
     exportState: ExportUiState,
+    comparisonCandidates: List<SessionSummary>,
+    selectedComparisonSessionId: String?,
     onExport: () -> Unit,
+    onSelectComparisonSession: (String?) -> Unit,
     onShare: () -> Unit,
     onSave: () -> Unit,
 ) {
@@ -377,6 +403,39 @@ private fun ExportCard(
             )
             Text(
                 text = stringResource(R.string.export_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            var comparisonMenuExpanded by remember { mutableStateOf(false) }
+            Text(stringResource(R.string.comparison_select_label), style = MaterialTheme.typography.labelLarge)
+            androidx.compose.foundation.layout.Box {
+                val selected = comparisonCandidates.firstOrNull { it.sessionId == selectedComparisonSessionId }
+                OutlinedButton(
+                    onClick = { comparisonMenuExpanded = true },
+                    enabled = comparisonCandidates.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(selected?.let { stringResource(R.string.comparison_candidate, it.profileId, it.sessionId.take(8)) }
+                        ?: stringResource(R.string.comparison_none))
+                }
+                DropdownMenu(
+                    expanded = comparisonMenuExpanded,
+                    onDismissRequest = { comparisonMenuExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.comparison_none)) },
+                        onClick = { onSelectComparisonSession(null); comparisonMenuExpanded = false },
+                    )
+                    comparisonCandidates.forEach { candidate ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.comparison_candidate, candidate.profileId, candidate.sessionId.take(8))) },
+                            onClick = { onSelectComparisonSession(candidate.sessionId); comparisonMenuExpanded = false },
+                        )
+                    }
+                }
+            }
+            Text(
+                text = stringResource(R.string.comparison_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -19,6 +19,7 @@ object ReportFormatter {
         detail: SessionDetail,
         generatedAtIso: String,
         omissions: List<String>,
+        comparisonSummary: String = "No previous session selected; comparison was not requested.",
     ): String {
         val attempts = detail.queue.flatMap { item -> item.attempts.map { item to it } }
         val countsByOutcome = attempts.groupingBy { it.second.outcome }.eachCount()
@@ -116,7 +117,8 @@ object ReportFormatter {
             appendLine()
 
             appendLine("## Baseline")
-            appendLine("Сопоставимого baseline нет: автоматическое сравнение прогонов не реализовано.")
+            appendLine(comparisonSummary)
+            appendLine("Выбранная сессия и полные изменения указаны в comparison.json; этот отчёт не называет изменения регрессией.")
             appendLine()
 
             if (omissions.isNotEmpty()) {

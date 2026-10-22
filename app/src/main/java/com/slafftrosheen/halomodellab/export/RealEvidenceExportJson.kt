@@ -166,11 +166,34 @@ internal object RealEvidenceExportJson {
         endObject()
     }
 
-    fun comparison(): ByteArray = build {
+    fun comparison(
+        previousSessionId: String? = null,
+        comparison: SessionComparison? = null,
+        unavailableReason: String = "NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED",
+    ): ByteArray = build {
         beginObject()
         name("schemaVersion").value(1)
-        name("status").value("NOT_AVAILABLE")
-        name("reasonCode").value("NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED")
+        name("status").value(comparison?.status?.name ?: "NOT_AVAILABLE")
+        name("reasonCode").value(comparison?.reasonCode ?: unavailableReason)
+        name("previousSessionId").value(previousSessionId)
+        name("newFailures").beginArray()
+        comparison?.newFailures.orEmpty().sortedWith(FAILURE_ORDER).forEach { failure ->
+            beginObject(); name("code").value(failure.code); name("domain").value(failure.domain)
+            name("stage").value(failure.stage); endObject()
+        }
+        endArray()
+        name("resolvedFailures").beginArray()
+        comparison?.resolvedFailures.orEmpty().sortedWith(FAILURE_ORDER).forEach { failure ->
+            beginObject(); name("code").value(failure.code); name("domain").value(failure.domain)
+            name("stage").value(failure.stage); endObject()
+        }
+        endArray()
+        name("persistentFailures").beginArray()
+        comparison?.persistentFailures.orEmpty().sortedWith(FAILURE_ORDER).forEach { failure ->
+            beginObject(); name("code").value(failure.code); name("domain").value(failure.domain)
+            name("stage").value(failure.stage); endObject()
+        }
+        endArray()
         endObject()
     }
 
@@ -249,5 +272,6 @@ internal object RealEvidenceExportJson {
         .joinToString("") { "%02x".format(it) }
 
     private const val MAX_FAILURE_INDEX_ROWS = 200
+    private val FAILURE_ORDER = compareBy<FailureSignature> { it.code }.thenBy { it.domain }.thenBy { it.stage }
     private val UUID_PATTERN = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 }
