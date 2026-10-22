@@ -8,6 +8,8 @@ import com.slafftrosheen.halomodellab.domain.AttemptView
 import com.slafftrosheen.halomodellab.domain.QueueItemView
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.SessionDetail
+import com.slafftrosheen.halomodellab.catalog.FastSmokePlanFactory
+import com.slafftrosheen.halomodellab.profiles.TextProfileRegistry
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.JsonReader
 import okio.Buffer
@@ -15,6 +17,8 @@ import java.security.MessageDigest
 
 /** Serializes Lab-owned evidence only; event payloads remain strings for safe bounded parsing. */
 internal object RealEvidenceExportJson {
+    data class VerifiedOutputPreview(val attemptId: String, val text: String, val sha256: String)
+
     /** Returns a runtime only when every terminal event is hash-valid and agrees. */
     fun consistentTerminalRuntimeVersion(snapshot: RealEvidenceExportSnapshot?): String? {
         val events = snapshot?.events.orEmpty()
@@ -170,12 +174,31 @@ internal object RealEvidenceExportJson {
         endObject()
     }
 
-    fun artifactIndex(snapshot: RealEvidenceExportSnapshot?): ByteArray = build {
+    fun artifactIndex(
+        snapshot: RealEvidenceExportSnapshot?,
+        outputPreviews: List<VerifiedOutputPreview>,
+        omittedOutputPreviewCount: Int,
+    ): ByteArray = build {
         beginObject()
         name("schemaVersion").value(1)
-        name("payloadsIncluded").value(false)
-        name("unavailableReason").value(if (snapshot == null) "NO_DEVICE_EVIDENCE_SNAPSHOT" else "BRIDGE_ARTIFACT_TRANSFER_UNAVAILABLE")
+        name("payloadsIncluded").value(outputPreviews.isNotEmpty())
+        name("opaqueArtifactPayloadsIncluded").value(false)
+        name("opaqueArtifactUnavailableReason").value(if (snapshot == null) "NO_DEVICE_EVIDENCE_SNAPSHOT" else "BRIDGE_ARTIFACT_TRANSFER_UNAVAILABLE")
+        name("outputPreviewUnavailableReason").value(if (outputPreviews.isEmpty()) "NO_HASH_VERIFIED_ALLOWLISTED_OUTPUT_PREVIEW" else null)
         name("entries").beginArray()
+        outputPreviews.take(MAX_ARTIFACT_INDEX_ROWS).forEachIndexed { index, preview ->
+            beginObject()
+            name("generatedArtifactId").value("output-$index")
+            name("attemptId").value(preview.attemptId)
+            name("kind").value("FIXED_SMOKE_OUTPUT_PREVIEW")
+            name("mimeType").value("text/plain; charset=utf-8")
+            name("byteCount").value(preview.text.toByteArray(Charsets.UTF_8).size.toLong())
+            name("sha256").value(preview.sha256)
+            name("availabilityCode").value("INCLUDED_HASH_VERIFIED")
+            name("reasonCode").nullValue()
+            name("payloadFile").value("artifacts/output-$index.txt")
+            endObject()
+        }
         snapshot?.artifacts.orEmpty().take(MAX_ARTIFACT_INDEX_ROWS).forEachIndexed { index, artifact ->
             beginObject()
             name("generatedArtifactId").value("artifact-$index")
@@ -190,8 +213,76 @@ internal object RealEvidenceExportJson {
             endObject()
         }
         endArray()
-        name("truncated").value((snapshot?.artifacts?.size ?: 0) > MAX_ARTIFACT_INDEX_ROWS)
+        name("truncated").value(
+            (snapshot?.artifacts?.size ?: 0) > MAX_ARTIFACT_INDEX_ROWS ||
+                omittedOutputPreviewCount > 0 || outputPreviews.size > MAX_ARTIFACT_INDEX_ROWS,
+        )
+        name("omittedOutputPreviewCount").value(omittedOutputPreviewCount.toLong())
         endObject()
+    }
+
+    /** Exports only the complete, hash-verified output of the packaged fixed FAST smoke fixture. */
+    fun verifiedFixedSmokeOutputPreviews(
+        detail: SessionDetail,
+        snapshot: RealEvidenceExportSnapshot?,
+    ): List<VerifiedOutputPreview> {
+        if (detail.summary.origin != EvidenceOrigin.DEVICE_MEASUREMENT ||
+            detail.summary.profileId != "halo-fast-smoke-cpu-v1" || snapshot == null
+        ) return emptyList()
+        if (!hasFixedSmokeFixture(snapshot)) return emptyList()
+        val onlyCase = detail.queue.singleOrNull()?.takeIf { item ->
+            item.scenarioId == FastSmokePlanFactory.CASE_ID && item.role.name == "FAST" &&
+                item.requestedBackend.name == "CPU" && item.subjectId.startsWith("provider.litert.local/")
+        } ?: return emptyList()
+
+        val allowedAttemptIds = onlyCase.attempts.map { it.attemptId }.toSet()
+        return snapshot.events.mapNotNull { event ->
+            if (event.attemptId !in allowedAttemptIds ||
+                sha256(event.payloadJson.toByteArray(Charsets.UTF_8)) != event.payloadHashSha256
+            ) return@mapNotNull null
+            runCatching {
+                val reader = JsonReader.of(Buffer().writeUtf8(event.payloadJson))
+                reader.isLenient = false
+                reader.beginObject()
+                var kind: String? = null
+                var attemptId: String? = null
+                var preview: String? = null
+                var outputBytes: Long? = null
+                var outputSha256: String? = null
+                var truncated: Boolean? = null
+                while (reader.hasNext()) {
+                    when (reader.nextName()) {
+                        "kind" -> kind = reader.nextString()
+                        "attemptId" -> attemptId = if (reader.peek() == JsonReader.Token.NULL) { reader.nextNull<Unit>(); null } else reader.nextString()
+                        "outputPreview" -> preview = if (reader.peek() == JsonReader.Token.NULL) { reader.nextNull<Unit>(); null } else reader.nextString()
+                        "outputBytes" -> outputBytes = if (reader.peek() == JsonReader.Token.NULL) { reader.nextNull<Unit>(); null } else reader.nextLong()
+                        "outputSha256" -> outputSha256 = if (reader.peek() == JsonReader.Token.NULL) { reader.nextNull<Unit>(); null } else reader.nextString()
+                        "outputTruncated" -> truncated = if (reader.peek() == JsonReader.Token.NULL) { reader.nextNull<Unit>(); null } else reader.nextBoolean()
+                        else -> reader.skipValue()
+                    }
+                }
+                reader.endObject()
+                require(reader.peek() == JsonReader.Token.END_DOCUMENT)
+                val text = requireNotNull(preview)
+                val bytes = text.toByteArray(Charsets.UTF_8)
+                require(kind == BridgeEventKind.ATTEMPT_TERMINAL.name)
+                require(attemptId == event.attemptId)
+                require(truncated == false && text.length <= MAX_OUTPUT_PREVIEW_CHARS)
+                require(bytes.size <= MAX_OUTPUT_PREVIEW_BYTES && outputBytes == bytes.size.toLong())
+                val digest = requireNotNull(outputSha256)
+                require(SHA256.matches(digest) && sha256(bytes) == digest)
+                VerifiedOutputPreview(attemptId, text, digest)
+            }.getOrNull()
+        }.groupBy { it.attemptId }
+            .mapNotNull { (_, candidates) -> candidates.distinctBy { it.sha256 }.singleOrNull() }
+            .sortedBy { it.attemptId }
+            .take(MAX_ARTIFACT_INDEX_ROWS)
+    }
+
+    fun hasFixedSmokeFixture(snapshot: RealEvidenceExportSnapshot?): Boolean {
+        val fixture = TextProfileRegistry.resolve(FastSmokePlanFactory.SUITE_ID, FastSmokePlanFactory.SUITE_VERSION)
+            ?: return false
+        return snapshot?.plan?.fixtureManifestSha256 == fixture.fixtureManifestSha256()
     }
 
     fun comparison(
@@ -307,7 +398,7 @@ internal object RealEvidenceExportJson {
         name("planDigestSha256").value(snapshot?.plan?.planDigestSha256)
         name("fixtureManifestSha256").value(snapshot?.plan?.fixtureManifestSha256)
         name("qualificationPolicySha256").value(snapshot?.plan?.qualificationPolicySha256)
-        name("artifactPayloadStatus").value("NOT_INCLUDED_BYTES_UNAVAILABLE_OR_NOT_PINNED")
+        name("modelArtifactPayloadStatus").value("MODEL_BYTES_NEVER_INCLUDED; FIXED_SMOKE_PREVIEW_IS_SEPARATE")
         name("fieldsTruncated").value(fieldsTruncated)
         endObject()
         }
@@ -369,6 +460,8 @@ internal object RealEvidenceExportJson {
 
     private const val MAX_FAILURE_INDEX_ROWS = 200
     private const val MAX_ARTIFACT_INDEX_ROWS = 200
+    private const val MAX_OUTPUT_PREVIEW_CHARS = 512
+    private const val MAX_OUTPUT_PREVIEW_BYTES = 2 * 1024
     private const val MAX_METRIC_DELTA_ROWS = 5_000
     private const val MAX_REPRO_SUBJECT_CHARS = 240
     private const val MAX_REPRO_SCENARIO_CHARS = 120

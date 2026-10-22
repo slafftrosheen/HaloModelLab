@@ -38,7 +38,7 @@
     "C7": "SOURCE_IMPLEMENTED_UNVERIFIED: immutable stage budgets enforced at exact boundaries by Lab watchdog and isolated Halo worker process; Halo supervisor waits for worker death/cleanup before lease release; persistent thermal cooldown fails closed on unreadable/unwritable synchronous checkpoints; 256 MiB free-space reserve and 64 MiB Lab-only evidence cap explicitly wired; persisted session active-time budget admission remains enforced; source tests added, NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "SOURCE_IMPLEMENTED_UNVERIFIED: replayed terminal identity/output maps to known or unknown assertions; complete fixture mismatches become model failures; bounded observations recompute across independent exact-scope sessions; History excluded list is scrollable/deduplicated and offers evidence review and intentional catalog retest; catalog auto-filter remains gated because current scope identity is unverified; tests NOT_RUN",
-    "C10": "SOURCE_IMPLEMENTED_WITH_ARTIFACT_PAYLOAD_BLOCKER: exact-scope/policy device metric deltas preserve unknown values; comparison schema v2; bounded per-attempt reproduction descriptors and artifact metadata index added beside targeted failures; openEvidenceArtifact still returns null so bytes cannot be included; C10 source tests NOT_RUN"
+    "C10": "SOURCE_IMPLEMENTED_WITH_OPAQUE_ARTIFACT_BLOCKER: exact-scope/policy device metric deltas preserve unknowns; comparison schema v2; bounded per-attempt reproduction descriptors; artifact index and complete hash-verified fixed FAST smoke output previews; opaque artifact bytes remain unsupported by Halo AIDL; source tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "C10 metric deltas, bounded reproduction descriptors, and artifact metadata index are pushed. Remaining artifact payload bytes require a versioned authorized bounded AIDL bridge API. Build, Automated tests, Phone tests, runtime compatibility, and real inference remain NOT_RUN.",
+  "next": "C10 adds exact-scope metric deltas, bounded reproduction descriptors, and hash-verified output previews for the fixed FAST smoke fixture. Opaque artifact transfer remains blocked on a versioned authorized bounded AIDL API. Finish source review/checkpoint/push; Build, Automated tests, Phone tests, runtime compatibility, and real inference remain NOT_RUN.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,

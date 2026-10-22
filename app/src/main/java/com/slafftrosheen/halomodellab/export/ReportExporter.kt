@@ -113,6 +113,16 @@ class ReportExporter(
     ): File {
         val omissions = mutableListOf<String>()
         val generatedAt = iso(clock.wallTimeMs())
+        val outputPreviews = RealEvidenceExportJson.verifiedFixedSmokeOutputPreviews(detail, realEvidence)
+        val eligiblePreviewAttempts = if (
+            detail.summary.origin == EvidenceOrigin.DEVICE_MEASUREMENT &&
+            detail.summary.profileId == "halo-fast-smoke-cpu-v1" &&
+            RealEvidenceExportJson.hasFixedSmokeFixture(realEvidence)
+        ) {
+            detail.queue.filter { it.scenarioId == "short-ready" && it.role.name == "FAST" && it.requestedBackend.name == "CPU" }
+                .sumOf { it.attempts.size }
+        } else 0
+        val omittedOutputPreviews = (eligiblePreviewAttempts - outputPreviews.size).coerceAtLeast(0)
 
         val payload = LinkedHashMap<String, ByteArray>()
         payload["results.json"] = ExportJson.results(toResults(detail))
@@ -125,7 +135,14 @@ class ReportExporter(
         }
         payload["qualification.json"] = qualificationBytes
         payload["comparison.json"] = comparisonBytes
-        payload["artifacts/index.json"] = RealEvidenceExportJson.artifactIndex(realEvidence)
+        outputPreviews.take(MAX_ARTIFACT_FILES).forEachIndexed { index, preview ->
+            payload["artifacts/output-$index.txt"] = preview.text.toByteArray(Charsets.UTF_8)
+        }
+        payload["artifacts/index.json"] = RealEvidenceExportJson.artifactIndex(
+            realEvidence,
+            outputPreviews.take(MAX_ARTIFACT_FILES),
+            omittedOutputPreviews,
+        )
         payload["failures/index.json"] = RealEvidenceExportJson.failureIndex(detail)
         payload["failures/clusters.json"] = RealEvidenceExportJson.failureClusters(detail)
         buildFailureFiles(detail, omissions).forEach { (name, bytes) -> payload[name] = bytes }
@@ -144,7 +161,7 @@ class ReportExporter(
         }
         payload["report.md"] = ReportFormatter
             .format(detail, generatedAt, omissions, comparisonSummary)
-            .let { base -> appendRealEvidenceSummary(base, realEvidence) }
+            .let { base -> appendRealEvidenceSummary(base, realEvidence, outputPreviews.size) }
             .let { ReportFormatter.bound(it) }
             .toByteArray(Charsets.UTF_8)
 
@@ -583,6 +600,7 @@ class ReportExporter(
         private const val MAX_TELEMETRY_ROWS: Int = 5_000
         private const val MAX_FAILURE_FILES: Int = 200
         private const val MAX_REPRODUCTION_FILES: Int = 200
+        private const val MAX_ARTIFACT_FILES: Int = 200
         private const val MAX_REMOTE_EVENT_ROWS: Int = 1_000
         private const val MAX_REPORT_METRIC_DELTAS: Int = 3
         private const val ZIP_WRITE_CHUNK_BYTES: Int = 64 * 1024
@@ -598,7 +616,11 @@ class ReportExporter(
         )
     }
 
-    private fun appendRealEvidenceSummary(base: String, snapshot: RealEvidenceExportSnapshot?): String {
+    private fun appendRealEvidenceSummary(
+        base: String,
+        snapshot: RealEvidenceExportSnapshot?,
+        outputPreviewCount: Int,
+    ): String {
         if (snapshot == null) return base
         val binding = snapshot.binding
         return buildString {
@@ -615,7 +637,8 @@ class ReportExporter(
             }
             append("Qualification records: ").append(snapshot.qualifications.size).append("; output artifact records: ")
             append(snapshot.artifacts.size).append(". `artifacts/index.json` contains bounded metadata only; ")
-            append("artifact payload transfer is unavailable and model weights are never included.\n")
+            append(outputPreviewCount).append(" fixed-fixture output previews are included when complete and hash-verified. ")
+            append("Model weights are never included; opaque artifact transfer is unavailable.\n")
         }
     }
 }

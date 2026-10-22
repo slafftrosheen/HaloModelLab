@@ -138,14 +138,14 @@ class ReportExporterTest {
         assertTrue(comparison.contains("\"schemaVersion\": 2"))
         assertTrue(comparison.contains("NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED"))
         assertTrue(artifactIndex.contains("\"payloadsIncluded\": false"))
-        assertTrue(artifactIndex.contains("NO_DEVICE_EVIDENCE_SNAPSHOT"))
+        assertTrue(artifactIndex.contains("\"opaqueArtifactUnavailableReason\": \"NO_DEVICE_EVIDENCE_SNAPSHOT\""))
         assertTrue(failures.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
         assertTrue(failures.contains("failures/"))
         assertTrue(clusters.contains("current session only"))
         assertTrue(clusters.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
         assertTrue(reproduction.contains("\"sessionOrigin\": \"SYNTHETIC\""))
         assertTrue(reproduction.contains("\"attemptId\":"))
-        assertTrue(reproduction.contains("artifactPayloadStatus"))
+        assertTrue(reproduction.contains("modelArtifactPayloadStatus"))
         assertFalse(reproduction.contains(exportRoot.absolutePath))
     }
 
