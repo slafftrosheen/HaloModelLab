@@ -32,8 +32,7 @@ class ReportFormatterTest {
 
         assertTrue(report.contains("СИМУЛЯЦИЯ"))
         assertTrue(report.contains("Сопоставимого baseline нет"))
-        assertTrue(report.contains("NOT_IMPLEMENTED"))
-        assertTrue(report.contains("inferenceRuntime: null"))
+        assertTrue(report.contains("Bridge/runtime: не использовались"))
         assertTrue(report.contains("Origin: SYNTHETIC"))
         assertTrue(report.contains("Профиль: demo-profile"))
         assertTrue(report.toByteArray(Charsets.UTF_8).size <= ReportFormatter.MAX_REPORT_BYTES)
@@ -73,13 +72,31 @@ class ReportFormatterTest {
         )
 
         assertTrue(report.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
-        assertTrue(report.contains("попыток 2"))
+        assertTrue(report.contains("наблюдений 2"))
         assertTrue(report.contains("стадия EXECUTE"))
         assertTrue(report.contains("Сохранённые стадии: EXECUTE=2"))
         assertTrue(report.contains(first.attempts.first().attemptId))
         assertTrue(report.contains("FAILED: 2"))
         // The report must not turn an observation into a verified root cause.
         assertTrue(report.contains("Автоматических выводов о причине не делалось"))
+    }
+
+    @Test
+    fun failureClustersKeepAttemptLinksAndBoundExampleDetails() {
+        val failure = FailureInfo("MODEL_OUTPUT_MISMATCH", FailureDomain.MODEL, EvidenceConfidence.OBSERVED, "x".repeat(2_000))
+        val detail = detail(
+            origin = EvidenceOrigin.DEVICE_MEASUREMENT,
+            items = listOf(
+                attempt(1, failure, 0),
+                attempt(2, failure, 1),
+            ),
+        )
+
+        val cluster = FailureClusterer.cluster(detail).single()
+
+        assertEquals(2, cluster.attemptIds.size)
+        assertEquals(1_024, cluster.exampleDetail.length)
+        assertEquals(cluster.attemptIds.first(), cluster.exampleAttemptId)
     }
 
     @Test

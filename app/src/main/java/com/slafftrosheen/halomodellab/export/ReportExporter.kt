@@ -99,6 +99,7 @@ class ReportExporter(
         payload["qualification.json"] = qualificationBytes
         payload["comparison.json"] = RealEvidenceExportJson.comparison()
         payload["failures/index.json"] = RealEvidenceExportJson.failureIndex(detail)
+        payload["failures/clusters.json"] = RealEvidenceExportJson.failureClusters(detail)
         buildFailureFiles(detail, omissions).forEach { (name, bytes) -> payload[name] = bytes }
         if (realEvidence != null) {
             val realPlan = RealEvidenceExportJson.plan(realEvidence, detail.planJson)
@@ -145,7 +146,14 @@ class ReportExporter(
             createdAt = generatedAt,
             snapshotEventSeq = detail.events.lastOrNull()?.seq ?: 0L,
             runtime = RuntimeDto(
-                bridgeStatus = "NOT_IMPLEMENTED",
+                bridgeStatus = when (detail.summary.origin) {
+                    EvidenceOrigin.SYNTHETIC -> "NOT_APPLICABLE_SYNTHETIC"
+                    EvidenceOrigin.DEVICE_MEASUREMENT -> when {
+                        realEvidence?.binding?.remoteRunId != null -> "REMOTE_RUN_RECORDED"
+                        else -> "UNKNOWN_NO_REMOTE_BINDING"
+                    }
+                    EvidenceOrigin.IMPORTED_UNVERIFIED -> "IMPORTED_UNVERIFIED"
+                },
                 inferenceRuntime = null,
             ),
             plan = PlanDto(

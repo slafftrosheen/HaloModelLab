@@ -66,7 +66,8 @@ class ReportExporterTest {
 
         ZipFile(file).use { zip ->
             val names = zip.entries().toList().map { it.name }
-            val failureNames = names.filter { it.startsWith("failures/") && it != "failures/index.json" }
+            val failureNames = names.filter { it.startsWith("failures/") &&
+                it != "failures/index.json" && it != "failures/clusters.json" }
             assertEquals("report.md", names.first())
             assertEquals(1, failureNames.size)
             assertEquals(REQUIRED_ENTRIES + failureNames, names.toSet())
@@ -90,7 +91,7 @@ class ReportExporterTest {
         assertTrue(manifest.contains("\"sessionOrigin\": \"SYNTHETIC\""))
         assertTrue(manifest.contains("\"evidenceOrigin\": \"SYNTHETIC\""))
         assertTrue(manifest.contains("\"synthetic\": true"))
-        assertTrue(manifest.contains("\"bridgeStatus\": \"NOT_IMPLEMENTED\""))
+        assertTrue(manifest.contains("\"bridgeStatus\": \"NOT_APPLICABLE_SYNTHETIC\""))
         assertTrue(manifest.contains("\"inferenceRuntime\": null"))
         assertTrue(manifest.contains("\"packageName\": \"com.slafftrosheen.halomodellab\""))
         assertTrue(manifest.contains("\"versionName\": \"0.1.0-test\""))
@@ -124,11 +125,14 @@ class ReportExporterTest {
         val coverage = String(entryBytes(file, "coverage.json"), Charsets.UTF_8)
         val comparison = String(entryBytes(file, "comparison.json"), Charsets.UTF_8)
         val failures = String(entryBytes(file, "failures/index.json"), Charsets.UTF_8)
+        val clusters = String(entryBytes(file, "failures/clusters.json"), Charsets.UTF_8)
 
         assertTrue(coverage.contains("\"coverageStatus\": \"SYNTHETIC_ONLY\""))
         assertTrue(comparison.contains("NO_COMPATIBLE_PREVIOUS_SESSION_SELECTED"))
         assertTrue(failures.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
         assertTrue(failures.contains("failures/"))
+        assertTrue(clusters.contains("current session only"))
+        assertTrue(clusters.contains("SIMULATED_ADAPTER_LOAD_FAILURE"))
     }
 
     @Test
@@ -348,6 +352,7 @@ class ReportExporterTest {
             "qualification.json",
             "comparison.json",
             "failures/index.json",
+            "failures/clusters.json",
             "checksums.sha256",
         )
 

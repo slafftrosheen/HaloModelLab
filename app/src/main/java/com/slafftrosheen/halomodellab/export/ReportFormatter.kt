@@ -2,7 +2,6 @@ package com.slafftrosheen.halomodellab.export
 
 import com.slafftrosheen.halomodellab.domain.AttemptOutcome
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
-import com.slafftrosheen.halomodellab.domain.FailureDomain
 import com.slafftrosheen.halomodellab.domain.SessionDetail
 import com.slafftrosheen.halomodellab.domain.SessionState
 
@@ -23,24 +22,12 @@ object ReportFormatter {
     ): String {
         val attempts = detail.queue.flatMap { item -> item.attempts.map { item to it } }
         val countsByOutcome = attempts.groupingBy { it.second.outcome }.eachCount()
-        val failures = attempts
-            .mapNotNull { (item, attempt) ->
-                attempt.failure?.let { failure -> Triple(item, attempt, failure) }
-            }
-            .groupBy { Triple(it.third.code, it.third.domain, it.second.stage.name) }
-            .toSortedMap(
-                compareBy<Triple<String, FailureDomain, String>> { it.first }
-                    .thenBy { it.second }
-                    .thenBy { it.third },
-            )
-
         val text = buildString {
             appendLine("# Halo Model Lab — отчёт сессии")
             appendLine()
             if (detail.summary.origin == EvidenceOrigin.SYNTHETIC) {
                 appendLine("> **СИМУЛЯЦИЯ.** Это результат управляемого demo-сценария,")
                 appendLine("> а не проверка AI-модели, её скорости или памяти.")
-                appendLine("> Реальный inference в этой сборке отсутствует.")
                 appendLine()
             }
             appendLine("- Создан: $generatedAtIso")
@@ -49,7 +36,13 @@ object ReportFormatter {
             appendLine("- Origin: ${detail.summary.origin.name}")
             appendLine("- Движок: ${detail.summary.engineId}")
             appendLine("- Профиль: ${detail.summary.profileId}")
-            appendLine("- Bridge: NOT_IMPLEMENTED; inferenceRuntime: null")
+            if (detail.summary.origin == EvidenceOrigin.SYNTHETIC) {
+                appendLine("- Bridge/runtime: не использовались в synthetic-сессии.")
+            } else if (detail.summary.origin == EvidenceOrigin.DEVICE_MEASUREMENT) {
+                appendLine("- Bridge/runtime: см. real-plan.json и remote-events.jsonl; неизвестные значения не восстановлены.")
+            } else {
+                appendLine("- Bridge/runtime: imported evidence is unverified; see the archived source records.")
+            }
             appendLine("- План: повторов ${detail.repeatCount}, таймаут ${detail.caseTimeoutMs} мс, " +
                 "бюджет ${detail.budgetMs} мс, зарядка ${if (detail.requireCharging) "требуется" else "не требуется"}")
             appendLine()
@@ -80,17 +73,21 @@ object ReportFormatter {
             appendLine()
 
             appendLine("## Уникальные ошибки")
-            if (failures.isEmpty()) {
+            val clusters = FailureClusterer.cluster(detail)
+            if (clusters.isEmpty()) {
                 appendLine("- Нет сохранённых причин отказа.")
             } else {
-                failures.forEach { (key, entries) ->
-                    val (item, attempt, failure) = entries.first()
+                clusters.forEach { cluster ->
                     appendLine(
-                        "- `${key.first}` (стадия ${key.third}, ${failure.domain.name}, " +
-                            "${failure.confidence.name}): попыток ${entries.size}; пример: " +
-                            "пункт ${item.ordinal + 1}, попытка ${attempt.number}, " +
-                            "attemptId ${attempt.attemptId}",
+                        "- `${cluster.code}` (стадия ${cluster.stage}, ${cluster.domain}): " +
+                            "наблюдений ${cluster.attemptIds.size}; attempt IDs: " +
+                            cluster.attemptIds.take(8).joinToString().ifEmpty { "none" } +
+                            "; scope ${cluster.subjectId}/${cluster.role}/${cluster.requestedBackend}; " +
+                            "пример ${cluster.exampleAttemptId}: ${cluster.exampleDetail.replace(Regex("\\s+"), " ").take(180)}",
                     )
+                }
+                if (clusters.any { it.attemptIds.size > 8 }) {
+                    appendLine("- Полный список attempt IDs и ограниченный пример находятся в failures/clusters.json.")
                 }
             }
             appendLine()
@@ -100,7 +97,11 @@ object ReportFormatter {
             appendLine()
             appendLine("## Не установлено")
             appendLine("- Причина смерти процесса, если она была, остаётся UNKNOWN.")
-            appendLine("- Потребление ресурсов моделью не измерялось: настоящей модели нет.")
+            when (detail.summary.origin) {
+                EvidenceOrigin.SYNTHETIC -> appendLine("- Потребление ресурсов моделью не измерялось: synthetic-сценарий не запускает модель.")
+                EvidenceOrigin.DEVICE_MEASUREMENT -> appendLine("- Отсутствующие resource-метрики остаются unknown; см. telemetry.csv и причины отсутствия.")
+                EvidenceOrigin.IMPORTED_UNVERIFIED -> appendLine("- Импортированные resource-метрики не подтверждены текущим устройством.")
+            }
             appendLine()
 
             appendLine("## Воспроизведение")
@@ -128,7 +129,7 @@ object ReportFormatter {
             appendLine("- events.jsonl — сохранённые события по seq.")
             appendLine("- telemetry.csv — сэмплы контроллера.")
             appendLine("- coverage.json, qualification.json, comparison.json — coverage и verdict availability.")
-            appendLine("- failures/ — отдельный JSON на attemptId.")
+            appendLine("- failures/ — отдельные attempt records, index.json и clusters.json; группировка не удаляет observations.")
             appendLine("- checksums.sha256 — контрольные суммы payload-файлов.")
         }
 

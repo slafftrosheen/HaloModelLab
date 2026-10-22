@@ -17,7 +17,7 @@ class QualificationPolicyTest {
             domain = FailureDomain.MODEL,
         )), scopeIdentityVerifiedForQualification = true)
 
-        assertEquals(QualificationStatus.INCONCLUSIVE, decision.status)
+        assertEquals(QualificationStatus.PARTIAL, decision.status)
         assertFalse(decision.mayHideExactScope)
     }
 
@@ -72,6 +72,17 @@ class QualificationPolicyTest {
             QualificationStatus.REJECTED_FOR_PROFILE,
             QualificationEvaluator.evaluate(SCOPE, policy, listOf(one, two, three), scopeIdentityVerifiedForQualification = true).status,
         )
+    }
+
+    @Test
+    fun timeoutIsNotStructuralProofAndCannotExcludeAnExactScope() {
+        val timedOut = observation("attempt-1", "worker-1", CheckAssertion.FAIL, FailureDomain.MODEL)
+            .copy(outcome = AttemptOutcome.TIMED_OUT)
+        val decision = QualificationEvaluator.evaluate(
+            SCOPE, POLICY, listOf(timedOut), scopeIdentityVerifiedForQualification = true,
+        )
+        assertEquals(QualificationStatus.INCONCLUSIVE, decision.status)
+        assertFalse(decision.mayHideExactScope)
     }
 
     @Test

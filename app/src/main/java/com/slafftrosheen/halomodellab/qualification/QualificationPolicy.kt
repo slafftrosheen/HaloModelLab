@@ -123,7 +123,9 @@ object QualificationEvaluator {
             listOf("NO_ELIGIBLE_DEVICE_EVIDENCE"), false,
         )
 
-        val completedChecks = eligible.filter { it.assertion != CheckAssertion.UNKNOWN }.map { it.checkId }.toSet()
+        val completedChecks = eligible.filter {
+            it.assertion != CheckAssertion.UNKNOWN && it.outcome != AttemptOutcome.TIMED_OUT
+        }.map { it.checkId }.toSet()
         if (!completedChecks.containsAll(currentPolicy.requiredCheckIds)) return decision(
             QualificationStatus.PARTIAL, currentScopeDigestSha256, currentPolicy,
             eligible.map { it.attemptId }, listOf("REQUIRED_CHECKS_INCOMPLETE"), false,
@@ -141,6 +143,7 @@ object QualificationEvaluator {
 
         val structuralGroup = eligible.asSequence().filter {
             it.assertion == CheckAssertion.FAIL &&
+                it.outcome == AttemptOutcome.FAILED &&
                 it.failureDomain == FailureDomain.MODEL &&
                 it.fixtureManifestKnown && it.harnessControlsKnown &&
                 it.workerInstanceId != null
@@ -155,6 +158,7 @@ object QualificationEvaluator {
         val performance = currentPolicy.performanceThresholds.firstNotNullOfOrNull { threshold ->
             val samples = eligible.filter {
                 it.checkId in currentPolicy.requiredCheckIds &&
+                    it.outcome != AttemptOutcome.TIMED_OUT &&
                     it.metricName == threshold.metricName && it.metricUnit == threshold.unit &&
                     it.metricValue != null && it.metricTrusted &&
                     it.failureDomain !in INELIGIBLE_PERFORMANCE_DOMAINS
@@ -184,10 +188,20 @@ object QualificationEvaluator {
         return if (allPassed) decision(
             QualificationStatus.QUALIFIED, currentScopeDigestSha256, currentPolicy,
             eligible.map { it.attemptId }, listOf("REQUIRED_CHECKS_PASSED"), false,
-        ) else decision(
-            QualificationStatus.INCONCLUSIVE, currentScopeDigestSha256, currentPolicy,
-            eligible.map { it.attemptId }, listOf("FAILURE_NOT_ATTRIBUTED_TO_MODEL"), false,
-        )
+        ) else {
+            val unconfirmedModelFailure = eligible.any {
+                it.assertion == CheckAssertion.FAIL && it.outcome == AttemptOutcome.FAILED &&
+                    it.failureDomain == FailureDomain.MODEL
+            }
+            decision(
+                if (unconfirmedModelFailure) QualificationStatus.PARTIAL else QualificationStatus.INCONCLUSIVE,
+                currentScopeDigestSha256,
+                currentPolicy,
+                eligible.map { it.attemptId },
+                listOf(if (unconfirmedModelFailure) "MODEL_FAILURE_CONFIRMATION_REQUIRED" else "FAILURE_NOT_ATTRIBUTED_TO_MODEL"),
+                false,
+            )
+        }
     }
 
     private fun decision(

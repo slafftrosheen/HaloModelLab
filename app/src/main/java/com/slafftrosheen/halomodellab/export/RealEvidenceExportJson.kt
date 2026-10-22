@@ -166,6 +166,34 @@ internal object RealEvidenceExportJson {
         endObject()
     }
 
+    fun failureClusters(detail: SessionDetail): ByteArray = build {
+        beginObject()
+        name("schemaVersion").value(1)
+        name("grouping").value("code+domain+stage+subjectId+role+requestedBackend; current session only")
+        name("clusters").beginArray()
+        FailureClusterer.cluster(detail).forEach { cluster ->
+            beginObject()
+            name("failureCode").value(cluster.code)
+            name("failureDomain").value(cluster.domain)
+            name("stage").value(cluster.stage)
+            name("subjectId").value(cluster.subjectId)
+            name("role").value(cluster.role.name)
+            name("requestedBackend").value(cluster.requestedBackend.name)
+            name("count").value(cluster.attemptIds.size.toLong())
+            name("firstObservedWallTimeMs").value(cluster.firstObservedWallTimeMs)
+            name("lastObservedWallTimeMs").value(cluster.lastObservedWallTimeMs)
+            name("attemptIds").beginArray()
+            cluster.attemptIds.take(MAX_FAILURE_INDEX_ROWS).forEach { value(it) }
+            endArray()
+            name("attemptIdsTruncated").value(cluster.attemptIds.size > MAX_FAILURE_INDEX_ROWS)
+            name("exampleAttemptId").value(cluster.exampleAttemptId)
+            name("exampleDetail").value(cluster.exampleDetail)
+            endObject()
+        }
+        endArray()
+        endObject()
+    }
+
     private inline fun build(block: JsonWriter.() -> Unit): ByteArray {
         val buffer = Buffer()
         val writer = JsonWriter.of(buffer)
