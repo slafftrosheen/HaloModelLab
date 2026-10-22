@@ -10,12 +10,12 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "8b8ef4520cf58240d0f57397f02fd0ae937c0a34",
+    "currentHead": "808626bb2dce3afd8c43499eedf3909a22f28649",
     "currentWorkingTree": "C7 breaker is reconstructed from committed attempts, counts harness faults until a valid control success, and pauses before another allocation at threshold; verification not run",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "AUTHORIZED; docs checkpoint 74f8f37 pushed; C7 source commit 8b8ef45 local on main; push pending",
+    "pushState": "AUTHORIZED; C7 source commit 8b8ef45 and docs checkpoint 808626b pushed to Lab main; clean and in sync",
     "sourceImplementationHead": "8b8ef4520cf58240d0f57397f02fd0ae937c0a34",
-    "verificationCheckpointCommit": "pending"
+    "verificationCheckpointCommit": "808626bb2dce3afd8c43499eedf3909a22f28649"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
