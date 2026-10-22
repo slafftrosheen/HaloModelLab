@@ -2,7 +2,7 @@
 
 ## Latest bounded checkpoint — 2026-10-22
 
-Lab `main` has C7 source commit `95894b2` and C9/C10 source commit `b33eb1e`; docs checkpoint/push pending. C7 adds boot-aware conservative active-time recovery and Room schema 3 but is not connected to the separate native supervisor. C9 tightens exact evidence rules and adds safe retest planners, but persistence-to-catalogue exclusions remain unwired. C10 corrects origin/runtime report language and exports bounded failure clusters; compatible-session comparison and complete UI flow remain open. For this source revision, Build / Automated tests / Phone tests are **NOT_RUN**. Continue from `docs/CONTINUATION_STATE.json`; do not run verification while coding.
+Lab `main` has C7 source commit `95894b2`, C9/C10 source commit `b33eb1e`, and C10 runtime identity commit `e8ddf44`; docs checkpoint/push pending. C7 adds boot-aware conservative active-time recovery and Room schema 3 but is not connected to the separate native supervisor. C9 tightens exact evidence rules and adds safe retest planners, but persistence-to-catalogue exclusions remain unwired. C10 corrects origin/runtime report language, exports bounded failure clusters, and surfaces runtime identity only when all terminal facts verify consistently; compatible-session comparison and complete UI flow remain open. For this source revision, Build / Automated tests / Phone tests are **NOT_RUN**. Continue from `docs/CONTINUATION_STATE.json`; do not run verification while coding.
 
 ## Current C4/C8 checkpoint — 2026-10-22
 
