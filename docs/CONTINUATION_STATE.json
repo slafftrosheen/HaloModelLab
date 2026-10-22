@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-10-22",
+  "updatedAt": "2026-10-23",
   "project": "HaloModelLab",
   "repository": {
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
@@ -11,9 +11,9 @@
     "remoteConfigured": true,
     "pushAuthorized": true,
     "currentHead": "1384fb12d219c0669681958e5417e6a08cd612e8",
-    "currentWorkingTree": "C7 per-stage deadlines, explicit storage gates and durable thermal cooldown source-wired; C9 terminal mapping, exact-scope bounded aggregation and scrollable exclusion review with evidence/retest actions source-wired; Build, automated tests and phone tests NOT_RUN",
+    "currentWorkingTree": "Lab C7/C9 source and checkpoint pushed and clean; Halo C4/C7 local commits merged with current Halo main and pushed; Build, automated tests, phone tests remain NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: Lab source commit 1384fb12d219c0669681958e5417e6a08cd612e8 is on authorized origin/main; documentation checkpoint follows",
+    "pushState": "PUSHED: Lab source 1384fb1 and checkpoints on slafftrosheen/HaloModelLab main; Halo merge 5a4047fe with local C4/C7 commits on Halo main; both synced",
     "sourceImplementationHead": "1384fb1",
     "verificationCheckpointCommit": "a5d17a0"
   },
@@ -42,10 +42,10 @@
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
-    "head": "8bee5863",
-    "worktree": "authorized managed worktree local main commit 8bee5863; ahead 8/behind 33 vs local origin/main ref; not pushed; original dirty Halo-main checkout untouched",
+    "head": "5a4047fe",
+    "worktree": "authorized managed worktree main merge commit 5a4047fec6dc9c561969c446641b22373d5157e2; clean and synced with Halo origin/main (0/0), includes local source commits 83c2a67 through 8bee5863 and 34 fetched remote commits; original dirty Halo-main checkout untouched",
     "writeAuthorized": true,
-    "status": "C4_C7_SOURCE_COMMITTED; fixture, persisted total and per-stage budgets, isolated worker watchdog exact-boundary timeout and supervisor cleanup confirmation source added; local/unpushed; runtime/build compatibility NOT_RUN"
+    "status": "C4_C7_SOURCE_PUSHED_IN_MERGE; worker stage watchdog and cleanup fencing source included in Halo main merge 5a4047fe; branch clean and synced; build/runtime/phone compatibility NOT_RUN"
   },
   "protocol": {
     "clientVersion": 1,
@@ -54,9 +54,9 @@
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
     "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab 4aa497d / Halo 8bee5863; protocol v1.0 files remain byte-identical; additive request stageBudgets and per-stage event source wiring; runtime compatibility NOT_RUN",
+    "compatibleCommitPair": "Lab 1384fb1 / Halo source 8bee5863 included in Halo merge 5a4047fe; protocol v1.0 files byte-identical; runtime compatibility NOT_RUN",
     "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
-    "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commit pair recorded; runtime compatibility NOT_RUN",
+    "status": "SHARED_SCHEMA_HASH_MATCHES; source commits are on respective authorized main branches; runtime compatibility NOT_RUN",
     "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "C7 per-stage enforcement, thermal cooldown and Lab evidence quota wiring are source-complete; durable session-budget admission already uses persisted active-time accounting in Room. C9 terminal qualification mapping, bounded exact-scope aggregation and History exclusion/retest review are source-wired. Keep catalog auto-exclusion gated until source/effective scope identity verifies. C10 and later batches remain in progress. Do not run Gradle/builds/tests/device verification while coding.",
+  "next": "C7 requested source gates and C9 qualification/retest review are pushed. Continue C10 and other unblocked batches; preserve verification restrictions and mark runtime, build, automated tests and phone tests NOT_RUN until separately authorized.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,

@@ -15,12 +15,12 @@
 - Lab branch `main`; current source is being committed locally and push remains authorized. Halo worktree remains at `53ef62d5626832f2b9b59d00a1807eed6d36def9`, 6 ahead / 33 behind its recorded `origin/main`, not pushed or rebased. Protocol v1.0 files remain byte-identical at `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.
 # Pending verification — current v1 continuation
 
-## Current source after C7/C9 completion — 2026-10-22
+## Current source after C7/C9 completion — 2026-10-23
 
 - Lab source commit `1384fb1` (including `4aa497d`) and Halo stage-boundary commit `8bee5863` have no build or automated-test evidence. Build / Automated tests / Phone tests remain **NOT_RUN**. New source tests cover exact stage deadline handling, thermal cooldown persistence/write failure, quota admission, exact-scope aggregation, and output assertion mapping; they were not executed.
 - Lab explicitly wires the 256 MiB free-space reserve and 64 MiB Lab evidence cap. It reads only Lab database/WAL/SHM and report-export files, never Halo model storage. The cooldown store commits state transitions synchronously. Halo's separate process watchdog kills on a stage deadline, and the supervisor waits for worker death before releasing execution leases. These are source claims only; runtime compatibility, cleanup behavior, and native crash resilience are unverified.
 - C9 review actions preserve evidence and offer a user-driven catalog retest. Automatic catalog exclusion remains unavailable until exact source/effective configuration identity is verified. No unknown scope is hidden.
-- Lab commit `4aa497d` is pushed to authorized `origin/main`. The exact protocol v1.0 files still match byte-for-byte at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`. Halo worktree is local, not pushed; original dirty Halo checkout is untouched.
+- Lab commit `1384fb1` is pushed to authorized `origin/main`; Halo merge `5a4047fe` is pushed to Halo `origin/main`. The exact protocol v1.0 files still match byte-for-byte at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`. The original dirty Halo checkout is untouched.
 
 ## Current source head after C7/C9/C10 edits
 
