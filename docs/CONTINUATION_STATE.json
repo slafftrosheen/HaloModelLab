@@ -10,11 +10,11 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "7d8a6e7b304a87489d9249adda794eb44ee7ae8d",
-    "currentWorkingTree": "C10 source 7d8a6e7 and documentation checkpoints are pushed to Lab main; Halo merge 5a4047fe remains pushed; both worktrees clean and synced; Build, automated tests, phone tests NOT_RUN",
+    "currentHead": "a05bb3b5050b3aa791880ab2209a0275508f4efc",
+    "currentWorkingTree": "C10 follow-up source commit a05bb3b is committed on Lab main and pending push; prior C10 source/checkpoints are pushed; Halo merge 5a4047fe remains pushed; verification NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: Lab C10 source 7d8a6e7 and checkpoints through 4e9401f on slafftrosheen/HaloModelLab main; Halo merge 5a4047fe on Halo main; branches synced",
-    "sourceImplementationHead": "7d8a6e7",
+    "pushState": "Lab C10 follow-up a05bb3b pending push to authorized origin/main; previous Lab checkpoint 646adce and Halo merge 5a4047fe are pushed",
+    "sourceImplementationHead": "a05bb3b",
     "verificationCheckpointCommit": "a5d17a0"
   },
   "handoff": {
@@ -38,7 +38,7 @@
     "C7": "SOURCE_IMPLEMENTED_UNVERIFIED: immutable stage budgets enforced at exact boundaries by Lab watchdog and isolated Halo worker process; Halo supervisor waits for worker death/cleanup before lease release; persistent thermal cooldown fails closed on unreadable/unwritable synchronous checkpoints; 256 MiB free-space reserve and 64 MiB Lab-only evidence cap explicitly wired; persisted session active-time budget admission remains enforced; source tests added, NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "SOURCE_IMPLEMENTED_UNVERIFIED: replayed terminal identity/output maps to known or unknown assertions; complete fixture mismatches become model failures; bounded observations recompute across independent exact-scope sessions; History excluded list is scrollable/deduplicated and offers evidence review and intentional catalog retest; catalog auto-filter remains gated because current scope identity is unverified; tests NOT_RUN",
-    "C10": "SOURCE_IMPLEMENTED_WITH_OPAQUE_ARTIFACT_BLOCKER: exact-scope/policy device metric deltas preserve unknowns; comparison schema v2; bounded per-attempt reproduction descriptors; artifact index and complete hash-verified fixed FAST smoke output previews; opaque artifact bytes remain unsupported by Halo AIDL; source tests NOT_RUN"
+    "C10": "SOURCE_IMPLEMENTED_WITH_OPAQUE_ARTIFACT_BLOCKER: commits 7d8a6e7 and a05bb3b add exact-scope/policy device metric deltas preserving unknowns; comparison schema v2; bounded per-attempt reproduction descriptors; artifact index and complete hash-verified fixed FAST smoke output previews; opaque artifact bytes remain unsupported by Halo AIDL; source tests NOT_RUN"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
