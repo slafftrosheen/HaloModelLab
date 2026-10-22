@@ -10,12 +10,12 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "1c87e402719b6ac0e4e44e820498f007158f07ac",
+    "currentHead": "cd161bf7490669e57b4ad8af7ae325ac8d2b4e98",
     "currentWorkingTree": "C4 Halo bridge now uses the same fixed FAST smoke fixture ID as Lab and worker; C7 sends persisted bounded stage budgets and Halo persists the total deadline for worker/recovery; verification not run",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
     "pushState": "AUTHORIZED; Lab source commit db23840 and docs checkpoint 784dd4f pushed; clean and in sync; Halo source commit 7a8994e remains local and unpushed",
     "sourceImplementationHead": "db23840e9509c0810185b01c5bd4ce60adc2e920",
-    "verificationCheckpointCommit": "1c87e402719b6ac0e4e44e820498f007158f07ac"
+    "verificationCheckpointCommit": "cd161bf7490669e57b4ad8af7ae325ac8d2b4e98"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -103,7 +103,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Record/push the Halo fixture-ID repair checkpoint in Lab docs. Continue C7 per-stage enforcement, thermal cooldown and storage guards, then C9 qualification mapping/exclusions only where effective configuration and source identity are genuinely known. Halo worktree remains local and diverged; do not push/rebase it. Protocol is v1.0 with the same exact schema bytes; the additive stageBudgets request field and fixture alignment are unverified at runtime. Keep multimodal paths and acquisition unsupported; no real-model acceptance claim before permitted verification.",
+  "next": "Continue C7 per-stage, thermal cooldown and storage guard work, then C9 qualification mapping/exclusions only where effective configuration and source identity are genuinely known. Halo worktree remains local and diverged; do not push/rebase it. Protocol is v1.0 with the same exact schema bytes; the additive stageBudgets request field and fixture alignment are unverified at runtime. Keep multimodal paths and acquisition unsupported; no real-model acceptance claim before permitted verification.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
