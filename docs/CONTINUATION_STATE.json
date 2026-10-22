@@ -6,14 +6,14 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "e348bc7f3661ffd913e61c0b892aff9a83fa4673",
+    "lastImplementationCommit": "1f328c9e16463751df1946a2b01e69a95d19f1eb",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "e348bc7f3661ffd913e61c0b892aff9a83fa4673",
-    "currentWorkingTree": "C4/C8 implementation and bounded checkpoint docs committed; authorized Lab main push completed",
+    "currentHead": "1f328c9e16463751df1946a2b01e69a95d19f1eb",
+    "currentWorkingTree": "C4 persisted-evidence validation fix committed; verification checkpoint updated; authorized Lab push pending",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: authorized Lab main includes the C4/C8 implementation; source commit e348bc7f3661ffd913e61c0b892aff9a83fa4673"
+    "pushState": "PENDING_PUSH: authorized Lab main commits 1f328c9e16463751df1946a2b01e69a95d19f1eb and checkpoint docs"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -30,20 +30,20 @@
     "C1": "LAB_SOURCE_IMPLEMENTED; generated Room schema v2 committed; validation and migration tests PASS on V0; implementation commit 74f9f55; verification repair commit 015b497",
     "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
     "C3": "LAB_INVENTORY_PROJECTION_IMPLEMENTED; explicit opt-in Halo inventory refresh connected in source; runtime compatibility NOT_RUN",
-    "C4": "SOURCE_INTEGRATED_UNVERIFIED: fixed verified-local FAST/CPU plan, persisted ExecutionScope/context resolver, foreground service real engine registration, lease/submission/replay/recovery, terminal output hash/fixture/backend/runtime validation and metrics; local attempts retain terminal immutability. Halo journal adds bounded terminal preview/timings. Runtime, build, automated, phone and native-crash acceptance NOT_RUN.",
+    "C4": "SOURCE_INTEGRATED; Lab and Halo C4 source commits recorded; Lab V0/unit/instrumentation PASS; Halo app compile blocked by unrelated errors; phone app install restricted; real-model acceptance NOT_RUN",
     "C5": "LAB_TEXT_SUITE_CONTRACTS_IMPLEMENTED; unit tests PASS; all remain CONTRACT_ONLY pending C4 adapters; commits cc12a63, b5a1cbe",
     "C6": "CONTRACT_ONLY except Halo fixed fast-smoke/1/short-ready CPU fixture; no Lab capability-selected plan UI/session engine wiring",
     "C7": "LAB_BUDGET_POLICY_SOURCE_IMPLEMENTED; unit tests PASS; not connected to a real runner/supervisor; commit 8dcafbe",
-    "C8": "SOURCE_COMPLETE_UNSUPPORTED: explicit real-catalog status explains acquisition is unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache.",
+    "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "LAB_POLICY_ENGINE_SOURCE_IMPLEMENTED; unit tests PASS; exact scope requires verified eligibility; persistence/UI filters NOT_WIRED; commits 2158c36, 4a8cee6",
     "C10": "LAB_EXPORT_SCHEMA_V2_SOURCE_IMPLEMENTED; unit tests PASS; atomic Room export snapshot and bounded reproduction sections; real terminal reconciliation/output capture/UI not wired; commit cfb663b; synthetic device ZIP smoke PASS"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
-    "head": "dfac0b073301003186eec71a53a111d8c74f154e",
-    "worktree": "local main commit dfac0b073301003186eec71a53a111d8c74f154e; ahead 2/behind 32 vs origin/main; not pushed; original Halo-main user branch untouched",
+    "head": "75da9ca49bfeea2da6fd914dde5380e8f6745e9d",
+    "worktree": "authorized managed worktree local main commit 75da9ca49bfeea2da6fd914dde5380e8f6745e9d; ahead 4/behind 32 vs origin/main; not pushed; original Halo-main user branch and dirty change untouched",
     "writeAuthorized": true,
-    "status": "SOURCE_COMMITTED_UNVERIFIED_NOT_PUSHED"
+    "status": "C4_SOURCE_COMMITTED_HALO_APP_COMPILE_BLOCKED_UNRELATED_NOT_PUSHED"
   },
   "protocol": {
     "clientVersion": 1,
@@ -52,30 +52,36 @@
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
     "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab e348bc7f3661ffd913e61c0b892aff9a83fa4673 / Halo dfac0b073301003186eec71a53a111d8c74f154e; exact shared protocol file bytes; runtime compatibility NOT_RUN",
+    "compatibleCommitPair": "Lab 1f328c9e16463751df1946a2b01e69a95d19f1eb / Halo 75da9ca49bfeea2da6fd914dde5380e8f6745e9d; exact shared protocol file bytes; runtime compatibility NOT_RUN",
     "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
     "status": "SHARED_SCHEMA_HASH_MATCHES; local compatible source commit pair recorded; runtime compatibility NOT_RUN",
     "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
-    "build": "NOT_RUN for current C4/C8 source changes",
-    "automatedTests": "NOT_RUN for current C4/C8 source changes",
-    "phoneTests": "NOT_RUN for current C4/C8 source changes",
+    "build": "Lab V0 PASS; Halo app compile FAIL on unrelated existing sources",
+    "automatedTests": "Lab unit tests PASS (95/95); Android test APK compile PASS; connected instrumentation PASS (21/21 on Xiaomi 23124RA7EO Android 15/API 35)",
+    "phoneTests": "Lab instrumentation PASS; manual Lab install blocked INSTALL_FAILED_USER_RESTRICTED; synthetic V1 and real-model V1 NOT_RUN",
     "allowedThisTurn": [
       "source inspection",
       "JSON/XML parsing",
       "protocol hash checks",
-      "git diff --check"
+      "git diff --check",
+      "authorized V0/V1 commands"
     ],
     "thisContinuation": {
-      "noGradleOrADB": true,
-      "build": "NOT_RUN",
-      "automatedTests": "NOT_RUN",
+      "labBuild": "PASS: :app:assembleDebug",
+      "labUnitTests": "PASS: 95 passed, 0 failed",
+      "androidTestApkCompile": "PASS",
+      "connectedInstrumentation": "PASS: 21 passed, 0 failed on Xiaomi 23124RA7EO, Android 15/API 35",
+      "haloCompile": "FAIL: unrelated existing app compile errors; no C4 bridge/worker errors",
+      "labApkSha256": "41759c1cad8c92f307487d7e33fdf1be8fc85edd3ba1182e36119bafc32be2a0",
+      "labManualInstall": "BLOCKED: INSTALL_FAILED_USER_RESTRICTED",
+      "syntheticV1": "NOT_RUN: app install blocked",
+      "realModelV1": "NOT_RUN: paired Halo app unavailable",
       "sourceDiffCheck": "PASS",
       "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; exact bytes in Lab and Halo",
       "jsonXmlParsing": "PASS",
-      "sourceTestsAdded": true,
-      "phoneTests": "NOT_RUN"
+      "phoneTests": "Instrumentation only; no real inference"
     }
   },
   "sourceChecks": {
@@ -93,9 +99,9 @@
     "apkSha256": "0adf72aba5c9dcb79c81fd1b63d283b471163bdf32a54f84fecf154bd378bb97",
     "roomSchemaV2Sha256": "3b269021e3647ccd15487c5f04d8e8477d7b61cdbaca1911487e542710f154c1",
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
-    "realModelPhoneAcceptance": "NOT_RUN; no real-model run, usable APK claim or native crash-resilience claim"
+    "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "C4/C8 source work checkpointed. Before real-model acceptance, run the separately authorized V0/V1 verification against this exact Lab/Halo commit pair; inspect source-test/build failures, then perform only the explicitly authorized phone verification. Do not claim real-model qualification or native crash resilience without corresponding evidence.",
+  "next": "C4/C8 source is implemented and checkpointed. Lab V0 passes. Halo app compile is blocked by unrelated existing source errors; the phone restricted Lab installation. Do not claim paired app usability, real inference or native crash resilience. Next: resolve the install restriction with the device owner, then reattempt the authorized Lab synthetic V1; separately repair Halo app compile blockers only if they are in the user-authorized scope.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 2,

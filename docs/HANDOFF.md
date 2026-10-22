@@ -2,12 +2,11 @@
 
 ## Current C4/C8 checkpoint — 2026-10-22
 
-Lab `e348bc7f3661ffd913e61c0b892aff9a83fa4673` is committed on `main` and pushed to the explicitly authorized public repository. Halo counterpart `dfac0b073301003186eec71a53a111d8c74f154e` is committed locally on a managed `main` worktree and not pushed. The user's original Halo checkout and branch were preserved.
+Lab source commit `1f328c9e16463751df1946a2b01e69a95d19f1eb`; Halo authorized managed worktree source commit `75da9ca49bfeea2da6fd914dde5380e8f6745e9d` (not pushed). The original dirty Halo checkout remains preserved. The shared protocol bytes match at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`.
 
-C4 source now connects a verified installed local model through a persisted fixed FAST/CPU plan, Lab foreground service, Halo remote engine, replay import/recovery, terminal evidence and bounded report export. Halo terminal journal carries a bounded output preview with exact byte count/hash, truncation and available timing/backend/runtime data. C8 is explicitly unsupported in UI because Halo exposes `HALO_ACQUISITION_NOT_IMPLEMENTED`; Lab has no downloader, network permission or weight cache.
+Lab V0 passed: debug assemble, 95 unit tests, Android test APK compile, and 21 connected instrumentation tests on Xiaomi `23124RA7EO` (Android 15 / API 35). Halo app compile still fails on unrelated app sources; the changed C4 service/worker sources had no errors in the latest compile. C8 is explicitly unsupported (`HALO_ACQUISITION_NOT_IMPLEMENTED`) with no Lab download path, internet permission or weight cache.
 
-Source checks passed: JSON/XML parsing, exact protocol-byte/schema hash agreement (`2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`), and `git diff --check`. Build, Automated tests, and Phone tests are **NOT_RUN** for these source changes. Do not claim a usable APK, native crash resilience or successful real-model tests. Continue from `docs/CONTINUATION_STATE.json`; `docs/PENDING_VERIFICATION.md` records the permitted verification boundary.
-
+Manual Lab V1 synthetic install was blocked by Android `INSTALL_FAILED_USER_RESTRICTED`, so there was no launch or ZIP inspection. Real-model V1, usable paired APK, native crash resilience and model qualification are not claimed. See `docs/CONTINUATION_STATE.json` and `docs/PENDING_VERIFICATION.md` for exact evidence.
 ## Current continuation status (2026-10-22)
 
 This file is the historical v0 handoff. The active v1 continuation is resolved from the workspace single-file package `HaloModelLab_CODEX_COMPLETE.md`; current C0 findings and the authorized Halo source map are in `docs/TAKEOVER_AUDIT.md` and `docs/HALO_INTEGRATION_MAP.md`. Historical V0 results on 2026-10-22: build PASS, 91/91 unit tests PASS, and 21/21 connected instrumentation tests PASS. A bounded synthetic `demo/success` phone smoke and schema-v2 ZIP checksum check also passed. Real-model acceptance remains NOT_RUN; no current real-model test is claimed. The prior 2026-10-21 results below remain historical reports only.
