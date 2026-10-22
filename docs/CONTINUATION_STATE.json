@@ -6,15 +6,15 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "4aa497d",
+    "lastImplementationCommit": "1384fb1",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "4aa497dfd4dac14eeaaf4ecdda4fc06f7cb6ecb8",
+    "currentHead": "1384fb12d219c0669681958e5417e6a08cd612e8",
     "currentWorkingTree": "C7 per-stage deadlines, explicit storage gates and durable thermal cooldown source-wired; C9 terminal mapping, exact-scope bounded aggregation and scrollable exclusion review with evidence/retest actions source-wired; Build, automated tests and phone tests NOT_RUN",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: Lab source commit 4aa497dfd4dac14eeaaf4ecdda4fc06f7cb6ecb8 is on authorized origin/main; checkpoint commits follow on the same branch",
-    "sourceImplementationHead": "4aa497d",
+    "pushState": "PUSHED: Lab source commit 1384fb12d219c0669681958e5417e6a08cd612e8 is on authorized origin/main; documentation checkpoint follows",
+    "sourceImplementationHead": "1384fb1",
     "verificationCheckpointCommit": "a5d17a0"
   },
   "handoff": {
@@ -35,7 +35,7 @@
     "C4": "SOURCE_INTEGRATED_WITH_REPAIR: fixed stale arithmetic fixture ID that rejected the current FAST smoke request; bridge and worker now share the protocol fixture constant; Halo C4/C7 source local commits 7a8994e and 53ef62d; runtime compatibility/build/phone tests NOT_RUN",
     "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
     "C6": "PARTIAL_SOURCE_IMPLEMENTED: capability registry and catalog coverage UI identify Halo owner APIs and exact Lab blockers for CHAT/THINK/ACTION/VISION/STT/TTS/EMBEDDING/VAD; only fixed FAST smoke has source execution; multimodal test sources and execution remain open",
-    "C7": "SOURCE_IMPLEMENTED_UNVERIFIED: immutable stage budgets enforced at exact boundaries by Lab watchdog and isolated Halo worker process; Halo supervisor waits for worker death/cleanup before lease release; persistent thermal cooldown uses synchronous transition checkpoints; 256 MiB free-space reserve and 64 MiB Lab-only evidence cap explicitly wired; persisted session active-time budget admission remains enforced; source tests added, NOT_RUN",
+    "C7": "SOURCE_IMPLEMENTED_UNVERIFIED: immutable stage budgets enforced at exact boundaries by Lab watchdog and isolated Halo worker process; Halo supervisor waits for worker death/cleanup before lease release; persistent thermal cooldown fails closed on unreadable/unwritable synchronous checkpoints; 256 MiB free-space reserve and 64 MiB Lab-only evidence cap explicitly wired; persisted session active-time budget admission remains enforced; source tests added, NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "SOURCE_IMPLEMENTED_UNVERIFIED: replayed terminal identity/output maps to known or unknown assertions; complete fixture mismatches become model failures; bounded observations recompute across independent exact-scope sessions; History excluded list is scrollable/deduplicated and offers evidence review and intentional catalog retest; catalog auto-filter remains gated because current scope identity is unverified; tests NOT_RUN",
     "C10": "PARTIAL_SOURCE_IMPLEMENTED: origin-sensitive runtime labels, hash-verified terminal runtime identity, bounded failure clusters, selected completed-session UI/export comparison and delta summary added with tests; metric deltas, real artifact payloads and post-coding verification remain open; tests NOT_RUN"
@@ -61,7 +61,7 @@
   },
   "verification": {
     "build": "NOT_RUN for current C5-C10 source head; earlier Lab V0 PASS is historical; Halo prior compile failed on unrelated sources and latest Halo source is uncompiled",
-    "automatedTests": "NOT_RUN for current C5-C10 source head; earlier Lab tests are historical only; new Lab and Halo C7/C9 test sources NOT_RUN",
+    "automatedTests": "NOT_RUN for current C5-C10 source head; earlier Lab tests are historical only; new Lab and Halo C7/C9 source tests NOT_RUN",
     "phoneTests": "NOT_RUN for current source head; previous install was blocked; synthetic V1 and real-model V1 NOT_RUN",
     "allowedThisTurn": [
       "source inspection",
@@ -80,7 +80,7 @@
       "labManualInstall": "BLOCKED: INSTALL_FAILED_USER_RESTRICTED",
       "syntheticV1": "NOT_RUN: app install blocked",
       "realModelV1": "NOT_RUN: paired Halo app unavailable",
-      "sourceDiffCheck": "PASS after C7/C9 source changes",
+      "sourceDiffCheck": "PASS after thermal fail-closed follow-up",
       "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; exact bytes in Lab and Halo",
       "jsonXmlParsing": "PASS for current state JSON and strings XML",
       "phoneTests": "NOT_RUN during coding"
@@ -90,7 +90,7 @@
     "jsonParse": "PASS",
     "xmlParse": "PASS for current strings XML",
     "baselineHashMatch": "PASS",
-    "gitDiffCheck": "PASS for current source changes",
+    "gitDiffCheck": "PASS after thermal fail-closed follow-up",
     "roomSchemaV2GeneratedByKsp": "PASS; schema v3 generation NOT_RUN",
     "protocolExactByteMatch": "PASS: Lab and Halo protocol v1.0 files are byte-identical"
   },
