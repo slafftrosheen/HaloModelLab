@@ -10,12 +10,12 @@
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "c1c4fda9a5fd498d5227f371edb9c50cab576392 (latest source; docs-only checkpoint follows)",
-    "currentWorkingTree": "Lab source commit c1c4fda; authorized V0 PASS for Lab and current Halo 023ef760; docs-only checkpoint changes ready to commit; ADB device list empty",
+    "currentHead": "c1c4fda9a5fd498d5227f371edb9c50cab576392 (source implementation)",
+    "currentWorkingTree": "clean after push; source c1c4fda; verification checkpoint commit 6fb1919; phone not present as Android/ADB device",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHING: Lab source repair c1c4fda and V0 verification checkpoint; authorized main push",
+    "pushState": "PUSHED: Lab source repair c1c4fda and verification checkpoint 6fb1919 to authorized GitHub main; Halo main 023ef760 synced clean",
     "sourceImplementationHead": "c1c4fda9a5fd498d5227f371edb9c50cab576392",
-    "verificationCheckpointCommit": "documented in this docs-only checkpoint commit"
+    "verificationCheckpointCommit": "6fb1919"
   },
   "handoff": {
     "resolvedPath": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab_CODEX_COMPLETE.md",
@@ -62,7 +62,7 @@
   "verification": {
     "build": "PASS: Lab :app:assembleDebug and Halo :app:assembleDebug succeeded on current source",
     "automatedTests": "PASS: Lab :app:testDebugUnitTest, 131 tests across 24 suites, 0 failures; Halo tests NOT_RUN",
-    "phoneTests": "NOT_RUN: no ADB device; install, connected instrumentation and synthetic/real-model V1 cannot run",
+    "phoneTests": "NOT_RUN: adb devices -l empty; Windows lists no Android/ADB phone device",
     "allowedThisTurn": [
       "source inspection",
       "JSON/XML parsing",
@@ -74,7 +74,7 @@
       "labBuild": "PASS: :app:assembleDebug; APK SHA-256 af163d42eb7edc69aeb023ff61e784c04039c67940b43f9826083afaea6ff787",
       "labUnitTests": "PASS: 131 tests, 24 suites, 0 failures, 0 errors",
       "androidTestApkCompile": "PASS: Lab :app:assembleDebugAndroidTest; APK SHA-256 f5bf2e809c908096d708ced39f659d8ebe35733052ced8235826dbe10b74b69c",
-      "connectedInstrumentation": "NOT_RUN: adb devices -l returned an empty device list",
+      "connectedInstrumentation": "NOT_RUN: no Android/ADB device is present",
       "haloCompile": "PASS: Halo :app:assembleDebug at current origin/main 023ef76013b599ee7ca3513014af184a5242e2b5",
       "labApkSha256": "af163d42eb7edc69aeb023ff61e784c04039c67940b43f9826083afaea6ff787",
       "labManualInstall": "NOT_RUN: adb has no connected devices",
@@ -83,7 +83,7 @@
       "sourceDiffCheck": "PASS after build and repair",
       "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; Lab and Halo canonical v1.0 files match byte-for-byte",
       "jsonXmlParsing": "PASS: continuation JSON and project XML parsed",
-      "phoneTests": "NOT_RUN: adb devices -l returned empty list after adb start-server",
+      "phoneTests": "NOT_RUN: adb devices -l empty after server start; Windows lists no Android/ADB phone device",
       "haloApkSha256": "096c3dc0c5a6b139cd2f4a4536dd39a47228809ada0dd114bddfdfaedb1afe54",
       "labAndroidTestApkSha256": "f5bf2e809c908096d708ced39f659d8ebe35733052ced8235826dbe10b74b69c"
     }
