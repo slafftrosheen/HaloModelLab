@@ -116,7 +116,7 @@ object QualificationEvaluator {
         val eligible = unique.filter { observation ->
             observation.origin == EvidenceOrigin.DEVICE_MEASUREMENT &&
                 observation.validity == ResultValidity.VALID &&
-                observation.outcome in setOf(AttemptOutcome.PASSED, AttemptOutcome.FAILED, AttemptOutcome.TIMED_OUT)
+                observation.outcome in setOf(AttemptOutcome.PASSED, AttemptOutcome.FAILED)
         }
         if (eligible.isEmpty()) return decision(
             QualificationStatus.INCONCLUSIVE, currentScopeDigestSha256, currentPolicy, emptyList(),

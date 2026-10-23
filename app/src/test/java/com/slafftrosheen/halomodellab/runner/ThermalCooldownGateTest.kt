@@ -18,7 +18,7 @@ class ThermalCooldownGateTest {
     @Test fun requiresFullMinuteOfContinuousSafeReadingsAfterSevereThermalStatus() {
         val gate = ThermalCooldownGate()
         gate.sample(ThermalLevel.CRITICAL, 1_000L)
-        assertEquals(ThermalGateDecision.CoolingDown(40_000L), gate.sample(ThermalLevel.NONE, 21_000L))
+        assertEquals(ThermalGateDecision.CoolingDown(60_000L), gate.sample(ThermalLevel.NONE, 21_000L))
         assertEquals(ThermalGateDecision.Blocked(ConditionBlockReason.THERMAL_STATUS_UNKNOWN),
             gate.sample(ThermalLevel.UNKNOWN, 31_000L))
         assertEquals(ThermalGateDecision.CoolingDown(60_000L), gate.sample(ThermalLevel.LIGHT, 41_000L))
@@ -33,7 +33,7 @@ class ThermalCooldownGateTest {
         assertEquals(1, store.writeCount)
 
         val resumed = ThermalCooldownGate(store = store)
-        assertEquals(ThermalGateDecision.CoolingDown(50_000L), resumed.sample(ThermalLevel.LIGHT, 20_000L))
+        assertEquals(ThermalGateDecision.CoolingDown(60_000L), resumed.sample(ThermalLevel.LIGHT, 20_000L))
         assertEquals(ThermalGateDecision.Ready, resumed.sample(ThermalLevel.NONE, 80_000L))
         assertEquals(3, store.writeCount)
     }

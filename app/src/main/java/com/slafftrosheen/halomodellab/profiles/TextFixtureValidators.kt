@@ -101,7 +101,7 @@ object TextFixtureValidators {
         if (calls == null) return ProbeVerdict.UNKNOWN to "TOOL_CALL_FACTS_UNAVAILABLE"
         if (calls.size != 1) return ProbeVerdict.FAIL to "TOOL_CALL_COUNT_MISMATCH"
         val actual = calls.single()
-        val validArguments = runCatching { validateJsonObject(actual.argumentsJson) }.getOrDefault(false)
+        val validArguments = runCatching { validateJsonObject(actual.argumentsJson) }.isSuccess
         if (!validArguments) return ProbeVerdict.FAIL to "TOOL_ARGUMENTS_INVALID"
         return if (actual.name == expected.name && actual.argumentsJson == expected.argumentsJson) {
             ProbeVerdict.PASS to "FIXTURE_TOOL_CALL_MATCH"

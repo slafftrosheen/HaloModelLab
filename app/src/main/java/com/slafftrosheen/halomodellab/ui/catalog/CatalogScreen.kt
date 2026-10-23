@@ -234,7 +234,7 @@ private fun RealCatalogSection(
                     CapabilityCoverageStatus.CONTRACT_ONLY -> stringResource(R.string.catalog_capability_contract_only)
                     CapabilityCoverageStatus.UNSUPPORTED -> stringResource(R.string.catalog_capability_unavailable)
                 }
-                val limitation = coverage.limitationCode?.let(::capabilityLimitationText)
+                val limitation = coverage.limitationCode?.let { code -> capabilityLimitationText(code) }
                 Text(
                     text = if (limitation == null) "${coverage.role?.name ?: "VAD"}: $status"
                     else "${coverage.role?.name ?: "VAD"}: $status — $limitation",

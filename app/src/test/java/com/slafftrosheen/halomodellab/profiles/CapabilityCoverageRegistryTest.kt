@@ -10,7 +10,8 @@ class CapabilityCoverageRegistryTest {
     @Test
     fun everyKnownRoleIsShownAndOnlyFixedFastSmokeIsImplemented() {
         val rows = CapabilityCoverageRegistry.all()
-        assertEquals(ModelRole.entries.toSet(), rows.map { it.role }.toSet())
+        assertEquals(ModelRole.entries.toSet(), rows.mapNotNull { it.role }.toSet())
+        assertEquals(setOf("vad-segments"), rows.filter { it.role == null }.map { it.suiteId }.toSet())
         assertEquals(
             setOf(ModelRole.FAST),
             rows.filter { it.status == CapabilityCoverageStatus.SOURCE_IMPLEMENTED }.map { it.role }.toSet(),

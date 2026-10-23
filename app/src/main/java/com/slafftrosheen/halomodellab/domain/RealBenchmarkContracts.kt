@@ -284,6 +284,9 @@ data class ExecutionScope(
         append(",\"sourceIdentitiesVerified\":").append(sourceIdentitiesVerified).append('}')
     }
 
+    /** Canonical identity used for exact-scope qualification and exclusion keys. */
+    fun canonicalSha256(): String = sha256(canonicalJson().toByteArray(Charsets.UTF_8))
+
     companion object {
         const val MAX_OPTION_LENGTH = 128
         const val MAX_SCOPE_FIELD_LENGTH = 256

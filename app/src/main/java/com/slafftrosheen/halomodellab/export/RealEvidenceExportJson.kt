@@ -15,6 +15,8 @@ import com.squareup.moshi.JsonReader
 import okio.Buffer
 import java.security.MessageDigest
 
+private val SHA256_HEX = Regex("[0-9a-f]{64}")
+
 /** Serializes Lab-owned evidence only; event payloads remain strings for safe bounded parsing. */
 internal object RealEvidenceExportJson {
     data class VerifiedOutputPreview(val attemptId: String, val text: String, val sha256: String)
@@ -263,15 +265,16 @@ internal object RealEvidenceExportJson {
                 }
                 reader.endObject()
                 require(reader.peek() == JsonReader.Token.END_DOCUMENT)
+                val verifiedAttemptId = requireNotNull(attemptId)
                 val text = requireNotNull(preview)
                 val bytes = text.toByteArray(Charsets.UTF_8)
                 require(kind == BridgeEventKind.ATTEMPT_TERMINAL.name)
-                require(attemptId == event.attemptId)
+                require(verifiedAttemptId == event.attemptId)
                 require(truncated == false && text.length <= MAX_OUTPUT_PREVIEW_CHARS)
                 require(bytes.size <= MAX_OUTPUT_PREVIEW_BYTES && outputBytes == bytes.size.toLong())
                 val digest = requireNotNull(outputSha256)
-                require(SHA256.matches(digest) && sha256(bytes) == digest)
-                VerifiedOutputPreview(attemptId, text, digest)
+                require(SHA256_HEX.matches(digest) && sha256(bytes) == digest)
+                VerifiedOutputPreview(verifiedAttemptId, text, digest)
             }.getOrNull()
         }.groupBy { it.attemptId }
             .mapNotNull { (_, candidates) -> candidates.distinctBy { it.sha256 }.singleOrNull() }
