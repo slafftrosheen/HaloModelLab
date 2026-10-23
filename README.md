@@ -11,12 +11,13 @@ The resolved continuation handoff and C0 takeover record are tracked in `docs/TA
 опт-ин Halo bridge и фиксированный FAST/CPU smoke contract. Запущенный Halo inference,
 пригодный APK и устойчивость к native crash этим исходником пока не подтверждены.
 
-> **Проверка текущей ревизии (23.10.2026):** Lab build PASS, 132 unit-теста PASS;
-> Halo build PASS, focused suite 4/4 PASS. Полный Halo suite выявил 8 существующих
-> failures. Halo обновлён на подключённом телефоне с сохранением данных; Android
-> блокирует установку Lab APK 24-часовой защитой от непроверенных разработчиков.
-> Phone Binder, UI и inference tests: **NOT_RUN** до разрешения установки. См.
-> `docs/PENDING_VERIFICATION.md`.
+> **Проверка текущей ревизии (23.10.2026):** Lab build и 132 unit-теста PASS;
+> connected tests 24/24 PASS после исправления fake clock. Halo build и focused
+> suite 4/4 PASS; полный Halo suite имеет 8 существующих failures. На телефоне
+> Lab запускался и показал каталог, но запрос списка моделей выявил ошибку
+> обнаружения AIDL-сервиса. Исправление собрано; повторная установка Lab и новый
+> AIDL smoke заблокированы Android с `INSTALL_FAILED_USER_RESTRICTED`.
+> `docs/PENDING_VERIFICATION.md` содержит точный статус.
 
 ## Что можно увидеть после сборки
 

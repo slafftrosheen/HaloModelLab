@@ -250,7 +250,9 @@ class HaloBinderGateway(context: Context) : HaloLabGateway {
             continuation.resumeWith(Result.failure(BridgeUnavailableException(BridgeConnectionStatus.HaloNotInstalled)))
             return@suspendCancellableCoroutine
         }
-        if (appContext.packageManager.resolveService(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+        // The binding is package-scoped and the service filter is a versioned IPC action, not a
+        // launcher/default action. MATCH_DEFAULT_ONLY incorrectly hides that valid service.
+        if (appContext.packageManager.resolveService(intent, 0) == null) {
             continuation.resumeWith(Result.failure(BridgeUnavailableException(BridgeConnectionStatus.BridgeNotSupported)))
             return@suspendCancellableCoroutine
         }

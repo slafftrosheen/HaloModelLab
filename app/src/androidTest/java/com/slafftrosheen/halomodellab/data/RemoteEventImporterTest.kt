@@ -205,6 +205,7 @@ class RemoteEventImporterTest {
         private var elapsed = 1_000L
         override fun wallTimeMs(): Long = elapsed
         override fun elapsedRealtimeMs(): Long = elapsed++
+        override fun bootId(): String = "test-boot-1"
     }
 
     private companion object {
