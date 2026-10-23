@@ -1,3 +1,12 @@
+## Current checkpoint — 2026-10-23 — bounded evidence AIDL
+
+Lab source commit: 779932a (C10 exporter/client). Halo source commits: a9d41429 and d1c87d58 (authenticated endpoint). Canonical protocol is v1.1 at SHA-256 b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859; both protocol files match, and both AIDL interface copies declare the same ParcelFileDescriptor method.
+
+The API transfers only a complete terminal fixed-smoke text output, under a 2,048-byte cap, with Halo consent and caller signature/package checks. Model artifact IDs and bytes are rejected. Lab calls the API while exporting, bounds the read, and checks exact bytes and SHA-256 against the replay event. Other opaque artifact rows remain unavailable because Halo has no producer for them.
+
+Host verification: Lab assembleDebug PASS; 132/132 unit tests PASS; assembleDebugAndroidTest PASS. Halo assembleDebug PASS; focused HaloLabEvidenceArtifactTest PASS (4/4). Halo's full unit suite completed with 1,454 tests and 8 failures in existing provider initialization, language resource, brand settings, and workspace image recovery tests. No phone test was run: the connected phone has Halo 1.0-RC1 installed and no Lab package; the existing Halo install and its data were preserved.
+
+Build: PASS. Automated tests: Lab PASS; focused Halo PASS; full Halo suite FAIL (8 existing failures). Phone tests: NOT_RUN. APK build does not prove Binder interoperability or real-model behavior.
 ## Latest verification checkpoint — 2026-10-23 (authorized V0)
 
 - Lab compile blockers found during V0 were repaired in source commit `c1c4fda`; Room schema v3 was generated and committed. Lab `:app:assembleDebug`, `:app:testDebugUnitTest` (131 tests, 24 suites, 0 failures), and `:app:assembleDebugAndroidTest` all PASS. Warnings remain, but no compile or test failures.

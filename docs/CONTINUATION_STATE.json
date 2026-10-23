@@ -6,15 +6,15 @@
     "path": "C:\\Users\\slavd\\HaloTestApk\\HaloModelLab",
     "branch": "main",
     "baseCommit": "9b09e78",
-    "lastImplementationCommit": "c1c4fda",
+    "lastImplementationCommit": "779932a669b9ae65c961b31c756a9f5e53fede34",
     "workingTreeAtTakeover": "clean",
     "remoteConfigured": true,
     "pushAuthorized": true,
-    "currentHead": "c1c4fda9a5fd498d5227f371edb9c50cab576392 (source implementation)",
-    "currentWorkingTree": "clean after push; source c1c4fda; verification checkpoint commit 6fb1919; phone not present as Android/ADB device",
+    "currentHead": "779932a669b9ae65c961b31c756a9f5e53fede34 (C10 bounded evidence AIDL source)",
+    "currentWorkingTree": "Lab source committed as 779932a; bounded verification checkpoint being recorded",
     "remoteUrl": "https://github.com/slafftrosheen/HaloModelLab.git",
-    "pushState": "PUSHED: Lab source repair c1c4fda and verification checkpoint 6fb1919 to authorized GitHub main; Halo main 023ef760 synced clean",
-    "sourceImplementationHead": "c1c4fda9a5fd498d5227f371edb9c50cab576392",
+    "pushState": "Lab source commit 779932a pushed; Halo source commits a9d41429 and d1c87d58 pushed to authorized main branches; docs checkpoint is local",
+    "sourceImplementationHead": "779932a669b9ae65c961b31c756a9f5e53fede34",
     "verificationCheckpointCommit": "6fb1919"
   },
   "handoff": {
@@ -30,7 +30,7 @@
   "batches": {
     "C0": "SOURCE_AUDIT_WRITTEN; regression source added; V0 source/unit/instrumentation checks PASS; commit cbe39d7; state checkpoint a81302f",
     "C1": "LAB_SOURCE_IMPLEMENTED; generated Room schema v2 committed; validation and migration tests PASS on V0; implementation commit 74f9f55; verification repair commit 015b497",
-    "C2": "LAB DTOs/replay importer remain; signed AIDL client source and shared protocol added; E2E import wiring not done; compatibility unverified",
+    "C2": "SOURCE_INTEGRATED: authenticated Halo AIDL bridge and replay importer are paired; protocol v1.1 includes bounded evidence artifact reads",
     "C3": "LAB_INVENTORY_PROJECTION_IMPLEMENTED; explicit opt-in Halo inventory refresh connected in source; runtime compatibility NOT_RUN",
     "C4": "SOURCE_INTEGRATED_WITH_REPAIR: fixed stale arithmetic fixture ID that rejected the current FAST smoke request; bridge and worker now share the protocol fixture constant; Halo C4/C7 source local commits 7a8994e and 53ef62d; runtime compatibility/build/phone tests NOT_RUN",
     "C5": "PARTIAL_SOURCE_IMPLEMENTED: fixed FAST smoke now marked source-implemented; pure bounded text/JSON/tool assertion validators and negative test sources added; CHAT/THINK/ACTION and warm-series remain non-runnable pending adapter support; new C5 tests NOT_RUN",
@@ -38,31 +38,31 @@
     "C7": "SOURCE_IMPLEMENTED_VERIFIED_V0: exact per-stage enforcement, cleanup fencing, persistent thermal cooldown, and storage quota source; Lab build and unit tests PASS; phone/runtime behavior NOT_RUN",
     "C8": "SOURCE_COMPLETE_UNSUPPORTED: acquisition unavailable because Halo bridge returns HALO_ACQUISITION_NOT_IMPLEMENTED; no Lab downloader, INTERNET permission or weight cache",
     "C9": "SOURCE_IMPLEMENTED_VERIFIED_V0: qualification mapping, exact-scope exclusion history and retest; timeout evidence remains inconclusive; Lab unit tests PASS; phone projection behavior NOT_RUN",
-    "C10": "SOURCE_IMPLEMENTED_VERIFIED_V0_WITH_OPAQUE_ARTIFACT_BLOCKER: bounded report/ZIP source and report tests included in passing 131 Lab unit tests; opaque artifact transfer remains unavailable; phone export NOT_RUN"
+    "C10": "HOST_VERIFIED_BOUNDED_OUTPUT_TRANSFER: fixed-smoke terminal text is fetched over PFD and exact-byte/hash checked in ZIP export; other opaque artifact payloads remain unavailable because Halo has no producer"
   },
   "halo": {
     "checkout": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml (managed worktree for authorized Halo main source changes; original dirty checkout preserved)",
-    "head": "023ef76013b599ee7ca3513014af184a5242e2b5",
-    "worktree": "authorized managed worktree main at 023ef76013b599ee7ca3513014af184a5242e2b5; clean and synced with Halo origin/main (0/0); original dirty Halo-main checkout untouched",
+    "head": "d1c87d5895e9c68af62a652b6dbec0d3f626f0ae",
+    "worktree": "authorized managed worktree main at d1c87d5895e9c68af62a652b6dbec0d3f626f0ae; clean and synced after push; original dirty Halo-main checkout untouched",
     "writeAuthorized": true,
-    "status": "LATEST_HALO_MAIN_DEBUG_APK_BUILD_PASS; build at 023ef76013b599ee7ca3513014af184a5242e2b5; device pairing and runtime bridge compatibility NOT_RUN"
+    "status": "AIDL_SOURCE_PUSHED; final Halo assembleDebug PASS; focused artifact tests PASS 4/4; previous full-suite run: 1,454 tests, 8 unrelated existing failures"
   },
   "protocol": {
     "clientVersion": 1,
-    "clientMinorVersion": 0,
+    "clientMinorVersion": 1,
     "roleMappingVersion": 1,
     "labClientDraftPath": "protocol/lab-client-contract-v1.json",
     "labClientDraftSha256": "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
-    "canonicalHaloProtocolVersion": "1.0",
-    "compatibleCommitPair": "Lab c1c4fda / Halo main 023ef76013b599ee7ca3513014af184a5242e2b5; canonical protocol v1.0 files byte-identical; both debug APKs build; runtime bridge compatibility NOT_RUN",
-    "protocolHash": "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c",
-    "status": "SHARED_SCHEMA_HASH_MATCHES; Lab and Halo authorized main branches contain current source; debug APK builds PASS on both; runtime compatibility NOT_RUN",
+    "canonicalHaloProtocolVersion": "1.1",
+    "compatibleCommitPair": "Lab 779932a669b9ae65c961b31c756a9f5e53fede34 / Halo d1c87d5895e9c68af62a652b6dbec0d3f626f0ae; canonical protocol v1.1 files byte-identical at b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859",
+    "protocolHash": "b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859",
+    "status": "SHARED_SCHEMA_HASH_MATCHES; protocol 1.1 AIDL source builds on both apps",
     "haloProtocolPath": "C:\\Users\\slavd\\HaloEco\\Halo-main-hml\\protocol\\halo-lab-bridge-v1.json"
   },
   "verification": {
-    "build": "PASS: Lab :app:assembleDebug and Halo :app:assembleDebug succeeded on current source",
-    "automatedTests": "PASS: Lab :app:testDebugUnitTest, 131 tests across 24 suites, 0 failures; Halo tests NOT_RUN",
-    "phoneTests": "NOT_RUN: adb devices -l empty; Windows lists no Android/ADB phone device",
+    "build": "PASS: Lab and Halo :app:assembleDebug; Lab :app:assembleDebugAndroidTest",
+    "automatedTests": "Lab PASS: 132 tests, 0 failures. Halo focused artifact tests PASS: 4/4 on final source. Halo full suite before the final pipe-cancellation cleanup: 1,454 tests, 8 unrelated failures.",
+    "phoneTests": "NOT_RUN: connected phone has normal Halo 1.0-RC1 installed and no Lab package; install was withheld to preserve the existing Halo app/data pending safe paired-device setup.",
     "allowedThisTurn": [
       "source inspection",
       "JSON/XML parsing",
@@ -71,21 +71,23 @@
       "authorized V0/V1 commands"
     ],
     "thisContinuation": {
-      "labBuild": "PASS: :app:assembleDebug; APK SHA-256 af163d42eb7edc69aeb023ff61e784c04039c67940b43f9826083afaea6ff787",
-      "labUnitTests": "PASS: 131 tests, 24 suites, 0 failures, 0 errors",
-      "androidTestApkCompile": "PASS: Lab :app:assembleDebugAndroidTest; APK SHA-256 f5bf2e809c908096d708ced39f659d8ebe35733052ced8235826dbe10b74b69c",
+      "labBuild": "PASS: :app:assembleDebug",
+      "labUnitTests": "PASS: 132 tests, 0 failures",
+      "androidTestApkCompile": "PASS: Lab :app:assembleDebugAndroidTest",
       "connectedInstrumentation": "NOT_RUN: no Android/ADB device is present",
-      "haloCompile": "PASS: Halo :app:assembleDebug at current origin/main 023ef76013b599ee7ca3513014af184a5242e2b5",
-      "labApkSha256": "af163d42eb7edc69aeb023ff61e784c04039c67940b43f9826083afaea6ff787",
+      "haloCompile": "PASS: Halo :app:assembleDebug",
+      "labApkSha256": "8B30A35980FAD2EDD7D419BE780C69A6A378B0C7D921676DDFD8E860E082EADC",
       "labManualInstall": "NOT_RUN: adb has no connected devices",
       "syntheticV1": "NOT_RUN: adb has no connected devices",
       "realModelV1": "NOT_RUN: requires device and paired Halo runtime",
       "sourceDiffCheck": "PASS after build and repair",
-      "protocolHashCheck": "PASS: 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c; Lab and Halo canonical v1.0 files match byte-for-byte",
+      "protocolHashCheck": "PASS: canonical protocol v1.1 files byte-identical at b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859",
       "jsonXmlParsing": "PASS: continuation JSON and project XML parsed",
-      "phoneTests": "NOT_RUN: adb devices -l empty after server start; Windows lists no Android/ADB phone device",
-      "haloApkSha256": "096c3dc0c5a6b139cd2f4a4536dd39a47228809ada0dd114bddfdfaedb1afe54",
-      "labAndroidTestApkSha256": "f5bf2e809c908096d708ced39f659d8ebe35733052ced8235826dbe10b74b69c"
+      "phoneTests": "NOT_RUN: connected device has Halo 1.0-RC1 installed; existing app/data preserved; paired AIDL Binder smoke pending",
+      "haloApkSha256": "DA1A58B7B5C5A07088C523BC254C1DB4A53CBD6959FCBA85159EEC316068C30A",
+      "labAndroidTestApkSha256": "134D9712489693511A6AB48B82D67BCBF404168229FDFB777E0620CF23965EBB",
+      "haloFocusedArtifactTests": "PASS: 4/4 HaloLabEvidenceArtifactTest",
+      "haloFullUnitSuite": "Earlier API-source run: 1,454 tests completed, 8 unrelated existing failures; final lifecycle cleanup was followed by the focused 4-test suite and assembleDebug"
     }
   },
   "sourceChecks": {
@@ -94,7 +96,7 @@
     "baselineHashMatch": "PASS",
     "gitDiffCheck": "PASS for source repair; docs-only checkpoint diff rechecked before push",
     "roomSchemaV2GeneratedByKsp": "PASS: Room schema v3 generated by KSP in authorized V0 build",
-    "protocolExactByteMatch": "PASS: Lab and Halo protocol v1.0 files are byte-identical",
+    "protocolExactByteMatch": "PASS: Lab and Halo protocol v1.1 files byte-identical at b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859",
     "roomSchemaV3Generated": true,
     "roomSchemaV3Generation": "PASS: generated from Room KSP during authorized V0 build"
   },
@@ -107,7 +109,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Lab source repair c1c4fda builds successfully; 131 unit tests pass; instrumentation APK compiles; current Halo main 023ef760 also builds. Both debug APKs are produced; ADB still returns no devices, so installation and V1 phone checks remain NOT_RUN. Canonical protocol v1.0 hash matches. C8 acquisition stays unsupported; no Lab downloader/INTERNET/weight cache. Opaque evidence bytes remain unavailable without bounded Halo AIDL read API.",
+  "next": "Source commits pushed: Lab 779932a; Halo d1c87d58. C10 PFD AIDL read path is host-verified for the complete fixed-smoke text output only; Lab exact-byte/hash checks are wired into ZIP export. Other opaque evidence payloads remain unavailable without a Halo producer. The connected phone remains on normal Halo 1.0-RC1; phone AIDL test NOT_RUN to preserve that install and its data.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
@@ -115,7 +117,7 @@
     "roomSchemaV3Generated": true,
     "exportSchema": 2,
     "qualificationPolicy": 1,
-    "clientProtocol": "1.0; client schema d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
-    "canonicalHaloProtocol": "1.0; schema 2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c"
+    "clientProtocol": "1.1; client schema d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231",
+    "canonicalHaloProtocol": "1.1; schema b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859"
   }
 }
