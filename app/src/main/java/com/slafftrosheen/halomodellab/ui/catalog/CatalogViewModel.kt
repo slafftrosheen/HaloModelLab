@@ -86,7 +86,7 @@ class CatalogViewModel(
             val result = try {
                 val reply = gateway.handshake(
                     BridgeHandshakeRequest(
-                        protocolVersion = BridgeProtocolVersion(1, 0),
+                        protocolVersion = BridgeProtocolVersion(1, 1),
                         requestId = UUID.randomUUID().toString(),
                         clientProcessInstanceId = clientProcessInstanceId,
                         clientSourceId = "not_recorded",
@@ -96,17 +96,18 @@ class CatalogViewModel(
                             BridgeFeature.ARTIFACT_LEASES,
                             BridgeFeature.TEXT_EXECUTION,
                             BridgeFeature.EVENT_REPLAY,
+                            BridgeFeature.EVIDENCE_ARTIFACT_READ,
                         ),
                     ),
                 )
                 if (reply.status != com.slafftrosheen.halomodellab.bridge.BridgeConnectionStatus.Ready ||
-                    reply.protocolVersion?.negotiate(BridgeProtocolVersion(1, 0)) !is
+                    reply.protocolVersion?.negotiate(BridgeProtocolVersion(1, 1)) !is
                     com.slafftrosheen.halomodellab.bridge.ProtocolNegotiation.Compatible ||
                     reply.serverSchemaSha256 != com.slafftrosheen.halomodellab.AppContainer.HALO_PROTOCOL_SCHEMA_SHA256 ||
                     BridgeConsentScope.LOCAL_TEST_EXECUTION !in reply.grantedConsent
                 ) {
                     "HALO_PROTOCOL_OR_LOCAL_TEST_CONSENT_REQUIRED"
-                } else if (!setOf(BridgeFeature.ARTIFACT_LEASES, BridgeFeature.TEXT_EXECUTION, BridgeFeature.EVENT_REPLAY)
+                } else if (!setOf(BridgeFeature.ARTIFACT_LEASES, BridgeFeature.TEXT_EXECUTION, BridgeFeature.EVENT_REPLAY, BridgeFeature.EVIDENCE_ARTIFACT_READ)
                         .all { it in reply.supportedFeatures }
                 ) {
                     "HALO_REQUIRED_FEATURE_UNAVAILABLE"

@@ -2,6 +2,7 @@ package com.slafftrosheen.halomodellab.export
 
 import com.slafftrosheen.halomodellab.data.SessionRepository
 import com.slafftrosheen.halomodellab.data.RealEvidenceExportSnapshot
+import com.slafftrosheen.halomodellab.bridge.EvidenceArtifactRequest
 import com.slafftrosheen.halomodellab.domain.AttemptView
 import com.slafftrosheen.halomodellab.domain.EvidenceOrigin
 import com.slafftrosheen.halomodellab.domain.FailureInfo
@@ -14,6 +15,7 @@ import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import android.os.ParcelFileDescriptor
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.zip.ZipEntry
@@ -53,6 +55,7 @@ class ReportExporter(
     private val appVersion: String,
     private val sourceRevision: String = SOURCE_REVISION_UNKNOWN,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val evidenceArtifactReader: (suspend (EvidenceArtifactRequest) -> ParcelFileDescriptor?)? = null,
 ) {
 
     suspend fun export(sessionId: String, previousSessionId: String? = null): ExportResult = withContext(ioDispatcher) {
@@ -113,7 +116,11 @@ class ReportExporter(
     ): File {
         val omissions = mutableListOf<String>()
         val generatedAt = iso(clock.wallTimeMs())
-        val outputPreviews = RealEvidenceExportJson.verifiedFixedSmokeOutputPreviews(detail, realEvidence)
+        val verifiedEventPreviews = RealEvidenceExportJson.verifiedFixedSmokeOutputPreviews(detail, realEvidence)
+        val outputPreviews = mutableListOf<RealEvidenceExportJson.VerifiedOutputPreview>()
+        for (preview in verifiedEventPreviews) {
+            outputPreviews += readAndVerifyEvidenceArtifact(preview)
+        }
         val eligiblePreviewAttempts = if (
             detail.summary.origin == EvidenceOrigin.DEVICE_MEASUREMENT &&
             detail.summary.profileId == "halo-fast-smoke-cpu-v1" &&
@@ -255,6 +262,40 @@ class ReportExporter(
             checksumBytes = checksums,
             sessionId = detail.summary.sessionId,
         )
+    }
+
+    /** Prefer Halo's bounded AIDL payload when it exactly matches the hash-verified replay event. */
+    private suspend fun readAndVerifyEvidenceArtifact(
+        preview: RealEvidenceExportJson.VerifiedOutputPreview,
+    ): RealEvidenceExportJson.VerifiedOutputPreview {
+        val reader = evidenceArtifactReader ?: return preview
+        val descriptor = runCatching {
+            reader(EvidenceArtifactRequest(preview.attemptId, "output-${preview.attemptId}"))
+        }.getOrNull() ?: return preview.copy(payloadSource = "VERIFIED_TERMINAL_EVENT_AIDL_UNAVAILABLE")
+        return runCatching {
+            ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { input ->
+                val bytes = input.readBytesBounded(MAX_TRANSFERRED_EVIDENCE_BYTES)
+                val expectedBytes = preview.text.toByteArray(Charsets.UTF_8)
+                val text = EvidenceArtifactTransfer.verifiedText(bytes, expectedBytes, preview.sha256)
+                if (text == null) {
+                    preview.copy(payloadSource = "VERIFIED_TERMINAL_EVENT_AIDL_HASH_MISMATCH")
+                } else {
+                    preview.copy(text = text, payloadSource = "HALO_AIDL_HASH_VERIFIED")
+                }
+            }
+        }.getOrElse { preview.copy(payloadSource = "VERIFIED_TERMINAL_EVENT_AIDL_READ_FAILED") }
+    }
+
+    private fun java.io.InputStream.readBytesBounded(maximum: Int): ByteArray {
+        val output = ByteArrayOutputStream(minOf(maximum, 1024))
+        val buffer = ByteArray(512)
+        while (true) {
+            val count = read(buffer)
+            if (count < 0) break
+            if (output.size() + count > maximum) throw IllegalArgumentException("EVIDENCE_ARTIFACT_TOO_LARGE")
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
     }
 
     private suspend fun writeZip(
@@ -605,6 +646,7 @@ class ReportExporter(
         private const val MAX_FAILURE_FILES: Int = 200
         private const val MAX_REPRODUCTION_FILES: Int = 200
         private const val MAX_ARTIFACT_FILES: Int = 200
+        private const val MAX_TRANSFERRED_EVIDENCE_BYTES: Int = EvidenceArtifactTransfer.MAX_BYTES
         private const val MAX_REMOTE_EVENT_ROWS: Int = 1_000
         private const val MAX_REPORT_METRIC_DELTAS: Int = 3
         private const val REAL_SUMMARY_RESERVE_BYTES: Int = 3 * 1024

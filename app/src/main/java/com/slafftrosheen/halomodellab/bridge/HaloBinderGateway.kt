@@ -187,7 +187,23 @@ class HaloBinderGateway(context: Context) : HaloLabGateway {
     override suspend fun acquireModel(request: BridgeRequestEnvelope<AcquisitionRequest>): BridgeOperationResult<String> = unavailable("HALO_ACQUISITION_NOT_IMPLEMENTED")
     override suspend fun queryAcquisition(request: BridgeRequestEnvelope<AcquisitionRequest>): BridgeOperationResult<AcquisitionSnapshot> = unavailable("HALO_ACQUISITION_NOT_IMPLEMENTED")
     override suspend fun cancelAcquisition(request: BridgeRequestEnvelope<AcquisitionRequest>): BridgeOperationResult<Unit> = unavailable("HALO_ACQUISITION_NOT_IMPLEMENTED")
-    override suspend fun openEvidenceArtifact(request: EvidenceArtifactRequest): ParcelFileDescriptor? = null
+    override suspend fun openEvidenceArtifact(request: EvidenceArtifactRequest): ParcelFileDescriptor? = withContext(Dispatchers.IO) {
+        val requestJson = JSONObject()
+            .put("remoteRunId", request.remoteRunId)
+            .put("artifactId", request.artifactId)
+            .toString()
+        try {
+            BridgeLimits.requireRequestSize(requestJson.toByteArray(Charsets.UTF_8))
+            val remote = bind()
+            try {
+                remote.api.openEvidenceArtifact(requestJson)
+            } finally {
+                runCatching { appContext.unbindService(remote.connection) }
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     private suspend fun <T> operation(
         payload: JSONObject,

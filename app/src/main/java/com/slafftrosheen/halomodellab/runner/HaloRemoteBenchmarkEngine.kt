@@ -89,6 +89,7 @@ class HaloRemoteBenchmarkEngine(
                     BridgeFeature.ARTIFACT_LEASES,
                     BridgeFeature.TEXT_EXECUTION,
                     BridgeFeature.EVENT_REPLAY,
+                    BridgeFeature.EVIDENCE_ARTIFACT_READ,
                 ),
             ),
         )
@@ -97,7 +98,7 @@ class HaloRemoteBenchmarkEngine(
             com.slafftrosheen.halomodellab.bridge.ProtocolNegotiation.Compatible ||
             handshake.serverSchemaSha256 != haloProtocolSchemaSha256 ||
             BridgeConsentScope.LOCAL_TEST_EXECUTION !in handshake.grantedConsent ||
-            !setOf(BridgeFeature.ARTIFACT_LEASES, BridgeFeature.TEXT_EXECUTION, BridgeFeature.EVENT_REPLAY)
+            !setOf(BridgeFeature.ARTIFACT_LEASES, BridgeFeature.TEXT_EXECUTION, BridgeFeature.EVENT_REPLAY, BridgeFeature.EVIDENCE_ARTIFACT_READ)
                 .all { it in handshake.supportedFeatures }
         ) {
             return unknown("HALO_PREFLIGHT_REJECTED", "Halo protocol, schema, or explicit local-test consent did not match.")
@@ -428,7 +429,7 @@ class HaloRemoteBenchmarkEngine(
 
     private companion object {
         const val PROTOCOL_MAJOR = 1
-        const val PROTOCOL_MINOR = 0
+        const val PROTOCOL_MINOR = 1
         const val UNKNOWN_REMOTE_STATE = "UNKNOWN"
         const val MAX_FAILURE_DETAIL_CHARS = 512
         val TERMINAL_STATES = setOf("TERMINAL", "COMPLETED", "FAILED", "CANCELLED", "TIMED_OUT", "INTERRUPTED", "STOPPED")

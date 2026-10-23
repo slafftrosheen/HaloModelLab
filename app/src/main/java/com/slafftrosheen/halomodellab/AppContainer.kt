@@ -83,6 +83,7 @@ class AppContainer(context: Context) {
         clock = clock,
         packageName = context.packageName,
         appVersion = BuildConfig.VERSION_NAME,
+        evidenceArtifactReader = haloGateway::openEvidenceArtifact,
     )
 
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -116,6 +117,6 @@ class AppContainer(context: Context) {
         const val BRIDGE_STATUS: String = "SOURCE_PRESENT_UNVERIFIED"
         const val UNVERIFIED_SOURCE_ID: String = "not_recorded"
         const val LAB_CLIENT_SCHEMA_SHA256: String = "d866967284a236d37c39a720f7c13c46f39b1813f02f560c1857943727bcf231"
-        const val HALO_PROTOCOL_SCHEMA_SHA256: String = "2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c"
+        const val HALO_PROTOCOL_SCHEMA_SHA256: String = "b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859"
     }
 }

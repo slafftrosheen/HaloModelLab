@@ -19,7 +19,12 @@ private val SHA256_HEX = Regex("[0-9a-f]{64}")
 
 /** Serializes Lab-owned evidence only; event payloads remain strings for safe bounded parsing. */
 internal object RealEvidenceExportJson {
-    data class VerifiedOutputPreview(val attemptId: String, val text: String, val sha256: String)
+    data class VerifiedOutputPreview(
+        val attemptId: String,
+        val text: String,
+        val sha256: String,
+        val payloadSource: String = "VERIFIED_TERMINAL_EVENT",
+    )
 
     /** Returns a runtime only when every terminal event is hash-valid and agrees. */
     fun consistentTerminalRuntimeVersion(snapshot: RealEvidenceExportSnapshot?): String? {
@@ -199,6 +204,7 @@ internal object RealEvidenceExportJson {
             name("availabilityCode").value("INCLUDED_HASH_VERIFIED")
             name("reasonCode").nullValue()
             name("payloadFile").value("artifacts/output-$index.txt")
+            name("payloadSource").value(preview.payloadSource)
             endObject()
         }
         snapshot?.artifacts.orEmpty().take(MAX_ARTIFACT_INDEX_ROWS).forEachIndexed { index, artifact ->
