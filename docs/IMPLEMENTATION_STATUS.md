@@ -1,3 +1,10 @@
+## Latest verification checkpoint — 2026-10-23 (authorized V0)
+
+- Lab compile blockers found during V0 were repaired in source commit `c1c4fda`; Room schema v3 was generated and committed. Lab `:app:assembleDebug`, `:app:testDebugUnitTest` (131 tests, 24 suites, 0 failures), and `:app:assembleDebugAndroidTest` all PASS. Warnings remain, but no compile or test failures.
+- Current Halo `main` is `023ef76013b599ee7ca3513014af184a5242e2b5`; the full debug APK build PASSed after syncing this upstream commit. Halo APK SHA-256: `096c3dc0c5a6b139cd2f4a4536dd39a47228809ada0dd114bddfdfaedb1afe54`. The Halo worktree is clean and the original dirty checkout remains untouched.
+- Protocol v1.0 canonical schema files remain byte-identical at SHA-256 `2ce1f13d156bedfa2de4e79232419a55172e298e12241e0d7800dc6c4fe5ab2c`. Lab debug APK SHA-256: `af163d42eb7edc69aeb023ff61e784c04039c67940b43f9826083afaea6ff787`.
+- `adb devices -l` returned an empty list. Install, connected instrumentation, synthetic V1, and real-model V1 are therefore **NOT_RUN**. Do not claim a usable phone installation, native-crash resilience, or real-model acceptance from the build alone.
+- C8 remains explicitly unsupported without Halo acquisition support; Lab still has no downloader, INTERNET permission, or weight cache. Opaque evidence artifact bytes remain unavailable without a bounded Halo AIDL reader. No real model files are copied to Lab.
 ## C7/C9 continuation checkpoint — 2026-10-22
 
 - Lab C7 enforcement now watches committed LOAD/EXECUTE/UNLOAD events. Halo records those milestones at the LiteRT load/generation/cleanup boundaries, persists the three accepted stage budgets before execution, and runs an independent watchdog in the isolated modelbench process. A stage overrun marks an environment timeout and kills the worker; the Halo supervisor waits for worker death before releasing leases. This is source-only; native crash resilience is not verified.

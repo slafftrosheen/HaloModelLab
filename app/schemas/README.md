@@ -1,7 +1,3 @@
 # Room schema export
 
-Schema version 1 is the inherited, generated schema and remains the migration source of
-truth. C1 adds an explicit 1→2 migration and versioned evidence entities. Schema version 2
-has intentionally not been generated or hand-authored because builds are prohibited during
-this continuation. Generate and review the version 2 schema only during an authorised V0
-verification step, then commit it alongside any migration correction.
+Room schemas 1, 2, and 3 are generated and committed. Schema 1 is the inherited migration source, schema 2 records C1, and schema 3 records the additive Lab evidence updates. The authorized V0 build regenerated schema 3 from Room KSP; do not hand-author it. Keep new schema exports alongside any Room migration changes.
