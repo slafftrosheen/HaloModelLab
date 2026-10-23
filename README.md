@@ -11,10 +11,12 @@ The resolved continuation handoff and C0 takeover record are tracked in `docs/TA
 опт-ин Halo bridge и фиксированный FAST/CPU smoke contract. Запущенный Halo inference,
 пригодный APK и устойчивость к native crash этим исходником пока не подтверждены.
 
-> **Историческая проверка предыдущей ревизии (22.10.2026):** прошли 91 unit-тест,
-> 21 connected instrumentation test и synthetic `demo/success` smoke. Эти результаты
-> не проверяли более поздние C5–C10 изменения. Для текущего source head Build,
-> Automated tests и Phone tests: **NOT_RUN**.
+> **Проверка текущей ревизии (23.10.2026):** Lab build PASS, 132 unit-теста PASS;
+> Halo build PASS, focused suite 4/4 PASS. Полный Halo suite выявил 8 существующих
+> failures. Halo обновлён на подключённом телефоне с сохранением данных; Android
+> блокирует установку Lab APK 24-часовой защитой от непроверенных разработчиков.
+> Phone Binder, UI и inference tests: **NOT_RUN** до разрешения установки. См.
+> `docs/PENDING_VERIFICATION.md`.
 
 ## Что можно увидеть после сборки
 

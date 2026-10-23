@@ -62,7 +62,7 @@
   "verification": {
     "build": "PASS: Lab and Halo :app:assembleDebug; Lab :app:assembleDebugAndroidTest",
     "automatedTests": "Lab PASS: 132 tests, 0 failures. Halo focused artifact tests PASS: 4/4 on final source. Halo full suite before the final pipe-cancellation cleanup: 1,454 tests, 8 unrelated failures.",
-    "phoneTests": "NOT_RUN for Lab Binder/UI/inference: Halo updated in place on Xiaomi 23124RA7EO with app data preserved; service is registered and APK signatures match. Android rejected Lab APK installation with INSTALL_FAILED_USER_RESTRICTED; awaiting user-enabled USB install.",
+    "phoneTests": "NOT_RUN for Lab Binder/UI/inference: Halo updated in place on Xiaomi 23124RA7EO with app data preserved; service is registered and APK signatures match. Android rejected Lab APK installation with INSTALL_FAILED_USER_RESTRICTED; device settings show a 24-hour wait before apps from unverified developers can be allowed.",
     "allowedThisTurn": [
       "source inspection",
       "JSON/XML parsing",
@@ -77,13 +77,13 @@
       "connectedInstrumentation": "NOT_RUN: device is connected, but Lab package installation was blocked by INSTALL_FAILED_USER_RESTRICTED",
       "haloCompile": "PASS: Halo :app:assembleDebug",
       "labApkSha256": "8B30A35980FAD2EDD7D419BE780C69A6A378B0C7D921676DDFD8E860E082EADC",
-      "labManualInstall": "BLOCKED: adb install returned INSTALL_FAILED_USER_RESTRICTED; Halo update succeeded without data loss",
+      "labManualInstall": "BLOCKED: adb install returned INSTALL_FAILED_USER_RESTRICTED; Android's unverified-developer install setting enforces a 24-hour wait; Halo update succeeded without data loss",
       "syntheticV1": "NOT_RUN: Lab APK install is blocked",
       "realModelV1": "NOT_RUN: Lab APK install and paired-device Binder verification are blocked",
       "sourceDiffCheck": "PASS after build and repair",
       "protocolHashCheck": "PASS: canonical protocol v1.1 files byte-identical at b23f23b9812bb425862adaa98e5b4ad7549678967291ee6959909bbf6bf97859",
       "jsonXmlParsing": "PASS: continuation JSON and project XML parsed",
-      "phoneTests": "PARTIAL_DEVICE_PREP: Halo 1.0-RC1 updated in place, existing data preserved, AIDL service registered, and app signatures match; Lab install blocked by Android user restriction, so Binder/inference tests NOT_RUN",
+      "phoneTests": "PARTIAL_DEVICE_PREP: Halo 1.0-RC1 updated in place, existing data preserved, AIDL service registered, and app signatures match; Lab install blocked by Android's 24-hour unverified-developer protection, so Binder/inference tests NOT_RUN",
       "haloApkSha256": "DA1A58B7B5C5A07088C523BC254C1DB4A53CBD6959FCBA85159EEC316068C30A",
       "labAndroidTestApkSha256": "134D9712489693511A6AB48B82D67BCBF404168229FDFB777E0620CF23965EBB",
       "haloFocusedArtifactTests": "PASS: 4/4 HaloLabEvidenceArtifactTest",
@@ -109,7 +109,7 @@
     "syntheticZip": "schema 2; 5,676 bytes; 9 checksum entries verified; no unsafe entry paths",
     "realModelPhoneAcceptance": "NOT_RUN; app install was restricted and Halo app build fails; no real-model run, usable pair or native crash-resilience claim"
   },
-  "next": "Source commits pushed: Lab 779932a; Halo d1c87d58. C10 PFD AIDL read path is host-verified for the complete fixed-smoke text output only; Lab exact-byte/hash checks are wired into ZIP export. Other opaque evidence payloads remain unavailable without a Halo producer. Halo updated in place on Xiaomi 23124RA7EO with data preserved and its AIDL service registered; Lab install is blocked by INSTALL_FAILED_USER_RESTRICTED. Retry install after user enables USB installs; then run connected instrumentation and paired Binder smoke before any real-model claim.",
+  "next": "Source commits pushed: Lab 779932a; Halo d1c87d58. C10 PFD AIDL read path is host-verified for the complete fixed-smoke text output only; Lab exact-byte/hash checks are wired into ZIP export. Other opaque evidence payloads remain unavailable without a Halo producer. Halo updated in place on Xiaomi 23124RA7EO with data preserved and its AIDL service registered. Lab install is blocked by INSTALL_FAILED_USER_RESTRICTED and Android's 24-hour unverified-developer protection; do not bypass. Retry install after the device allows this debug APK, then run connected instrumentation and paired Binder smoke before any real-model claim.",
   "versions": {
     "planSchema": 1,
     "roomSchema": 3,
